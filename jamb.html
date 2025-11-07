@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMB UTME - CBT Platform</title>
+    <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.querySelector('.dropdown');
+            dropdown?.addEventListener('mouseenter', function() {
+                dropdown.classList.add('active');
+            });
+            dropdown?.querySelector('a').addEventListener('click', function(e) {
+                e.preventDefault();
+            });
+            document.addEventListener('click', function(e) {
+                if (!dropdown?.contains(e.target)) dropdown?.classList.remove('active');
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CBT Africa</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#features">Features</a></li>
+                <li class="dropdown">
+                    <a href="#">Exam Types</a>
+                    <div class="dropdown-content">
+                        <a href="neco.html">NECO</a>
+                        <a href="waec.html">WAEC</a>
+                        <a href="jamb.html">JAMB</a>
+                        <a href="nabteb.html">NABTEB</a>
+                    </div>
+                </li>
+                <li><a href="index.html#news">News</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main style="margin-top: 80px; padding: 2rem 0;">
+        <div class="container" style="grid-template-columns: 1fr; max-width: 1000px;">
+            <div class="content-section">
+                <h1>JAMB UTME (Unified Tertiary Matriculation Examination)</h1>
+                <p style="font-size: 1.1rem; color: #7f8c8d;">Your gateway to Nigerian universities and tertiary institutions</p>
+
+                <section style="margin-top: 2rem;">
+                    <h2>About JAMB UTME</h2>
+                    <p>The Joint Admissions and Matriculation Board (JAMB) conducts the Unified Tertiary Matriculation Examination (UTME) for candidates seeking admission into Nigerian universities, polytechnics, and colleges of education. JAMB UTME is a computer-based test (CBT) that assesses candidates' readiness for tertiary education.</p>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Exam Details</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📝 Format</h3>
+                            <p>Computer-Based Test (CBT)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⏱️ Duration</h3>
+                            <p>2 hours (120 minutes)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📚 Subjects</h3>
+                            <p>4 subjects (180 questions)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Score</h3>
+                            <p>Maximum 400 points</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Subject Combinations</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px;">
+                            <h4>Science Combination</h4>
+                            <ul>
+                                <li>English Language (Compulsory)</li>
+                                <li>Physics</li>
+                                <li>Chemistry</li>
+                                <li>Biology/Mathematics</li>
+                            </ul>
+                        </div>
+                        <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
+                            <h4>Arts Combination</h4>
+                            <ul>
+                                <li>English Language (Compulsory)</li>
+                                <li>Literature in English</li>
+                                <li>Government/History</li>
+                                <li>CRS/IRS</li>
+                            </ul>
+                        </div>
+                        <div style="background: #fff3e0; padding: 1rem; border-radius: 8px;">
+                            <h4>Commercial Combination</h4>
+                            <ul>
+                                <li>English Language (Compulsory)</li>
+                                <li>Economics</li>
+                                <li>Accounting</li>
+                                <li>Commerce/Mathematics</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Why Use Our JAMB CBT Platform?</h2>
+                    <ul style="line-height: 2;">
+                        <li>✅ Authentic JAMB CBT interface simulation</li>
+                        <li>✅ Updated question bank from past UTME</li>
+                        <li>✅ Timed practice matching actual exam duration</li>
+                        <li>✅ Instant scoring and performance analysis</li>
+                        <li>✅ Subject-wise breakdown of strengths and weaknesses</li>
+                        <li>✅ Unlimited practice tests</li>
+                        <li>✅ Mobile and desktop compatibility</li>
+                    </ul>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Preparation Guide</h2>
+                    <ol style="line-height: 2;">
+                        <li><strong>Know Your Subjects:</strong> Choose the right subject combination for your course</li>
+                        <li><strong>Practice CBT Format:</strong> Get comfortable with computer-based testing</li>
+                        <li><strong>Master Use of English:</strong> This is compulsory and crucial for all candidates</li>
+                        <li><strong>Time Management:</strong> Practice completing 180 questions in 2 hours</li>
+                        <li><strong>Take Mock Exams:</strong> Simulate real exam conditions regularly</li>
+                        <li><strong>Review Past Questions:</strong> Study JAMB past questions extensively</li>
+                        <li><strong>Stay Updated:</strong> Follow JAMB announcements and syllabus changes</li>
+                    </ol>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Scoring System</h2>
+                    <p>Each subject has 60 questions worth 100 marks. Your total score is the sum of all four subjects (maximum 400). Most universities require a minimum of 180-200 for admission consideration, though competitive courses may require 250+.</p>
+                </section>
+
+                <div style="margin-top: 3rem; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 8px; color: white;">
+                    <h2>Score 300+ in JAMB UTME!</h2>
+                    <p style="margin: 1rem 0;">Join successful candidates who prepared with our platform</p>
+                    <a href="index.html" style="display: inline-block; padding: 1rem 2rem; background: white; color: #667eea; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 1rem;">Start Practicing</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CBT Platform</h3>
+                <p>Your trusted partner for exam preparation and success.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Exam Types</h3>
+                <ul>
+                    <li><a href="neco.html">NECO</a></li>
+                    <li><a href="waec.html">WAEC</a></li>
+                    <li><a href="jamb.html">JAMB</a></li>
+                    <li><a href="nabteb.html">NABTEB</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 info@cbtplatform.com</p>
+                <p>📞 +234 800 000 0000</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 CBT Platform. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NECO Preparation - CBT Platform</title>
+    <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.querySelector('.dropdown');
+            dropdown?.addEventListener('mouseenter', function() {
+                dropdown.classList.add('active');
+            });
+            dropdown?.querySelector('a').addEventListener('click', function(e) {
+                e.preventDefault();
+            });
+            document.addEventListener('click', function(e) {
+                if (!dropdown?.contains(e.target)) dropdown?.classList.remove('active');
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CBT Africa</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#features">Features</a></li>
+                <li class="dropdown">
+                    <a href="#">Exam Types</a>
+                    <div class="dropdown-content">
+                        <a href="neco.html">NECO</a>
+                        <a href="waec.html">WAEC</a>
+                        <a href="jamb.html">JAMB</a>
+                        <a href="nabteb.html">NABTEB</a>
+                    </div>
+                </li>
+                <li><a href="index.html#news">News</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main style="margin-top: 80px; padding: 2rem 0;">
+        <div class="container" style="grid-template-columns: 1fr; max-width: 1000px;">
+            <div class="content-section">
+                <h1>NECO (National Examinations Council) Preparation</h1>
+                <p style="font-size: 1.1rem; color: #7f8c8d;">Comprehensive preparation for the Senior School Certificate Examination (SSCE)</p>
+
+                <section style="margin-top: 2rem;">
+                    <h2>About NECO</h2>
+                    <p>The National Examinations Council (NECO) is an examination body in Nigeria that conducts the Senior School Certificate Examination Internal and the Senior School Certificate Examination External in June/July and November/December respectively.</p>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Exam Structure</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>💻 Test Format</h3>
+                            <p>CBT (Computer Based Test) and Paper-based options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Paper Types</h3>
+                            <p>Objective and Essay questions</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⏱️ Duration</h3>
+                            <p>Varies by subject (2-3 hours)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Grading</h3>
+                            <p>A1 to F9 grading system</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Available Subjects</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px;">
+                            <h4>Core Subjects</h4>
+                            <ul>
+                                <li>Mathematics</li>
+                                <li>English Language</li>
+                                <li>General Studies</li>
+                            </ul>
+                        </div>
+                        <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px;">
+                            <h4>Sciences</h4>
+                            <ul>
+                                <li>Physics</li>
+                                <li>Chemistry</li>
+                                <li>Biology</li>
+                            </ul>
+                        </div>
+                        <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px;">
+                            <h4>Arts & Social Sciences</h4>
+                            <ul>
+                                <li>Economics</li>
+                                <li>Government</li>
+                                <li>Literature</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Why Practice with Our Platform?</h2>
+                    <ul style="line-height: 2;">
+                        <li>✅ Authentic NECO-style questions</li>
+                        <li>✅ Timed practice tests</li>
+                        <li>✅ Instant feedback and explanations</li>
+                        <li>✅ Track your progress</li>
+                        <li>✅ Identify weak areas</li>
+                        <li>✅ Exam-like interface</li>
+                    </ul>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Preparation Tips</h2>
+                    <ol style="line-height: 2;">
+                        <li><strong>Start Early:</strong> Begin preparation at least 3 months before the exam</li>
+                        <li><strong>Practice Regularly:</strong> Take at least 2-3 practice tests per week</li>
+                        <li><strong>Review Syllabus:</strong> Ensure you cover all topics in the NECO syllabus</li>
+                        <li><strong>Time Management:</strong> Practice completing tests within time limits</li>
+                        <li><strong>Focus on Weak Areas:</strong> Spend extra time on subjects you find challenging</li>
+                    </ol>
+                </section>
+
+                <div style="margin-top: 3rem; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 8px; color: white;">
+                    <h2>Ready to Start Your NECO Preparation?</h2>
+                    <p style="margin: 1rem 0;">Join thousands of students who have improved their scores with our platform</p>
+                    <a href="index.html" style="display: inline-block; padding: 1rem 2rem; background: white; color: #667eea; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 1rem;">Get Started Now</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CBT Platform</h3>
+                <p>Your trusted partner for exam preparation and success.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Exam Types</h3>
+                <ul>
+                    <li><a href="neco.html">NECO</a></li>
+                    <li><a href="waec.html">WAEC</a></li>
+                    <li><a href="jamb.html">JAMB</a></li>
+                    <li><a href="nabteb.html">NABTEB</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 info@cbtplatform.com</p>
+                <p>📞 +234 800 000 0000</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 CBT Platform. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

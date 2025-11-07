@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CBT Platform</title>
+    <link rel="icon" href="images/fav.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CBT Africa - Admin</div>
+            <div class="user-info">
+                <span id="user-name">Welcome, Admin</span>
+                <script>
+                    (function() {
+                        const username = localStorage.getItem('username');
+                        if (username) {
+                            document.getElementById('user-name').textContent = 'Welcome, ' + username;
+                        }
+                    })();
+                </script>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-dashboard">
+        <div class="container">
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showTab('subjects')">Subjects</button>
+                <button class="tab-btn" onclick="showTab('questions')">Questions</button>
+                <button class="tab-btn" onclick="showTab('users')">Users</button>
+            </div>
+
+            <!-- Subjects Tab -->
+            <div id="subjects-tab" class="tab-content active">
+                <h2>Manage Subjects</h2>
+                <form id="subject-form" onsubmit="addSubject(event)">
+                    <div class="form-group">
+                        <label for="subject-name">Subject Name:</label>
+                        <input type="text" id="subject-name" placeholder="e.g. Mathematics, English" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject-description">Description:</label>
+                        <textarea id="subject-description" required></textarea>
+                    </div>
+                    <button type="submit" class="admin-btn">Add Subject</button>
+                </form>
+                <div id="subjects-list" class="admin-list"></div>
+            </div>
+
+            <!-- Questions Tab -->
+            <div id="questions-tab" class="tab-content">
+                <h2>Manage Questions</h2>
+                <form id="question-form" onsubmit="addQuestion(event)">
+                    <div class="form-group">
+                        <label for="question-exam-type">Exam Type:</label>
+                        <select id="question-exam-type" required>
+                            <option value="">Select Exam Type</option>
+                            <option value="NECO">NECO</option>
+                            <option value="WAEC">WAEC</option>
+                            <option value="JAMB">JAMB</option>
+                            <option value="NABTEB">NABTEB</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question-subject">Subject:</label>
+                        <select id="question-subject" required>
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question-text">Question Text:</label>
+                        <textarea id="question-text" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="question-explanation">Explanation:</label>
+                        <textarea id="question-explanation" placeholder="Explain the correct answer"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="question-type">Question Type:</label>
+                        <select id="question-type" required>
+                            <option value="multiple_choice">Multiple Choice</option>
+                            <option value="true_false">True/False</option>
+                            <option value="short_answer">Short Answer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="option-a">Option A:</label>
+                        <input type="text" id="option-a" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="option-b">Option B:</label>
+                        <input type="text" id="option-b" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="option-c">Option C:</label>
+                        <input type="text" id="option-c" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="option-d">Option D:</label>
+                        <input type="text" id="option-d" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correct-answer">Correct Answer:</label>
+                        <input type="text" id="correct-answer" required>
+                    </div>
+
+                    <button type="submit" class="admin-btn">Add Question</button>
+                </form>
+                <div id="questions-list" class="admin-list"></div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content">
+                <h2>Manage Users</h2>
+                <div id="users-list" class="admin-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Question Modal -->
+    <div id="edit-question-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3>Edit Question</h3>
+            <form id="edit-question-form" onsubmit="updateQuestion(event)">
+                <input type="hidden" id="edit-question-id">
+                <div class="form-group">
+                    <label for="edit-question-exam-type">Exam Type:</label>
+                    <select id="edit-question-exam-type" required>
+                        <option value="NECO">NECO</option>
+                        <option value="WAEC">WAEC</option>
+                        <option value="JAMB">JAMB</option>
+                        <option value="NABTEB">NABTEB</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-question-subject">Subject:</label>
+                    <select id="edit-question-subject" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-question-text">Question Text:</label>
+                    <textarea id="edit-question-text" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-question-explanation">Explanation:</label>
+                    <textarea id="edit-question-explanation"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-option-a">Option A:</label>
+                    <input type="text" id="edit-option-a" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-option-b">Option B:</label>
+                    <input type="text" id="edit-option-b" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-option-c">Option C:</label>
+                    <input type="text" id="edit-option-c" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-option-d">Option D:</label>
+                    <input type="text" id="edit-option-d" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-correct-answer">Correct Answer:</label>
+                    <input type="text" id="edit-correct-answer" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="admin-btn">Update Question</button>
+                    <button type="button" onclick="closeEditModal()" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/custom-alert.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+    <script>
+        checkAuth(); // Immediate check before page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadUserInfo();
+        });
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'questions') {
+                loadQuestions();
+            } else if (tabName === 'users') {
+                loadUsers();
+            } else if (tabName === 'subjects') {
+                loadSubjects();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAEC Practice - CBT Platform</title>
+    <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.querySelector('.dropdown');
+            dropdown?.addEventListener('mouseenter', function() {
+                dropdown.classList.add('active');
+            });
+            dropdown?.querySelector('a').addEventListener('click', function(e) {
+                e.preventDefault();
+            });
+            document.addEventListener('click', function(e) {
+                if (!dropdown?.contains(e.target)) dropdown?.classList.remove('active');
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CBT Africa</div>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#features">Features</a></li>
+                <li class="dropdown">
+                    <a href="#">Exam Types</a>
+                    <div class="dropdown-content">
+                        <a href="neco.html">NECO</a>
+                        <a href="waec.html">WAEC</a>
+                        <a href="jamb.html">JAMB</a>
+                        <a href="nabteb.html">NABTEB</a>
+                    </div>
+                </li>
+                <li><a href="index.html#news">News</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main style="margin-top: 80px; padding: 2rem 0;">
+        <div class="container" style="grid-template-columns: 1fr; max-width: 1000px;">
+            <div class="content-section">
+                <h1>WAEC (West African Examinations Council) Practice</h1>
+                <p style="font-size: 1.1rem; color: #7f8c8d;">Excel in your West African Senior School Certificate Examination (WASSCE)</p>
+
+                <section style="margin-top: 2rem;">
+                    <h2>About WAEC</h2>
+                    <p>The West African Examinations Council (WAEC) is an examination board established to conduct standardized examinations in West African countries. WASSCE is recognized across West Africa and internationally for university admissions.</p>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Exam Structure</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>💻 Test Format</h3>
+                            <p>CBT (Computer Based Test) and Paper-based options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Format</h3>
+                            <p>Multiple choice and theory papers</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⏱️ Duration</h3>
+                            <p>2-3 hours per paper</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Grading</h3>
+                            <p>A1 to F9 scale</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Subject Categories</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px;">
+                            <h4>Compulsory Subjects</h4>
+                            <ul>
+                                <li>English Language</li>
+                                <li>Mathematics</li>
+                                <li>Civic Education</li>
+                            </ul>
+                        </div>
+                        <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px;">
+                            <h4>Science Subjects</h4>
+                            <ul>
+                                <li>Physics</li>
+                                <li>Chemistry</li>
+                                <li>Biology</li>
+                                <li>Agricultural Science</li>
+                            </ul>
+                        </div>
+                        <div style="background: #fff3e0; padding: 1rem; border-radius: 8px;">
+                            <h4>Commercial Subjects</h4>
+                            <ul>
+                                <li>Economics</li>
+                                <li>Accounting</li>
+                                <li>Commerce</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Platform Benefits</h2>
+                    <ul style="line-height: 2;">
+                        <li>✅ WAEC-standard questions from past papers</li>
+                        <li>✅ Comprehensive coverage of all subjects</li>
+                        <li>✅ Detailed explanations for every answer</li>
+                        <li>✅ Performance analytics and progress tracking</li>
+                        <li>✅ Simulated exam environment</li>
+                        <li>✅ Mobile-friendly interface</li>
+                    </ul>
+                </section>
+
+                <section style="margin-top: 2rem;">
+                    <h2>Success Strategies</h2>
+                    <ol style="line-height: 2;">
+                        <li><strong>Understand the Syllabus:</strong> Familiarize yourself with WAEC syllabus for each subject</li>
+                        <li><strong>Practice Past Questions:</strong> Solve previous years' questions regularly</li>
+                        <li><strong>Master Time Management:</strong> Learn to allocate time effectively during exams</li>
+                        <li><strong>Focus on Core Subjects:</strong> Ensure you excel in English and Mathematics</li>
+                        <li><strong>Join Study Groups:</strong> Collaborate with peers for better understanding</li>
+                        <li><strong>Take Mock Exams:</strong> Simulate real exam conditions frequently</li>
+                    </ol>
+                </section>
+
+                <div style="margin-top: 3rem; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 8px; color: white;">
+                    <h2>Ace Your WAEC Examination!</h2>
+                    <p style="margin: 1rem 0;">Start practicing today and boost your confidence</p>
+                    <a href="index.html" style="display: inline-block; padding: 1rem 2rem; background: white; color: #667eea; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 1rem;">Begin Practice</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CBT Platform</h3>
+                <p>Your trusted partner for exam preparation and success.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Exam Types</h3>
+                <ul>
+                    <li><a href="neco.html">NECO</a></li>
+                    <li><a href="waec.html">WAEC</a></li>
+                    <li><a href="jamb.html">JAMB</a></li>
+                    <li><a href="nabteb.html">NABTEB</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📧 info@cbtplatform.com</p>
+                <p>📞 +234 800 000 0000</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 CBT Platform. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

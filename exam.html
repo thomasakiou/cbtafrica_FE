@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Exam - In Progress</title>
+    <link rel="icon" href="images/fav.jpeg" type="image/x-icon">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="exam-container">
+        <header class="exam-header">
+            <div class="exam-info">
+                <span id="question-counter">Question 1 of 40</span>
+            </div>
+            <div class="timer">
+                <span id="time-remaining">01:30:00</span>
+            </div>
+        </header>
+
+        <main class="exam-content">
+            <div class="question-section">
+                <div class="question-content">
+                    <div class="question-number">
+                        <span id="current-question-num">1</span>
+                    </div>
+                    <div class="question-text">
+                        <p id="question-display">Loading question...</p>
+                    </div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(0)">
+                            <input type="radio" name="answer" id="option-0" value="A">
+                            <label for="option-0" id="option-text-0">Option A</label>
+                        </div>
+                        <div class="option" onclick="selectOption(1)">
+                            <input type="radio" name="answer" id="option-1" value="B">
+                            <label for="option-1" id="option-text-1">Option B</label>
+                        </div>
+                        <div class="option" onclick="selectOption(2)">
+                            <input type="radio" name="answer" id="option-2" value="C">
+                            <label for="option-2" id="option-text-2">Option C</label>
+                        </div>
+                        <div class="option" onclick="selectOption(3)">
+                            <input type="radio" name="answer" id="option-3" value="D">
+                            <label for="option-3" id="option-text-3">Option D</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="question-navigation">
+                    <div class="nav-buttons">
+                        <button id="prev-btn" onclick="previousQuestion()" disabled>Previous</button>
+                    </div>
+                    <div class="nav-buttons">
+                        <button id="next-btn" onclick="nextQuestion()">Next</button>
+                        <button id="submit-btn" onclick="submitExam()" style="display: none;">Submit Exam</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="info-panel-container">
+                    <div class="exam-info-panel">
+                        <div class="info-item">
+                            <span class="info-label">Candidate:</span>
+                            <span id="candidate-name" class="info-value">—</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Exam:</span>
+                            <span id="exam-type" class="info-value">JAMB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Subject:</span>
+                            <span id="exam-subject" class="info-value">Mathematics</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Answered:</span>
+                            <span id="questions-count" class="info-value">0/40</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-grid">
+                    <h4>Question Navigator</h4>
+                    <div id="question-navigator">
+                        <!-- Question numbers will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="submit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Submit Exam?</h3>
+            <p>Are you sure you want to submit your exam? You cannot change your answers after submission.</p>
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="confirmSubmit()">Yes, Submit</button>
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/custom-alert.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuth(); // Immediate check before page loads
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+    <script src="js/exam.js"></script>
+</body>
+</html>

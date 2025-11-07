@@ -458,12 +458,15 @@ main {
 
 /* Previous Button */
 #prev-btn {
-    background: #a3b9bb;
+    /* background: #a3b9bb; */
+    background: rgb(245, 81, 81);
     color: white;
+    /* border: 2px solid #3498db; */
 }
 
 #prev-btn:hover:not(:disabled) {
-    background: #7f8c8d;
+    background: #598aab;
+    /* color: white; */
 }
 
 /* Next Button */

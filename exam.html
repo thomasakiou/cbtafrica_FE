@@ -14,7 +14,7 @@
                 <span id="question-counter">Question 1 of 40</span>
             </div>
             <div class="timer">
-                <span id="time-remaining">01:30:00</span>
+                <span id="time-remaining">00:00:00</span>
             </div>
         </header>
 
@@ -89,13 +89,25 @@
         </main>
     </div>
 
+    <!-- Regular Submit Modal -->
     <div id="submit-modal" class="modal">
         <div class="modal-content">
             <h3>Submit Exam?</h3>
             <p>Are you sure you want to submit your exam? You cannot change your answers after submission.</p>
             <div class="modal-buttons">
                 <button class="btn-primary" onclick="confirmSubmit()">Yes, Submit</button>
-                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-secondary" onclick="closeModal('submit-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time's Up Modal -->
+    <div id="timeout-modal" class="modal">
+        <div class="modal-content">
+            <h3>Time's Up! ⏱️</h3>
+            <p>Your exam time has ended. Your answers will be automatically submitted.</p>
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="confirmSubmit()" autofocus>View Results</button>
             </div>
         </div>
     </div>

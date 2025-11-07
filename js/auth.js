@@ -14,6 +14,20 @@ function showRegister() {
     document.querySelectorAll('.tab-btn')[0].classList.remove('active');
 }
 
+// Helper function to log network responses
+function logNetworkResponse(response) {
+    const responseClone = response.clone();
+    responseClone.json().then(data => {
+        console.log('=== RAW NETWORK RESPONSE ===');
+        console.log('Status:', response.status, response.statusText);
+        console.log('Headers:', Object.fromEntries(response.headers.entries()));
+        console.log('Response data:', data);
+    }).catch(err => {
+        console.error('Error parsing response:', err);
+    });
+    return response;
+}
+
 async function handleLogin(event) {
     event.preventDefault();
     
@@ -21,25 +35,113 @@ async function handleLogin(event) {
     const password = document.getElementById('login-password').value;
     
     try {
+        console.log('Sending login request to:', `${API_BASE_URL}/users/login`);
+        console.log('Request body:', { username, password });
+        
         const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({ username, password })
-        });
+        }).then(logNetworkResponse);
         
         if (response.ok) {
-            const data = await response.json();
-            console.log('Login response data:', data);
-            localStorage.setItem('token', data.access_token);
-            localStorage.setItem('username', username);
-
-            // Add this line to store the full name if available in the response
-            if (data.full_name) {
-                localStorage.setItem('full_name', data.full_name);
+            const responseText = await response.text();
+            console.log('Raw login response:', responseText);
+            
+            // Log all response headers
+            console.log('Response headers:');
+            response.headers.forEach((value, key) => {
+                console.log(`${key}: ${value}`);
+            });
+            
+            const responseData = JSON.parse(responseText);
+            console.log('Parsed response data:', responseData);
+            console.log('Response data keys:', Object.keys(responseData));
+            
+            // Debug: Check if we have a user object
+            if (responseData.user) {
+                console.log('User object found in response:', responseData.user);
+                console.log('User object keys:', Object.keys(responseData.user));
             }
-
+            
+            // Extract the access token
+            const token = responseData.access_token || responseData.token;
+            console.log('Extracted token:', token ? 'present' : 'missing');
+            
+            // Debug: Check token content
+            if (token) {
+                try {
+                    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+                    console.log('Token payload:', tokenPayload);
+                } catch (e) {
+                    console.warn('Could not parse token:', e);
+                }
+            }
+            
+            // The user data might be in different parts of the response
+            const userData = responseData.user || responseData.data || responseData;
+            console.log('Extracted user data:', userData);
+            console.log('User data keys:', Object.keys(userData));
+            
+            // Extract username - prioritize from user data, then from form
+            const userUsername = userData.username || username;
+            
+            // Debug: Log all available name fields
+            console.log('Available name fields:', {
+                full_name: userData.full_name,
+                fullName: userData.fullName,
+                display_name: userData.display_name,
+                displayName: userData.displayName,
+                name: userData.name,
+                username: userUsername
+            });
+            
+            // Extract full name - check multiple possible fields
+            const fullName = userData.full_name || 
+                           userData.fullName ||
+                           userData.display_name ||
+                           userData.displayName ||
+                           userData.name ||
+                           userUsername;  // Fall back to username if no name is available
+            
+            console.log('Determined user details:', {
+                username: userUsername,
+                full_name: fullName,
+                role: userData.role || 'student'
+            });
+            
+            // Store all user data
+            localStorage.setItem('token', token);
+            localStorage.setItem('username', userUsername);
+            localStorage.setItem('full_name', fullName);
+            localStorage.setItem('display_name', fullName);
+            
+            // Store the raw user data for debugging
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            // Debug: Verify what's being stored
+            console.log('Stored in localStorage:', {
+                username: localStorage.getItem('username'),
+                full_name: localStorage.getItem('full_name'),
+                display_name: localStorage.getItem('display_name')
+            });
+            
+            console.log('Stored user data in localStorage:', {
+                username: localStorage.getItem('username'),
+                display_name: localStorage.getItem('display_name'),
+                full_name: localStorage.getItem('full_name')
+            });
+            
+            // Log the stored values for debugging
+            console.log('Stored user data:', {
+                username: username,
+                full_name: fullName,
+                token: token ? 'present' : 'missing'
+            });
+            
             // Check if user is admin based on username
             if (username === 'admin') {
                 localStorage.setItem('userRole', 'admin');
@@ -79,6 +181,8 @@ async function handleRegister(event) {
     const fullName = document.getElementById('reg-fullname').value;
     const password = document.getElementById('reg-password').value;
     
+    console.log('Registration form values:', { username, email, fullName });
+    
     try {
         const response = await fetch(`${API_BASE_URL}/users/register`, {
             method: 'POST',
@@ -95,19 +199,41 @@ async function handleRegister(event) {
         });
         
         if (response.ok) {
-            const userData = await response.json();
-            localStorage.setItem('fullName', userData.full_name);
-            localStorage.setItem('tempRole', userData.role); // Store temporarily for login
+            const responseData = await response.json();
+            console.log('=== REGISTRATION RESPONSE ===');
+            console.log('Response status:', response.status);
+            console.log('Response data:', responseData);
+            
+            const userData = responseData.user || responseData.data || responseData;
+            console.log('Extracted user data from registration:', userData);
+            
+            // Get the full name from the response or use the one from the form
+            const userFullName = userData.full_name || 
+                              (userData.user && userData.user.full_name) || 
+                              fullName || // Fall back to form value
+                              'Student';
+                              
+            console.log('Storing display name from registration:', userFullName);
+            
+            // Store in both places for compatibility
+            localStorage.setItem('display_name', userFullName);
+            localStorage.setItem('full_name', userFullName);
+            localStorage.setItem('username', userData.username || username);
+            
+            // Also store the username for consistency
+            localStorage.setItem('username', userData.username || username);
+            
+            localStorage.setItem('tempRole', userData.role || 'student');
             showAlert('Account created successfully! Please login.', 'success');
-            setTimeout(() => showLogin(), 1500);
-            // event.target.reset();
-
+            
+            // Reset the form
             const form = event.target;
             if (form && form.tagName === "FORM") {
                 form.reset();
             }
-
-
+            
+            // Show login form after a short delay
+            setTimeout(() => showLogin(), 1500);
         } else if (response.status === 400) {
             const error = await response.json();
             showAlert(`Registration failed: ${error.detail || 'Invalid data provided'}`, 'error');

@@ -173,21 +173,29 @@ window.showTab = function(tabName, event) {
 
 window.retakeExam = function() {
     showConfirm('Are you sure you want to retake this exam?', () => {
-        // Store exam config from previous exam
+        // Clear all exam-related data from localStorage
+        localStorage.removeItem('examInProgress');
+        localStorage.removeItem('timeRemaining');
+        localStorage.removeItem('userAnswers');
+        localStorage.removeItem('currentQuestionIndex');
+        localStorage.removeItem('examResult');
+        
+        // Store new exam config
         const examConfig = {
             examTypeId: examResult.examTypeId,
             examType: examResult.examType,
             subjectId: examResult.subjectId,
+            subjectName: examResult.subjectName,
             duration: examResult.duration,
-            questionCount: examResult.totalQuestions
+            questionCount: examResult.totalQuestions,
+            // Reset start time to now for the new attempt
+            startTime: Date.now()
         };
+        
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
         
-        // Clear previous results
-        localStorage.removeItem('examResult');
-        
-        // Go to exam page
-        window.location.href = 'exam.html';
+        // Go to exam page with a cache-busting parameter
+        window.location.href = 'exam.html?retake=' + Date.now();
     });
 }
 

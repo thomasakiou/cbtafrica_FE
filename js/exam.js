@@ -14,6 +14,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeExam() {
+    // Load saved state if exists
+    const savedState = localStorage.getItem('examInProgress');
+    if (savedState === 'true') {
+        const savedTime = parseInt(localStorage.getItem('timeRemaining'));
+        const savedAnswers = localStorage.getItem('userAnswers');
+        const savedIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+        
+        if (!isNaN(savedTime)) timeRemaining = savedTime;
+        if (savedAnswers) userAnswers = JSON.parse(savedAnswers);
+        if (!isNaN(savedIndex)) currentQuestionIndex = savedIndex;
+    }
+    
     examConfig = JSON.parse(localStorage.getItem('examConfig'));
     currentAttempt = JSON.parse(localStorage.getItem('currentAttempt'));
     
@@ -27,31 +39,97 @@ function initializeExam() {
     if (!examConfig.startTime) {
         examConfig.startTime = Date.now();
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
+    } else if (!savedState) {
+        // Only calculate time remaining if we're not restoring from saved state
+        const elapsedSeconds = Math.floor((Date.now() - examConfig.startTime) / 1000);
+        timeRemaining = Math.max(0, (examConfig.duration * 60) - elapsedSeconds);
     }
     
-    // Update info panel with exam details
-    const candidateName = localStorage.getItem('fullName') || localStorage.getItem('username') || 'Student';
-
-    // Format the name: capitalize first letter of each word and make it bold
-    const formattedName = candidateName.split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    // Debug: Log all localStorage items
+    console.log('All localStorage items:');
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        console.log(`${key}:`, localStorage.getItem(key));
+    }
+    
+    // Get all possible name sources from localStorage
+    const username = localStorage.getItem('username');
+    const fullName = localStorage.getItem('full_name');
+    const displayName = localStorage.getItem('display_name');
+    const userData = localStorage.getItem('user');
+    
+    console.log('Available name data:', {
+        username,
+        full_name: fullName,
+        display_name: displayName,
+        user_data: userData ? 'present' : 'missing'
+    });
+    
+    // Determine the best name to display
+    let candidateName = fullName || displayName;
+    
+    // If we don't have a name yet, try to get it from the user object
+    if ((!candidateName || candidateName === 'null' || candidateName === 'undefined') && userData) {
+        try {
+            const parsedUser = JSON.parse(userData);
+            candidateName = parsedUser.full_name || parsedUser.username || username;
+            console.log('Found name in user data:', candidateName);
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+        }
+    }
+    
+    // Final fallback to username or 'User'
+    if (!candidateName || candidateName === 'null' || candidateName === 'undefined') {
+        candidateName = username || 'User';
+    }
+    
+    // Clean up the name
+    const cleanName = candidateName
+        .toString()
+        .trim()
+        .split(' ')
+        .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
         .join(' ');
-
-    // Set the formatted name and make it bold
+        
+    console.log('Final candidate name:', cleanName);
+    
+    // Update the candidate name in the info panel
     const nameElement = document.getElementById('candidate-name');
-    nameElement.textContent = formattedName;
-    nameElement.style.fontWeight = 'bold';
-    // formattedName.style.fontWeight = 'bold';
+    if (nameElement) {
+        nameElement.textContent = cleanName; // Use the cleaned and formatted name
+        nameElement.style.fontWeight = 'bold';
+        console.log('Displaying candidate name:', cleanName);
+    } else {
+        console.error('Could not find candidate-name element');
+    }
+    
+    // Debug log
+    console.log('User info:', { 
+        full_name: localStorage.getItem('full_name'),
+        username: username,
+        displayName: cleanName
+    });
+    
+    // Update exam subject from examConfig
+    const subjectElement = document.getElementById('exam-subject');
+    if (subjectElement && examConfig.subjectName) {
+        subjectElement.textContent = examConfig.subjectName;
+    } else if (subjectElement) {
+        subjectElement.textContent = 'General';
+    }
+    
+    // Update exam type
+    const examTypeElement = document.getElementById('exam-type');
+    if (examTypeElement && examConfig.examType) {
+        examTypeElement.textContent = examConfig.examType;
+    }
 
-    // document.getElementById('candidate-name').textContent = formattedName;
     document.getElementById('exam-type').textContent = examConfig.examType;
     document.getElementById('exam-subject').textContent = examConfig.subjectName || 'General';
-    document.getElementById('questions-count').textContent = `0/${examConfig.questionCount}`;
     
-    timeRemaining = examConfig.duration * 60; // Convert to seconds
-    
+    // Load questions and then update the counter after they're loaded
     loadQuestions();
-    startTimer();
 }
 
 async function loadQuestions() {
@@ -60,6 +138,9 @@ async function loadQuestions() {
     console.log('Exam Type ID:', examConfig.examTypeId);
     console.log('Subject ID:', examConfig.subjectId);
     console.log('Question Count:', examConfig.questionCount);
+    
+    // Initialize the questions count display with the total number of questions
+    document.getElementById('questions-count').textContent = `0/${examConfig.questionCount}`;
     
     try {
         // Try to fetch real questions from backend
@@ -125,6 +206,9 @@ async function loadQuestions() {
     setupQuestionNavigator();
     displayQuestion();
     updateQuestionCounter();
+    
+    // Start the timer after everything is loaded
+    startTimer();
     console.log('Questions loaded successfully');
 }
 
@@ -311,14 +395,17 @@ function updateQuestionNavigator() {
 function startTimer() {
     updateTimerDisplay();
     
+    // Clear any existing timer to prevent multiple timers
+    if (timer) clearInterval(timer);
+    
     timer = setInterval(() => {
         timeRemaining--;
         updateTimerDisplay();
         
         if (timeRemaining <= 0) {
             clearInterval(timer);
-            showAlert('Time is up! Submitting your exam automatically.', 'warning');
-            setTimeout(() => submitExam(), 1000);
+            timer = null;
+            showTimeoutModal();
         }
     }, 1000);
 }
@@ -338,66 +425,137 @@ function updateTimerDisplay() {
 }
 
 function submitExam() {
-    document.getElementById('submit-modal').style.display = 'block';
+    document.getElementById('submit-modal').style.display = 'flex';
 }
 
-function closeModal() {
-    document.getElementById('submit-modal').style.display = 'none';
+function closeModal(modalId = 'submit-modal') {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function showTimeoutModal() {
+    const modal = document.getElementById('timeout-modal');
+    const submitButton = modal.querySelector('.btn-primary');
+    
+    // Reset button state
+    if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'View Results';
+        submitButton.onclick = function(e) {
+            e.preventDefault();
+            confirmSubmit();
+        };
+    }
+    
+    modal.style.display = 'flex';
+    
+    // Disable all form elements except the submit button
+    document.querySelectorAll('input, button:not(#timeout-modal .btn-primary), .option').forEach(element => {
+        element.disabled = true;
+    });
+    
+    // Auto-submit after 10 seconds if user doesn't click the button
+    setTimeout(() => {
+        if (modal.style.display === 'flex') {
+            confirmSubmit();
+        }
+    }, 10000);
 }
 
 async function confirmSubmit() {
-    clearInterval(timer);
-    timer = null; // Prevent beforeunload warning
-    
-    // Get correct answers and explanations
-    const correctAnswers = JSON.parse(localStorage.getItem('correctAnswers') || '{}');
-    const explanations = JSON.parse(localStorage.getItem('explanations') || '{}');
-    
-    // Calculate results locally
-    let correctCount = 0;
-    const results = questions.map(question => {
-        const userAnswer = userAnswers[question.id];
-        const correctAnswer = correctAnswers[question.id];
-        const isCorrect = userAnswer === correctAnswer;
-        if (isCorrect) correctCount++;
+    try {
+        if (timer) {
+            clearInterval(timer);
+            timer = null;
+        }
         
-        return {
-            question: question.question_text,
-            options: question.options,
-            userAnswer: userAnswer || 'Not answered',
-            correctAnswer: correctAnswer,
-            explanation: explanations[question.id],
-            isCorrect: isCorrect
+        // Disable all form elements to prevent further interaction
+        document.querySelectorAll('input, button, .option').forEach(element => {
+            element.disabled = true;
+        });
+        
+        // Show loading state
+        const submitButton = document.querySelector('#timeout-modal .btn-primary');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner">Submitting...</span>';
+        }
+        
+        // Get correct answers and explanations
+        const correctAnswers = JSON.parse(localStorage.getItem('correctAnswers') || '{}');
+        const explanations = JSON.parse(localStorage.getItem('explanations') || '{}');
+        
+        // Calculate results locally
+        let correctCount = 0;
+        const results = questions.map(question => {
+            const userAnswer = userAnswers[question.id];
+            const correctAnswer = correctAnswers[question.id];
+            const isCorrect = userAnswer === correctAnswer;
+            if (isCorrect) correctCount++;
+            
+            return {
+                question: question.question_text,
+                options: question.options,
+                userAnswer: userAnswer || 'Not answered',
+                correctAnswer: correctAnswer,
+                explanation: explanations[question.id],
+                isCorrect: isCorrect
+            };
+        });
+        
+        const score = Math.round((correctCount / questions.length) * 100);
+        const passed = score >= 50;
+        
+        const examResult = {
+            score: score,
+            correctCount: correctCount,
+            totalQuestions: questions.length,
+            passed: passed,
+            examType: examConfig.examType,
+            examTypeId: examConfig.examTypeId,
+            subjectId: examConfig.subjectId,
+            duration: examConfig.duration,
+            timeTaken: Math.floor((Date.now() - examConfig.startTime) / 1000),
+            results: results
         };
-    });
-    
-    const score = Math.round((correctCount / questions.length) * 100);
-    const passed = score >= 50;
-    
-    const examResult = {
-        score: score,
-        correctCount: correctCount,
-        totalQuestions: questions.length,
-        passed: passed,
-        examType: examConfig.examType,
-        examTypeId: examConfig.examTypeId,
-        subjectId: examConfig.subjectId,
-        duration: examConfig.duration,
-        timeTaken: Math.floor((Date.now() - examConfig.startTime) / 1000),
-        results: results
-    };
-    
-    localStorage.setItem('examResult', JSON.stringify(examResult));
-    localStorage.removeItem('examConfig');
-    localStorage.removeItem('correctAnswers');
-    localStorage.removeItem('explanations');
-    window.location.href = 'results.html';
+        
+        // Clean up saved exam state
+        localStorage.removeItem('examInProgress');
+        localStorage.removeItem('timeRemaining');
+        localStorage.removeItem('userAnswers');
+        localStorage.removeItem('currentQuestionIndex');
+        
+        // Save results and navigate
+        localStorage.setItem('examResult', JSON.stringify(examResult));
+        localStorage.removeItem('examConfig');
+        localStorage.removeItem('correctAnswers');
+        localStorage.removeItem('explanations');
+        
+        // Force navigation to results page
+        window.location.href = 'results.html';
+        
+    } catch (error) {
+        console.error('Error submitting exam:', error);
+        showAlert('An error occurred while submitting your exam. Please try again.', 'error');
+        
+        // Re-enable the submit button if there was an error
+        const submitButton = document.querySelector('#timeout-modal .btn-primary');
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = 'View Results';
+        }
+    }
 }
 
 // Prevent page refresh during exam
 window.addEventListener('beforeunload', function(e) {
     if (timer) {
+        // Save the current state before leaving
+        localStorage.setItem('examInProgress', 'true');
+        localStorage.setItem('timeRemaining', timeRemaining);
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+        localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
+        
         e.preventDefault();
-        e.returnValue = 'Are you sure you want to leave? Your progress will be lost.';
+        e.returnValue = 'Are you sure you want to leave? Your progress will be saved.';
     }
 });

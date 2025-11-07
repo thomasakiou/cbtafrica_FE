@@ -34,28 +34,10 @@ async function handleLogin(event) {
             console.log('Login response data:', data);
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('username', username);
-            // localStorage.setItem('userRole', data.role);
-            // localStorage.setItem('userId', data.user_id);
-            // localStorage.setItem('fullName', data.full_name);
-                
-                // Store full name from the response
-            // if (data.full_name) {
-            //         localStorage.setItem('fullName', data.full_name);
-            //         console.log('Stored full name:', data.full_name);
-            //     } else if (data.name) { // Try alternative field names
-            //         localStorage.setItem('fullName', data.name);
-            //     } else if (data.fullName) {
-            //         localStorage.setItem('fullName', data.fullName);
-            //     } else {
-            //         console.warn('No full name found in response');
-            //         // If your backend doesn't return the full name, you can fetch it separately
-            //         // or set a default value
-            //         localStorage.setItem('fullName', 'Student');
-            //     }
-            
+
             // Add this line to store the full name if available in the response
             if (data.full_name) {
-                localStorage.setItem('fullName', data.full_name);
+                localStorage.setItem('full_name', data.full_name);
             }
 
             // Check if user is admin based on username
@@ -68,25 +50,25 @@ async function handleLogin(event) {
             }
             
             localStorage.removeItem('tempRole'); // Clean up temp storage
-        } else if (response.status === 401) {
-            showAlert('Invalid username or password. Please check your credentials.', 'error');
-        } else if (response.status === 404) {
-            showAlert('User not found. Please check your username or register first.', 'error');
-        } else if (response.status >= 500) {
-            showAlert('Server error. Please try again later or contact support.', 'error');
-        } else {
-            showAlert('Login failed. Please try again.', 'error');
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            showAlert('Cannot connect to server. Please check if the backend is running and try again.', 'error');
-        } else if (error.name === 'NetworkError' || error.message.includes('network')) {
-            showAlert('Network error. Please check your internet connection.', 'error');
-        } else {
-            showAlert('Login failed. Please check your connection and try again.', 'error');
-        }
-    }
+                } else if (response.status === 401) {
+                    showAlert('Invalid username or password. Please check your credentials.', 'error');
+                } else if (response.status === 404) {
+                    showAlert('User not found. Please check your username or register first.', 'error');
+                } else if (response.status >= 500) {
+                    showAlert('Server error. Please try again later or contact support.', 'error');
+                } else {
+                    showAlert('Login failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    showAlert('Cannot connect to server. Please check if the backend is running and try again.', 'error');
+                } else if (error.name === 'NetworkError' || error.message.includes('network')) {
+                    showAlert('Network error. Please check your internet connection.', 'error');
+                } else {
+                    showAlert('Login failed. Please check your connection and try again.', 'error');
+                }
+            }
 }
 
 async function handleRegister(event) {

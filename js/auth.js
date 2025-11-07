@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// const API_BASE_URL = 'http://localhost:8000/api/v1';
+// Update the API_BASE_URL to point to your hosted backend
+const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';
 
 function showLogin() {
     document.getElementById('login-form').classList.add('active');

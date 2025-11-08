@@ -1,34 +1,46 @@
 // Check if user is authenticated and has a valid token
 async function checkAuth() {
-    console.log('Starting authentication check...');
+    console.group('=== checkAuth() ===');
+    console.log('1. Checking authentication status...');
+    
+    // Log current URL and localStorage state
+    console.log('Current URL:', window.location.href);
+    console.log('localStorage state:', {
+        token: localStorage.getItem('token') ? '***token exists***' : 'no token',
+        userRole: localStorage.getItem('userRole') || 'no role',
+        user: localStorage.getItem('user') ? 'user data exists' : 'no user data'
+    });
+    
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
     
-    console.log('Token exists:', !!token);
-    console.log('Stored user role:', userRole);
-    
     if (!token) {
-        console.log('No token found, redirecting to login');
+        console.log('❌ No authentication token found in localStorage');
+        console.groupEnd();
         handleUnauthorized();
         return false;
     }
+    console.log('✅ Token found in localStorage');
 
     // If we have a role, check it immediately
     if (userRole) {
-        console.log('Found user role in localStorage:', userRole);
+        console.log('🔍 Found user role in localStorage:', userRole);
         if (userRole !== 'admin') {
-            console.log('User is not an admin, redirecting to dashboard');
+            console.log('⛔ User does not have admin privileges');
             showAlert('Access denied. Admin privileges required.', 'error');
+            console.groupEnd();
             setTimeout(() => window.location.href = 'dashboard.html', 1500);
             return false;
         }
-        console.log('User is authenticated as admin');
+        console.log('✅ User is authenticated as admin');
+        console.groupEnd();
         return true;
     }
 
     // If no role in localStorage, try to fetch user data
-    console.log('No role in localStorage, fetching user data...');
+    console.log('ℹ️ No role in localStorage, fetching user data from server...');
     try {
+        const startTime = performance.now();
         const response = await fetch(`${API_BASE_URL}/users/me`, {
             headers: {
                 'Authorization': `Bearer ${token}`,

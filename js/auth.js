@@ -51,25 +51,47 @@ async function checkAuth() {
             
             if (response.ok) {
                 const userData = await response.json();
+                console.log('User data from /users/me:', userData);
+                
+                if (!userData) {
+                    throw new Error('No user data received');
+                }
+                
                 localStorage.setItem('user', JSON.stringify(userData));
                 
+                // Check for admin role in different possible formats
+                const isAdmin = (userData.roles && Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
+                              (userData.role && userData.role.toLowerCase() === 'admin') ||
+                              (userData.role_id && userData.role_id === 1); // Assuming 1 is admin ID
+                
+                console.log('Is admin?', isAdmin);
+                
                 // Redirect based on user role
-                if (userData.role && userData.role.toLowerCase() === 'admin') {
+                if (isAdmin) {
                     // If already on admin dashboard, don't redirect
                     if (!currentPath.endsWith('admin-dashboard.html')) {
                         window.location.href = 'admin-dashboard.html';
                     }
-                } else {
-                    // If already on regular dashboard, don't redirect
-                    if (!currentPath.endsWith('dashboard.html')) {
-                        window.location.href = 'dashboard.html';
+                } else if (!currentPath.endsWith('dashboard.html')) {
+                    // If not admin and not on dashboard, redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                // If we get an unauthorized response, clear the token and redirect to login
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    if (!currentPath.endsWith('index.html')) {
+                        window.location.href = 'index.html';
                     }
                 }
             }
         } catch (error) {
             console.error('Auth check failed:', error);
-            // Clear invalid token
+            // Clear invalid token and redirect to login
             localStorage.removeItem('token');
+            if (!currentPath.endsWith('index.html')) {
+                window.location.href = 'index.html';
+            }
         }
     }
     // If user is not logged in and on protected pages, redirect to login

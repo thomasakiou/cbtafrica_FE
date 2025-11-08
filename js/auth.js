@@ -38,7 +38,7 @@ async function checkAuth() {
     const token = localStorage.getItem('token');
     const currentPath = window.location.pathname;
     
-    // If user is already logged in and on auth pages, redirect to dashboard
+    // If user is already logged in and on auth pages, redirect to appropriate dashboard
     if (token && (currentPath.endsWith('index.html') || currentPath === '/')) {
         try {
             const response = await fetch(`${API_BASE_URL}/users/me`, {
@@ -52,7 +52,19 @@ async function checkAuth() {
             if (response.ok) {
                 const userData = await response.json();
                 localStorage.setItem('user', JSON.stringify(userData));
-                window.location.href = 'dashboard.html';
+                
+                // Redirect based on user role
+                if (userData.role && userData.role.toLowerCase() === 'admin') {
+                    // If already on admin dashboard, don't redirect
+                    if (!currentPath.endsWith('admin-dashboard.html')) {
+                        window.location.href = 'admin-dashboard.html';
+                    }
+                } else {
+                    // If already on regular dashboard, don't redirect
+                    if (!currentPath.endsWith('dashboard.html')) {
+                        window.location.href = 'dashboard.html';
+                    }
+                }
             }
         } catch (error) {
             console.error('Auth check failed:', error);
@@ -105,12 +117,15 @@ async function handleLogin(event) {
                     localStorage.setItem('full_name', data.user.full_name);
                 }
                 
-                // Check if user is admin and redirect accordingly
-                if (data.user.role === 'admin') {
+                // Redirect based on user role
+                if (data.user.roles && data.user.roles.includes('admin')) {
                     window.location.href = 'admin-dashboard.html';
                 } else {
                     window.location.href = 'dashboard.html';
                 }
+            } else {
+                // Fallback in case user data isn't in the response
+                window.location.href = 'dashboard.html';
             }
         }
     } catch (error) {

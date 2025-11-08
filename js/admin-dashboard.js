@@ -160,6 +160,7 @@ async function loadSubjects() {
         if (response.ok) {
             const subjects = await response.json();
             console.log('Subjects loaded:', subjects);
+            allSubjects = subjects;
             displaySubjects(subjects);
         } else if (response.status === 401) {
             handleUnauthorized();
@@ -209,18 +210,34 @@ async function loadSubjectOptions() {
 
 function displaySubjects(subjects) {
     const list = document.getElementById('subjects-list');
+    
+    if (subjects.length === 0) {
+        list.innerHTML = '<p>No subjects found.</p>';
+        return;
+    }
+    
+    const totalPages = Math.ceil(subjects.length / subjectsPerPage);
+    const startIndex = (currentSubjectPage - 1) * subjectsPerPage;
+    const endIndex = startIndex + subjectsPerPage;
+    const paginatedSubjects = subjects.slice(startIndex, endIndex);
+    
     list.innerHTML = `
+        <div style="margin-bottom: 1rem; color: #7f8c8d;">
+            Showing ${startIndex + 1}-${Math.min(endIndex, subjects.length)} of ${subjects.length} subjects
+        </div>
         <table class="users-table">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Subject Name</th>
                     <th>Description</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                ${subjects.map(subject => `
+                ${paginatedSubjects.map(subject => `
                     <tr>
+                        <td>${subject.id}</td>
                         <td>${subject.name}</td>
                         <td>${subject.description}</td>
                         <td>
@@ -230,7 +247,21 @@ function displaySubjects(subjects) {
                 `).join('')}
             </tbody>
         </table>
+        <div class="pagination">
+            <button onclick="changeSubjectPage(1)" ${currentSubjectPage === 1 ? 'disabled' : ''}>First</button>
+            <button onclick="changeSubjectPage(${currentSubjectPage - 1})" ${currentSubjectPage === 1 ? 'disabled' : ''}>Previous</button>
+            <span>Page ${currentSubjectPage} of ${totalPages}</span>
+            <button onclick="changeSubjectPage(${currentSubjectPage + 1})" ${currentSubjectPage === totalPages ? 'disabled' : ''}>Next</button>
+            <button onclick="changeSubjectPage(${totalPages})" ${currentSubjectPage === totalPages ? 'disabled' : ''}>Last</button>
+        </div>
     `;
+}
+
+window.changeSubjectPage = function(page) {
+    const totalPages = Math.ceil(allSubjects.length / subjectsPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentSubjectPage = page;
+    displaySubjects(allSubjects);
 }
 
 async function addSubject(event) {
@@ -253,6 +284,7 @@ async function addSubject(event) {
         if (response.ok) {
             showAlert('Subject added successfully!', 'success');
             event.target.reset();
+            currentSubjectPage = 1;
             loadSubjects();
             loadSubjectOptions();
         } else if (response.status === 401) {
@@ -517,8 +549,13 @@ async function addQuestion(event) {
 let allQuestions = [];
 let filteredQuestions = [];
 let allSubjects = [];
+let allUsers = [];
 let currentPage = 1;
+let currentUserPage = 1;
+let currentSubjectPage = 1;
 const rowsPerPage = 20;
+const usersPerPage = 20;
+const subjectsPerPage = 20;
 
 const examTypeMap = { 1: 'NECO', 2: 'WAEC', 3: 'JAMB', 4: 'NABTEB' };
 
@@ -668,6 +705,7 @@ async function loadUsers() {
         if (response.ok) {
             const users = await response.json();
             console.log('Users loaded:', users);
+            allUsers = users;
             displayUsers(users);
         } else if (response.status === 401) {
             handleUnauthorized();
@@ -712,7 +750,21 @@ async function deleteUser(userId) {
 
 function displayUsers(users) {
     const list = document.getElementById('users-list');
+    
+    if (users.length === 0) {
+        list.innerHTML = '<p>No users found.</p>';
+        return;
+    }
+    
+    const totalPages = Math.ceil(users.length / usersPerPage);
+    const startIndex = (currentUserPage - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+    
     list.innerHTML = `
+        <div style="margin-bottom: 1rem; color: #7f8c8d;">
+            Showing ${startIndex + 1}-${Math.min(endIndex, users.length)} of ${users.length} users
+        </div>
         <table class="users-table">
             <thead>
                 <tr>
@@ -727,7 +779,7 @@ function displayUsers(users) {
                 </tr>
             </thead>
             <tbody>
-                ${users.map(user => `
+                ${paginatedUsers.map(user => `
                     <tr>
                         <td>${user.id}</td>
                         <td>${user.username}</td>
@@ -743,5 +795,19 @@ function displayUsers(users) {
                 `).join('')}
             </tbody>
         </table>
+        <div class="pagination">
+            <button onclick="changeUserPage(1)" ${currentUserPage === 1 ? 'disabled' : ''}>First</button>
+            <button onclick="changeUserPage(${currentUserPage - 1})" ${currentUserPage === 1 ? 'disabled' : ''}>Previous</button>
+            <span>Page ${currentUserPage} of ${totalPages}</span>
+            <button onclick="changeUserPage(${currentUserPage + 1})" ${currentUserPage === totalPages ? 'disabled' : ''}>Next</button>
+            <button onclick="changeUserPage(${totalPages})" ${currentUserPage === totalPages ? 'disabled' : ''}>Last</button>
+        </div>
     `;
+}
+
+window.changeUserPage = function(page) {
+    const totalPages = Math.ceil(allUsers.length / usersPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentUserPage = page;
+    displayUsers(allUsers);
 }

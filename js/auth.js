@@ -139,8 +139,11 @@ function clearAuthData() {
 async function handleLogin(event) {
     event.preventDefault();
     
-    const username = document.getElementById('login-username').value;
+    const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
+    
+    // Clear any existing auth data
+    clearAuthData();
     
     try {
         console.log('1. Starting login process for user:', username);
@@ -154,50 +157,83 @@ async function handleLogin(event) {
                 'X-CSRFToken': getCSRFToken() || ''
             },
             credentials: 'include',
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ 
+                username: username,
+                password: password 
+            })
         });
 
         console.log('3. Login response status:', response.status);
-        console.log('4. Response headers:', [...response.headers.entries()]);
         
-        // Check for token in response headers
-        const authHeader = response.headers.get('Authorization');
-        if (authHeader) {
-            console.log('4.1 Found Authorization header');
-            const token = authHeader.replace('Bearer ', '').trim();
-            if (token) {
-                console.log('4.2 Extracted token from Authorization header');
-                localStorage.setItem('token', token);
-            }
-        }
-        
+        // Get the response text first
         const responseText = await response.text();
-        console.log('5. Raw response text (first 200 chars):', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
+        console.log('4. Raw response text (first 200 chars):', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
         
-        let data;
+        // Try to parse the response as JSON
+        let data = {};
         try {
             data = responseText ? JSON.parse(responseText) : {};
-            console.log('6. Parsed response data:', data);
+            console.log('5. Parsed response data:', data);
         } catch (e) {
-            console.error('Failed to parse response as JSON:', e);
+            console.error('6. Failed to parse response as JSON:', e);
             throw new Error('Invalid response from server');
         }
         
+        // Check for error response
         if (!response.ok) {
             console.error('7. Login failed with status:', response.status);
-            throw new Error(data.detail || data.message || 'Login failed');
+            const errorMsg = data.detail || data.message || 'Login failed';
+            console.error('8. Error details:', errorMsg);
+            throw new Error(errorMsg);
         }
 
         // Check for token in the response data structure
-        // The backend returns { access_token, token_type, user: {...} }
+        // The backend should return { access_token, token_type, user: {...} }
         const token = data.access_token || data.token;
-        
         console.log('7. Token found in response:', token ? 'Yes' : 'No');
         
         if (!token) {
-            console.error('8. No token found in response data');
-            throw new Error('Authentication failed: No token received');
+            console.error('8. No token found in response data. Full response:', data);
+            throw new Error('Authentication failed: No token received in response');
         }
+        
+        // Store the token and user data
+        console.log('9. Storing authentication data...');
+        localStorage.setItem('token', token);
+        console.log('10. Token stored in localStorage');
+        
+        // Store username
+        localStorage.setItem('username', username);
+        
+        // Store user data if available
+        if (data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            if (data.user.role) {
+                localStorage.setItem('userRole', data.user.role.toLowerCase());
+            } else {
+                // Default role based on username if not provided
+                const defaultRole = username.toLowerCase() === 'admin' ? 'admin' : 'user';
+                localStorage.setItem('userRole', defaultRole);
+            }
+        } else {
+            // If no user data, set default role based on username
+            const defaultRole = username.toLowerCase() === 'admin' ? 'admin' : 'user';
+            localStorage.setItem('userRole', defaultRole);
+        }
+        
+        console.log('11. Authentication data stored successfully');
+        console.log('12. Current auth state:', {
+            token: localStorage.getItem('token') ? '***' : 'missing',
+            username: localStorage.getItem('username'),
+            role: localStorage.getItem('userRole'),
+            userData: localStorage.getItem('user') ? 'exists' : 'missing'
+        });
+        
+        // Redirect based on role
+        const userRole = localStorage.getItem('userRole');
+        const targetPath = userRole === 'admin' ? 'admin-dashboard.html' : 'dashboard.html';
+        console.log(`13. Authentication successful, redirecting to: ${targetPath}`);
+        window.location.href = targetPath;
         
         console.log('8. Storing token in localStorage');
         localStorage.setItem('token', token);

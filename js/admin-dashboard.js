@@ -1,24 +1,33 @@
 // Check if user is authenticated and has a valid token
 async function checkAuth() {
+    console.log('Starting authentication check...');
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
     
+    console.log('Token exists:', !!token);
+    console.log('Stored user role:', userRole);
+    
     if (!token) {
+        console.log('No token found, redirecting to login');
         handleUnauthorized();
-        return;
+        return false;
     }
 
     // If we have a role, check it immediately
     if (userRole) {
+        console.log('Found user role in localStorage:', userRole);
         if (userRole !== 'admin') {
+            console.log('User is not an admin, redirecting to dashboard');
             showAlert('Access denied. Admin privileges required.', 'error');
             setTimeout(() => window.location.href = 'dashboard.html', 1500);
             return false;
         }
+        console.log('User is authenticated as admin');
         return true;
     }
 
     // If no role in localStorage, try to fetch user data
+    console.log('No role in localStorage, fetching user data...');
     try {
         const response = await fetch(`${API_BASE_URL}/users/me`, {
             headers: {
@@ -28,7 +37,10 @@ async function checkAuth() {
             credentials: 'include'
         });
 
+        console.log('User data response status:', response.status);
+        
         if (!response.ok) {
+            console.error('Failed to fetch user data:', response.status, response.statusText);
             handleUnauthorized();
             return false;
         }
@@ -58,21 +70,54 @@ async function checkAuth() {
 }
 
 function handleUnauthorized() {
+    console.log('Handling unauthorized access...');
+    console.log('Current localStorage before clear:', {
+        token: localStorage.getItem('token') ? '***token exists***' : 'no token',
+        userRole: localStorage.getItem('userRole'),
+        user: localStorage.getItem('user')
+    });
+    
     showAlert('Session expired. Please login again.', 'warning');
+    
+    // Clear only the necessary items to preserve other app state
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('user');
+    
+    console.log('Redirecting to login page...');
     setTimeout(() => {
-        localStorage.clear();
         window.location.href = 'index.html';
     }, 1500);
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
-    const isAuthenticated = await checkAuth();
-    if (isAuthenticated) {
-        loadUserInfo();
-        loadUsers();
-        loadSubjects();
-        loadSubjectOptions();
+// Initialize the dashboard
+async function initDashboard() {
+    try {
+        console.log('Initializing dashboard...');
+        const isAuthenticated = await checkAuth();
+        console.log('Authentication check result:', isAuthenticated);
+        
+        if (isAuthenticated) {
+            console.log('User is authenticated, loading dashboard data...');
+            loadUserInfo();
+            loadUsers();
+            loadSubjects();
+            loadSubjectOptions();
+        } else {
+            console.log('User is not authenticated or not an admin');
+        }
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showAlert('An error occurred while initializing the dashboard', 'error');
     }
+}
+
+// Start the dashboard when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, starting dashboard initialization');
+    initDashboard().catch(error => {
+        console.error('Unhandled error in dashboard initialization:', error);
+    });
 });
 
 function loadUserInfo() {

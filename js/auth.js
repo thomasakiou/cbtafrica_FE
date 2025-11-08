@@ -110,21 +110,57 @@ async function handleLogin(event) {
         
         if (data.access_token) {
             localStorage.setItem('token', data.access_token);
+            
+            // Get user data from the response or fetch it if not available
             if (data.user) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('username', data.user.username);
-                if (data.user.full_name) {
-                    localStorage.setItem('full_name', data.user.full_name);
+                // Store user data
+                const userData = data.user;
+                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('username', userData.username || '');
+                
+                if (userData.full_name) {
+                    localStorage.setItem('full_name', userData.full_name);
                 }
                 
-                // Redirect based on user role
-                if (data.user.roles && data.user.roles.includes('admin')) {
+                // Check for admin role (handle both 'roles' array and 'role' string)
+                const isAdmin = (userData.roles && userData.roles.includes('admin')) || 
+                              (userData.role && userData.role.toLowerCase() === 'admin');
+                
+                // Redirect based on admin status
+                if (isAdmin) {
+                    console.log('Admin user detected, redirecting to admin dashboard');
                     window.location.href = 'admin-dashboard.html';
                 } else {
+                    console.log('Regular user, redirecting to dashboard');
                     window.location.href = 'dashboard.html';
                 }
             } else {
-                // Fallback in case user data isn't in the response
+                // If user data isn't in the login response, fetch it
+                try {
+                    const userResponse = await fetch(`${API_BASE_URL}/users/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${data.access_token}`,
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        localStorage.setItem('user', JSON.stringify(userData));
+                        
+                        // Check for admin role in the fetched user data
+                        if ((userData.roles && userData.roles.includes('admin')) || 
+                            (userData.role && userData.role.toLowerCase() === 'admin')) {
+                            window.location.href = 'admin-dashboard.html';
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+                
+                // Default to regular dashboard if we can't determine admin status
                 window.location.href = 'dashboard.html';
             }
         }

@@ -1,3 +1,6 @@
+// API Configuration
+const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';
+
 // Check if user is authenticated and has a valid token
 async function checkAuth() {
     console.group('=== checkAuth() ===');
@@ -49,28 +52,71 @@ async function checkAuth() {
             credentials: 'include'
         });
 
-        console.log('User data response status:', response.status);
+        const responseTime = performance.now() - startTime;
+        console.log(`⏱️ Server response received in ${responseTime.toFixed(2)}ms`);
+        console.log('Response status:', response.status, response.statusText);
         
         if (!response.ok) {
-            console.error('Failed to fetch user data:', response.status, response.statusText);
+            console.error('❌ Failed to fetch user data:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            // Try to get error details if available
+            try {
+                const errorData = await response.text();
+                console.error('Error details:', errorData);
+            } catch (e) {
+                console.error('Could not parse error response');
+            }
+            
+            console.groupEnd();
             handleUnauthorized();
             return false;
         }
 
-        const userData = await response.json();
-        
-        if (userData.role) {
-            localStorage.setItem('userRole', userData.role.toLowerCase());
-            if (userData.role.toLowerCase() !== 'admin') {
-                showAlert('Access denied. Admin privileges required.', 'error');
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-                return false;
+        try {
+            const userData = await response.json();
+            console.log('📋 User data received:', {
+                id: userData.id,
+                username: userData.username,
+                role: userData.role,
+                hasRole: !!userData.role
+            });
+            
+            if (userData.role) {
+                const role = userData.role.toLowerCase();
+                console.log(`💾 Storing user role in localStorage: ${role}`);
+                localStorage.setItem('userRole', role);
+                
+                if (role !== 'admin') {
+                    console.log('⛔ User is not an admin');
+                    showAlert('Access denied. Admin privileges required.', 'error');
+                    console.groupEnd();
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    return false;
+                }
+                
+                console.log('✅ User is authenticated as admin');
+                console.groupEnd();
+                return true;
             }
-            return true;
+            
+            console.log('⚠️ User data received but no role found');
+            showAlert('Access denied. User role not found.', 'error');
+            
+        } catch (error) {
+            console.error('❌ Error parsing user data:', error);
+            console.groupEnd();
+            handleUnauthorized();
+            return false;
         }
         
-        // If we get here, the user doesn't have admin role
+        // If we get here, the user doesn't have a role
+        console.log('⛔ No admin role found in user data');
         showAlert('Access denied. Admin privileges required.', 'error');
+        console.groupEnd();
         setTimeout(() => window.location.href = 'dashboard.html', 1500);
         return false;
         
@@ -104,23 +150,45 @@ function handleUnauthorized() {
 
 // Initialize the dashboard
 async function initDashboard() {
+    console.group('=== initDashboard() ===');
+    console.log('Starting dashboard initialization...');
+    
     try {
-        console.log('Initializing dashboard...');
+        console.log('🔍 Checking authentication...');
         const isAuthenticated = await checkAuth();
-        console.log('Authentication check result:', isAuthenticated);
+        console.log('✅ Authentication check completed. Result:', isAuthenticated);
         
         if (isAuthenticated) {
-            console.log('User is authenticated, loading dashboard data...');
-            loadUserInfo();
-            loadUsers();
-            loadSubjects();
-            loadSubjectOptions();
+            console.log('🚀 User is authenticated, loading dashboard data...');
+            try {
+                // Load dashboard components
+                console.log('🔄 Loading user info...');
+                await loadUserInfo();
+                
+                console.log('🔄 Loading users list...');
+                await loadUsers();
+                
+                console.log('🔄 Loading subjects...');
+                await loadSubjects();
+                
+                console.log('🔄 Loading subject options...');
+                await loadSubjectOptions();
+                
+                console.log('✅ Dashboard initialization completed successfully');
+            } catch (loadError) {
+                console.error('❌ Error loading dashboard components:', loadError);
+                showAlert('Failed to load dashboard data. Some features may not be available.', 'warning');
+                // Continue execution even if some components fail to load
+            }
         } else {
-            console.log('User is not authenticated or not an admin');
+            console.log('⛔ Authentication failed or user is not an admin');
+            // checkAuth() should handle the redirection
         }
     } catch (error) {
-        console.error('Error initializing dashboard:', error);
-        showAlert('An error occurred while initializing the dashboard', 'error');
+        console.error('❌ Critical error in dashboard initialization:', error);
+        showAlert('A critical error occurred while initializing the dashboard', 'error');
+    } finally {
+        console.groupEnd();
     }
 }
 

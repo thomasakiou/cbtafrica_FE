@@ -1,5 +1,8 @@
-// Use the same API base URL from auth.js
-const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';
+// API_BASE_URL is already declared in auth.js which loads first
+// If for some reason it's not available, we'll check and log an error
+if (typeof API_BASE_URL === 'undefined') {
+    console.error('API_BASE_URL is not defined. Make sure auth.js loads before admin-dashboard.js');
+}
 
 // Check if user is authenticated and has admin privileges
 async function checkAdminAuth() {

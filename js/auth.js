@@ -1,5 +1,11 @@
 const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1'; 
 
+// Check if running on file:// protocol
+if (window.location.protocol === 'file:') {
+    console.warn('⚠️ WARNING: Running on file:// protocol. localStorage may not persist across pages.');
+    console.warn('⚠️ Please use a local web server (e.g., Live Server in VS Code, python -m http.server, or npx serve)');
+}
+
 // Helper function to get CSRF token from cookies
 function getCSRFToken() {
     return document.cookie.split('; ')
@@ -67,7 +73,16 @@ async function checkAuth() {
     const token = localStorage.getItem('token');
     const currentPath = window.location.pathname;
     
+    console.log('=== AUTH CHECK START ===');
     console.log('1. Auth check - Token exists:', !!token);
+    console.log('1.1 Token value:', token ? token.substring(0, 50) + '...' : 'null');
+    console.log('1.2 All localStorage keys:', Object.keys(localStorage));
+    console.log('1.3 All localStorage data:', {
+        token: localStorage.getItem('token') ? 'exists' : 'missing',
+        username: localStorage.getItem('username'),
+        userRole: localStorage.getItem('userRole'),
+        user: localStorage.getItem('user') ? 'exists' : 'missing'
+    });
     console.log('2. Current path:', currentPath);
     
     // If no token and not on login page, redirect to login
@@ -193,12 +208,12 @@ async function handleLogin(event) {
         }
         
         const responseText = await response.text();
-        console.log('5. Raw response text (first 200 chars):', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
+        console.log('5. Raw response text:', responseText);
         
         let data;
         try {
             data = responseText ? JSON.parse(responseText) : {};
-            console.log('6. Parsed response data:', data);
+            console.log('6. Parsed response data:', JSON.stringify(data, null, 2));
         } catch (e) {
             console.error('Failed to parse response as JSON:', e);
             throw new Error('Invalid response from server');

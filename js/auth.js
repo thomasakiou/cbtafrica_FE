@@ -38,8 +38,14 @@ async function checkAuth() {
     console.log('--- checkAuth called ---');
     const token = localStorage.getItem('token');
     const currentPath = window.location.pathname;
+    
     console.log('Current path:', currentPath);
     console.log('Token exists:', !!token);
+    console.log('Current localStorage:', {
+        token: localStorage.getItem('token') ? '***token exists***' : 'no token',
+        user: localStorage.getItem('user') ? 'user data exists' : 'no user data',
+        isAdmin: localStorage.getItem('isAdmin')
+    });
     
     // If user is already logged in and on auth pages, redirect to appropriate dashboard
     if (token && (currentPath.endsWith('index.html') || currentPath === '/')) {
@@ -148,15 +154,19 @@ async function handleLogin(event) {
         }
 
         const data = await response.json();
-        console.log('Login successful:', data);
+        console.log('Login successful, response data:', data);
         
         if (data.access_token) {
+            // Save token to localStorage
             localStorage.setItem('token', data.access_token);
+            console.log('Token saved to localStorage');
             
             // Get user data from the response or fetch it if not available
             if (data.user) {
                 // Store user data
                 const userData = data.user;
+                console.log('User data from login response:', userData);
+                
                 localStorage.setItem('user', JSON.stringify(userData));
                 localStorage.setItem('username', userData.username || '');
                 
@@ -164,9 +174,20 @@ async function handleLogin(event) {
                     localStorage.setItem('full_name', userData.full_name);
                 }
                 
-                // Check for admin role (handle both 'roles' array and 'role' string)
-                const isAdmin = (userData.roles && userData.roles.includes('admin')) || 
-                              (userData.role && userData.role.toLowerCase() === 'admin');
+                // Check for admin role in different possible formats
+                const isAdmin = (userData.roles && Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
+                              (userData.role && userData.role.toString().toLowerCase() === 'admin') ||
+                              (userData.role_id && userData.role_id.toString() === '1');
+                
+                console.log('Is admin user?', isAdmin);
+                console.log('User roles/role:', {
+                    roles: userData.roles,
+                    role: userData.role,
+                    role_id: userData.role_id
+                });
+                
+                // Save admin status to localStorage for quick access
+                localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
                 
                 // Redirect based on admin status
                 if (isAdmin) {

@@ -60,9 +60,9 @@ async function checkAuth() {
                 localStorage.setItem('user', JSON.stringify(userData));
                 
                 // Check for admin role in different possible formats
-                const isAdmin = (userData.roles && Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
-                              (userData.role && userData.role.toLowerCase() === 'admin') ||
-                              (userData.role_id && userData.role_id === 1); // Assuming 1 is admin ID
+                const isAdmin = (userData.role && Array.isArray(userData.role) && userData.role.includes('admin')) 
+                            //  || (userData.role && userData.role.toLowerCase() === 'admin') ||
+                            //   (userData.role_id && userData.role_id === 1); // Assuming 1 is admin ID
                 
                 console.log('Is admin?', isAdmin);
                 
@@ -172,7 +172,7 @@ async function handleLogin(event) {
                         localStorage.setItem('user', JSON.stringify(userData));
                         
                         // Check for admin role in the fetched user data
-                        if ((userData.roles && userData.roles.includes('admin')) || 
+                        if ((userData.role && userData.role.includes('admin')) || 
                             (userData.role && userData.role.toLowerCase() === 'admin')) {
                             window.location.href = 'admin-dashboard.html';
                             return;

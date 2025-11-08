@@ -35,12 +35,16 @@ function showRegister() {
 
 // Check authentication status
 async function checkAuth() {
+    console.log('--- checkAuth called ---');
     const token = localStorage.getItem('token');
     const currentPath = window.location.pathname;
+    console.log('Current path:', currentPath);
+    console.log('Token exists:', !!token);
     
     // If user is already logged in and on auth pages, redirect to appropriate dashboard
     if (token && (currentPath.endsWith('index.html') || currentPath === '/')) {
         try {
+            console.log('Fetching user data from:', `${API_BASE_URL}/users/me`);
             const response = await fetch(`${API_BASE_URL}/users/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -48,6 +52,7 @@ async function checkAuth() {
                 },
                 credentials: 'include'
             });
+            console.log('User data response status:', response.status);
             
             if (response.ok) {
                 const userData = await response.json();
@@ -59,12 +64,27 @@ async function checkAuth() {
                 
                 localStorage.setItem('user', JSON.stringify(userData));
                 
+                // Debug: Log all user data properties
+                console.log('User data properties:', Object.keys(userData));
+                if (userData.roles) {
+                    console.log('User roles:', userData.roles, 'Type:', typeof userData.roles);
+                }
+                if (userData.role) {
+                    console.log('User role:', userData.role, 'Type:', typeof userData.role);
+                }
+                if (userData.role_id) {
+                    console.log('User role_id:', userData.role_id, 'Type:', typeof userData.role_id);
+                }
+                
                 // Check for admin role in different possible formats
                 const isAdmin = (userData.roles && Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
                               (userData.role && userData.role.toLowerCase() === 'admin') ||
-                              (userData.role_id && userData.role_id === 1); // Assuming 1 is admin ID
+                              (userData.role_id && userData.role_id.toString() === '1') ||
+                              (userData.role && userData.role.toString().toLowerCase() === '1');
                 
                 console.log('Is admin?', isAdmin);
+                console.log('Current path:', currentPath);
+                console.log('Is admin dashboard:', currentPath.endsWith('admin-dashboard.html'));
                 
                 // Redirect based on user role
                 if (isAdmin) {

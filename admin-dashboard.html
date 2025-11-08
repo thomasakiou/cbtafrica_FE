@@ -11,13 +11,16 @@
     <script>
         // Check authentication and admin status
         async function checkAdminAuth() {
+            console.log('--- checkAdminAuth called ---');
             const token = localStorage.getItem('token');
             if (!token) {
+                console.log('No token found, redirecting to login');
                 window.location.href = 'index.html';
                 return false;
             }
 
             try {
+                console.log('Fetching user data for admin check');
                 const response = await fetch(`${API_BASE_URL}/users/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -27,13 +30,23 @@
                 });
 
                 if (!response.ok) {
+                    console.error('Failed to fetch user data:', response.status);
                     throw new Error('Authentication failed');
                 }
 
                 const userData = await response.json();
+                console.log('Admin check - User data:', userData);
                 
-                // Check if user is admin
-                if (!userData.roles || !userData.roles.includes('admin')) {
+                // Check for admin status in multiple possible formats
+                const isAdmin = (userData.roles && Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
+                              (userData.role && userData.role.toLowerCase() === 'admin') ||
+                              (userData.role_id && userData.role_id.toString() === '1') ||
+                              (userData.role && userData.role.toString().toLowerCase() === '1');
+                
+                console.log('Is admin in checkAdminAuth?', isAdmin);
+                
+                if (!isAdmin) {
+                    console.log('User is not an admin, redirecting to dashboard');
                     showAlert('You do not have permission to access this page', 'error');
                     // Redirect after a short delay to show the message
                     setTimeout(() => {

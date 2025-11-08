@@ -104,8 +104,14 @@ async function handleLogin(event) {
                 if (data.user.full_name) {
                     localStorage.setItem('full_name', data.user.full_name);
                 }
+                
+                // Check if user is admin and redirect accordingly
+                if (data.user.role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             }
-            window.location.href = 'dashboard.html';
         }
     } catch (error) {
         console.error('Login error:', error);

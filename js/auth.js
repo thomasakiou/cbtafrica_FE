@@ -147,6 +147,19 @@ async function checkAuth() {
             const targetPath = userRole === 'admin' ? 'admin-dashboard.html' : 'dashboard.html';
             console.log(`6. Redirecting to ${targetPath}`);
             window.location.href = targetPath;
+            return true;
+        }
+        
+        // If on admin-dashboard.html, don't interfere (admin-dashboard.js handles its own auth)
+        if (currentPath.endsWith('admin-dashboard.html')) {
+            console.log('6. On admin dashboard page, skipping redirect checks');
+            return true;
+        }
+        
+        // If on regular dashboard.html, ensure user is not trying to access with no token
+        if (currentPath.endsWith('dashboard.html')) {
+            console.log('6. On dashboard page, auth verified');
+            return true;
         }
         
         return true;

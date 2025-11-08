@@ -1,51 +1,52 @@
-// Check if user is authenticated and has a valid token
-async function checkAuth() {
-    console.log('Starting authentication check...');
+// Use the same API base URL from auth.js
+const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';
+
+// Check if user is authenticated and has admin privileges
+async function checkAdminAuth() {
+    console.log('=== ADMIN AUTH CHECK START ===');
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
     const username = localStorage.getItem('username');
     
-    console.log('Token exists:', !!token);
-    console.log('Stored user role:', userRole);
-    console.log('Stored username:', username);
+    console.log('Admin check - Token exists:', !!token);
+    console.log('Admin check - Stored user role:', userRole);
+    console.log('Admin check - Stored username:', username);
     
     if (!token || !username) {
-        console.log('No token or username found, redirecting to login');
+        console.log('Admin check - No token or username found, redirecting to login');
         handleUnauthorized();
         return false;
     }
 
-    // If we have a role in localStorage, use it
-    if (userRole) {
-        console.log('Found user role in localStorage:', userRole);
-        if (userRole !== 'admin') {
-            console.log('User is not an admin, redirecting to dashboard');
-            showAlert('Access denied. Admin privileges required.', 'error');
-            setTimeout(() => window.location.href = 'dashboard.html', 1500);
-            return false;
-        }
-        console.log('User is authenticated as admin');
+    // Check if user role is admin
+    if (userRole && userRole === 'admin') {
+        console.log('Admin check - User is authenticated as admin');
         return true;
     }
     
-    // If no role in localStorage but we have a token and username,
-    // we'll assume the user is authenticated and set a default role
-    console.log('No role in localStorage, but user is authenticated');
-    
-    // Since we can't verify the role from the backend, we'll check if the username is 'admin'
-    // This is a temporary solution - you should implement proper role verification in your backend
-    const isAdmin = username.toLowerCase() === 'admin';
-    localStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
-    
-    if (!isAdmin) {
-        console.log('User is not an admin, redirecting to dashboard');
+    // If role is not admin, redirect to regular dashboard
+    if (userRole && userRole !== 'admin') {
+        console.log('Admin check - User is not an admin (role:', userRole, '), redirecting to dashboard');
         showAlert('Access denied. Admin privileges required.', 'error');
         setTimeout(() => window.location.href = 'dashboard.html', 1500);
         return false;
     }
     
-    console.log('User is authenticated as admin');
-    return true;
+    // If no role set yet, check username as fallback
+    console.log('Admin check - No role in localStorage, checking username');
+    const isAdmin = username.toLowerCase() === 'admin';
+    
+    if (isAdmin) {
+        localStorage.setItem('userRole', 'admin');
+        console.log('Admin check - Set role to admin based on username');
+        return true;
+    } else {
+        localStorage.setItem('userRole', 'user');
+        console.log('Admin check - User is not admin, redirecting to dashboard');
+        showAlert('Access denied. Admin privileges required.', 'error');
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        return false;
+    }
 }
 
 function handleUnauthorized() {
@@ -82,9 +83,9 @@ function handleUnauthorized() {
 // Initialize the dashboard
 async function initDashboard() {
     try {
-        console.log('Initializing dashboard...');
-        const isAuthenticated = await checkAuth();
-        console.log('Authentication check result:', isAuthenticated);
+        console.log('Initializing admin dashboard...');
+        const isAuthenticated = await checkAdminAuth();
+        console.log('Admin authentication check result:', isAuthenticated);
         
         if (isAuthenticated) {
             console.log('User is authenticated, loading dashboard data...');

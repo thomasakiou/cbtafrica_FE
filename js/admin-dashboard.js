@@ -1,3 +1,62 @@
+// Check if user is authenticated and has a valid token
+async function checkAuth() {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (!token) {
+        handleUnauthorized();
+        return;
+    }
+
+    // If we have a role, check it immediately
+    if (userRole) {
+        if (userRole !== 'admin') {
+            showAlert('Access denied. Admin privileges required.', 'error');
+            setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            return false;
+        }
+        return true;
+    }
+
+    // If no role in localStorage, try to fetch user data
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            handleUnauthorized();
+            return false;
+        }
+
+        const userData = await response.json();
+        
+        if (userData.role) {
+            localStorage.setItem('userRole', userData.role.toLowerCase());
+            if (userData.role.toLowerCase() !== 'admin') {
+                showAlert('Access denied. Admin privileges required.', 'error');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                return false;
+            }
+            return true;
+        }
+        
+        // If we get here, the user doesn't have admin role
+        showAlert('Access denied. Admin privileges required.', 'error');
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        return false;
+        
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        handleUnauthorized();
+        return false;
+    }
+}
+
 function handleUnauthorized() {
     showAlert('Session expired. Please login again.', 'warning');
     setTimeout(() => {
@@ -6,22 +65,15 @@ function handleUnauthorized() {
     }, 1500);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    checkAuth();
-    checkAdminRole();
-    loadUserInfo();
-    loadUsers();
-    loadSubjects();
-    loadSubjectOptions();
-});
-
-function checkAdminRole() {
-    const userRole = localStorage.getItem('userRole');
-    if (userRole !== 'admin') {
-        showAlert('Access denied. Admin privileges required.', 'error');
-        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+document.addEventListener('DOMContentLoaded', async function() {
+    const isAuthenticated = await checkAuth();
+    if (isAuthenticated) {
+        loadUserInfo();
+        loadUsers();
+        loadSubjects();
+        loadSubjectOptions();
     }
-}
+});
 
 function loadUserInfo() {
     const username = localStorage.getItem('username');

@@ -142,8 +142,15 @@ async function handleLogin(event) {
                     localStorage.setItem('full_name', userData.full_name);
                 }
                 
+                // Store user role in localStorage
+                if (userData.role) {
+                    localStorage.setItem('userRole', userData.role.toLowerCase());
+                }
+                
                 // Check for admin role (simple string check)
                 const isAdmin = userData.role && userData.role.toLowerCase() === 'admin';
+                
+                console.log('User role:', userData.role, 'Is admin?', isAdmin);
                 
                 // Redirect based on admin status
                 if (isAdmin) {

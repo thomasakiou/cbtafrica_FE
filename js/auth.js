@@ -10,15 +10,28 @@ function getCSRFToken() {
 // Helper function to decode JWT token
 function decodeJWT(token) {
     try {
-        if (!token) return null;
-        const base64Url = token.split('.')[1];
+        if (!token) {
+            console.warn('decodeJWT: No token provided');
+            return null;
+        }
+        
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            console.error('decodeJWT: Invalid token format - expected 3 parts, got', parts.length);
+            return null;
+        }
+        
+        const base64Url = parts[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
-        return JSON.parse(jsonPayload);
+        const decoded = JSON.parse(jsonPayload);
+        console.log('decodeJWT: Successfully decoded token');
+        return decoded;
     } catch (e) {
-        console.error('Error decoding token:', e);
+        console.error('decodeJWT: Error decoding token:', e);
+        console.error('decodeJWT: Token (first 50 chars):', token ? token.substring(0, 50) + '...' : 'null');
         return null;
     }
 }
@@ -67,33 +80,39 @@ async function checkAuth() {
     }
 
     try {
-        // Decode the token to check expiration and get username
+        // Try to decode the token to check expiration and get username
         const decodedToken = decodeJWT(token);
         console.log('3. Decoded token:', decodedToken);
         
-        if (!decodedToken) {
-            console.error('4. Invalid token format');
-            throw new Error('Invalid token format');
-        }
-
-        // Check if token is expired
-        const currentTime = Math.floor(Date.now() / 1000);
-        if (decodedToken.exp && decodedToken.exp < currentTime) {
-            console.error('4. Token expired');
-            throw new Error('Session expired');
-        }
-
-        const username = decodedToken.sub;
-        if (!username) {
-            console.error('4. No username in token');
-            throw new Error('Invalid token: No username');
-        }
-
-        console.log('4. Token is valid for user:', username);
+        // Get username from decoded token or from localStorage
+        let username = decodedToken?.sub || localStorage.getItem('username');
         
-        // Store username if not already set
-        if (!localStorage.getItem('username')) {
-            localStorage.setItem('username', username);
+        if (decodedToken) {
+            // Check if token is expired
+            const currentTime = Math.floor(Date.now() / 1000);
+            if (decodedToken.exp && decodedToken.exp < currentTime) {
+                console.error('4. Token expired');
+                throw new Error('Session expired');
+            }
+
+            if (decodedToken.sub) {
+                username = decodedToken.sub;
+                console.log('4. Token is valid for user:', username);
+                
+                // Store username if not already set
+                if (!localStorage.getItem('username')) {
+                    localStorage.setItem('username', username);
+                }
+            }
+        } else {
+            // Token couldn't be decoded, but we have a token and username stored
+            // This might be an opaque token or non-JWT token
+            console.warn('4. Could not decode token as JWT, using stored username');
+            
+            if (!username) {
+                console.error('4. No username available');
+                throw new Error('No username available');
+            }
         }
 
         // Determine if user is admin - check stored role or default to username check
@@ -250,18 +269,29 @@ async function handleLogin(event) {
         localStorage.setItem('userRole', userRole);
         console.log('13. Final user role stored:', userRole);
         
-        // Log current auth state
-        console.log('14. Current auth state:', {
-            token: localStorage.getItem('token') ? '***' : 'missing',
+        // Log current auth state before redirect
+        console.log('14. Current auth state before redirect:', {
+            token: localStorage.getItem('token') ? '***exists***' : 'missing',
             username: localStorage.getItem('username'),
             role: localStorage.getItem('userRole'),
             userData: localStorage.getItem('user') ? 'exists' : 'missing'
         });
         
-        // Redirect based on role
+        // Verify token one more time before redirect
+        const finalToken = localStorage.getItem('token');
+        if (!finalToken) {
+            console.error('15. CRITICAL: Token missing before redirect!');
+            throw new Error('Token was not stored properly');
+        }
+        
+        // Redirect based on role with a small delay to ensure localStorage is written
         const targetPage = userRole === 'admin' ? 'admin-dashboard.html' : 'dashboard.html';
-        console.log(`15. Redirecting to: ${targetPage}`);
-        window.location.href = targetPage;
+        console.log(`16. Redirecting to: ${targetPage}`);
+        
+        // Use setTimeout to ensure localStorage operations complete
+        setTimeout(() => {
+            window.location.href = targetPage;
+        }, 100);
     } catch (error) {
         console.error('Login error:', error);
         showAlert(error.message || 'Failed to login. Please try again.', 'error');

@@ -20,6 +20,8 @@ header {
     width: 100%;
     top: 0;
     z-index: 1000;
+    height: 70px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 nav {
@@ -144,8 +146,9 @@ nav ul li a:hover {
 
 /* Main Content */
 main {
-    margin-top: 80px;
+    margin-top: 90px;
     padding: 2rem 0;
+    min-height: calc(100vh - 90px);
 }
 
 .container {
@@ -418,9 +421,15 @@ main {
 }
 
 /* Dashboard Styles */
+.dashboard main {
+    margin-top: 90px;
+    padding: 2rem 0;
+}
+
 .dashboard .container {
     grid-template-columns: 1fr;
     max-width: 800px;
+    padding-top: 1rem;
 }
 
 .setup-form {
@@ -775,9 +784,15 @@ main {
 }
 
 /* Results Styles */
+.results-page main {
+    margin-top: 90px;
+    padding: 2rem 0;
+}
+
 .results-page .container {
     grid-template-columns: 1fr;
     max-width: 1000px;
+    padding-top: 1rem;
 }
 
 .results-header {
@@ -983,9 +998,15 @@ main {
 }
 
 /* Admin Dashboard Styles */
+.admin-dashboard main {
+    margin-top: 90px;
+    padding: 2rem 0;
+}
+
 .admin-dashboard .container {
     grid-template-columns: 1fr;
     max-width: 1000px;
+    padding-top: 1rem;
 }
 
 .admin-tabs {
@@ -1561,9 +1582,25 @@ footer {
 
 /* Medium Devices (Tablets, 768px and down) */
 @media (max-width: 768px) {
+    header {
+        height: auto;
+        min-height: 65px;
+    }
+    
+    main {
+        margin-top: 85px;
+    }
+    
+    .dashboard main,
+    .admin-dashboard main,
+    .results-page main {
+        margin-top: 85px;
+    }
+    
     .container {
         grid-template-columns: 1fr;
         padding: 0 1rem;
+        padding-top: 0.5rem;
     }
 
     nav {
@@ -1701,9 +1738,19 @@ footer {
 
 /* Small Devices (Phones, 480px and down) */
 @media (max-width: 480px) {
+    header {
+        height: 60px;
+    }
+    
     main {
-        margin-top: 70px;
+        margin-top: 75px;
         padding: 1rem 0;
+    }
+    
+    .dashboard main,
+    .admin-dashboard main,
+    .results-page main {
+        margin-top: 75px;
     }
     
     .exam-header {

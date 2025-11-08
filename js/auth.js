@@ -36,66 +36,60 @@ function showRegister() {
 // Check authentication status
 async function checkAuth() {
     const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
     const currentPath = window.location.pathname;
     
-    // If user is already logged in and on auth pages, redirect to appropriate dashboard
-    if (token && (currentPath.endsWith('index.html') || currentPath === '/')) {
+    console.log('Auth check - Token exists:', !!token);
+    console.log('Auth check - Username:', username);
+    console.log('Current path:', currentPath);
+    
+    // If user is not logged in and not on the login page, redirect to login
+    if (!token && !currentPath.endsWith('index.html') && currentPath !== '/') {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // If user is logged in and on the login page, redirect to appropriate dashboard
+    if (token && username && (currentPath.endsWith('index.html') || currentPath === '/')) {
         try {
-            const response = await fetch(`${API_BASE_URL}/users/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                },
-                credentials: 'include'
-            });
+            // Check if user is admin based on username (temporary solution)
+            const isAdmin = username.toLowerCase() === 'admin';
             
-            if (response.ok) {
-                const userData = await response.json();
-                console.log('User data from /users/me:', userData);
-                
-                if (!userData) {
-                    throw new Error('No user data received');
+            console.log('User is admin?', isAdmin);
+            
+            // Store the role in localStorage for future checks
+            const userRole = isAdmin ? 'admin' : 'user';
+            localStorage.setItem('userRole', userRole);
+            
+            // Redirect based on user role
+            if (isAdmin) {
+                if (!currentPath.endsWith('admin-dashboard.html')) {
+                    console.log('Redirecting to admin dashboard...');
+                    window.location.href = 'admin-dashboard.html';
                 }
-                
-                localStorage.setItem('user', JSON.stringify(userData));
-                
-                // Check for admin role (backend uses simple string 'admin')
-                const isAdmin = userData.role && userData.role.toLowerCase() === 'admin';
-                
-                console.log('User role:', userData.role, 'Is admin?', isAdmin);
-                
-                // Redirect based on user role
-                if (isAdmin) {
-                    // If already on admin dashboard, don't redirect
-                    if (!currentPath.endsWith('admin-dashboard.html')) {
-                        window.location.href = 'admin-dashboard.html';
-                    }
-                } else if (!currentPath.endsWith('dashboard.html')) {
-                    // If not admin and not on dashboard, redirect to dashboard
-                    window.location.href = 'dashboard.html';
-                }
-            } else {
-                // If we get an unauthorized response, clear the token and redirect to login
-                if (response.status === 401) {
-                    localStorage.removeItem('token');
-                    if (!currentPath.endsWith('index.html')) {
-                        window.location.href = 'index.html';
-                    }
-                }
+            } else if (!currentPath.endsWith('dashboard.html')) {
+                console.log('Redirecting to user dashboard...');
+                window.location.href = 'dashboard.html';
             }
         } catch (error) {
-            console.error('Auth check failed:', error);
-            // Clear invalid token and redirect to login
-            localStorage.removeItem('token');
+            console.error('Error during auth check:', error);
+            // If there's an error, clear auth data and stay on login page
+            clearAuthData();
+            
             if (!currentPath.endsWith('index.html')) {
                 window.location.href = 'index.html';
             }
         }
     }
-    // If user is not logged in and on protected pages, redirect to login
-    else if (!token && !currentPath.endsWith('index.html') && currentPath !== '/') {
-        window.location.href = 'index.html';
-    }
+}
+
+// Helper function to clear authentication data
+function clearAuthData() {
+    const authItems = ['token', 'userRole', 'username', 'user', 'full_name'];
+    authItems.forEach(item => {
+        console.log(`Removing ${item} from localStorage`);
+        localStorage.removeItem(item);
+    });
 }
 
 async function handleLogin(event) {

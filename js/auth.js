@@ -271,13 +271,25 @@ async function handleLogin(event) {
         let userRole = 'user'; // default role
         
         if (userData) {
-            console.log('11. Storing user data:', userData);
+            console.log('11. User data received from API:', JSON.stringify(userData, null, 2));
             localStorage.setItem('user', JSON.stringify(userData));
             
             // Check for role in userData first
             if (userData.role) {
                 userRole = userData.role.toLowerCase();
                 console.log('12. User role from API response:', userRole);
+                
+                // IMPORTANT: Map backend roles to frontend roles
+                // Backend might return 'admin', 'student', 'teacher', etc.
+                // We need to handle all of them
+                if (userRole === 'admin') {
+                    console.log('12a. Confirmed admin role');
+                } else if (userRole === 'student' || userRole === 'user') {
+                    userRole = 'user';
+                    console.log('12b. Mapped to user role');
+                } else {
+                    console.log('12c. Unknown role, keeping as:', userRole);
+                }
             } else if (userData.is_admin || userData.isAdmin) {
                 userRole = 'admin';
                 console.log('12. User is admin based on is_admin flag');
@@ -287,9 +299,10 @@ async function handleLogin(event) {
             }
         } else {
             // No user data, check username
+            console.log('11. No user data in API response');
             if (username.toLowerCase() === 'admin') {
                 userRole = 'admin';
-                console.log('11. User is admin based on username (no user data)');
+                console.log('11a. User is admin based on username (no user data)');
             }
         }
         
@@ -305,21 +318,45 @@ async function handleLogin(event) {
             userData: localStorage.getItem('user') ? 'exists' : 'missing'
         });
         
-        // Verify token one more time before redirect
+        // Verify all data is stored before redirect
         const finalToken = localStorage.getItem('token');
+        const finalUsername = localStorage.getItem('username');
+        const finalUserRole = localStorage.getItem('userRole');
+        
+        console.log('15. Pre-redirect verification:', {
+            token: finalToken ? 'EXISTS (length: ' + finalToken.length + ')' : 'MISSING',
+            username: finalUsername || 'MISSING',
+            userRole: finalUserRole || 'MISSING'
+        });
+        
         if (!finalToken) {
             console.error('15. CRITICAL: Token missing before redirect!');
             throw new Error('Token was not stored properly');
         }
         
+        if (!finalUserRole) {
+            console.error('15. CRITICAL: UserRole missing before redirect!');
+            throw new Error('UserRole was not stored properly');
+        }
+        
         // Redirect based on role with a small delay to ensure localStorage is written
         const targetPage = userRole === 'admin' ? 'admin-dashboard.html' : 'dashboard.html';
         console.log(`16. Redirecting to: ${targetPage}`);
+        console.log('16a. Final localStorage state:', {
+            allKeys: Object.keys(localStorage),
+            token: localStorage.getItem('token') ? 'exists' : 'missing',
+            username: localStorage.getItem('username'),
+            userRole: localStorage.getItem('userRole'),
+            user: localStorage.getItem('user') ? 'exists' : 'missing'
+        });
         
         // Use setTimeout to ensure localStorage operations complete
         setTimeout(() => {
+            console.log('17. About to redirect NOW - checking localStorage one more time:');
+            console.log('17a. Token still exists?', !!localStorage.getItem('token'));
+            console.log('17b. UserRole still exists?', localStorage.getItem('userRole'));
             window.location.href = targetPage;
-        }, 100);
+        }, 150);
     } catch (error) {
         console.error('Login error:', error);
         showAlert(error.message || 'Failed to login. Please try again.', 'error');
@@ -405,186 +442,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
-// const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';
-
-// // ===== Helper =====
-// function getCSRFToken() {
-//     return document.cookie.split('; ')
-//         .find(row => row.startsWith('csrftoken='))?.split('=')[1];
-// }
-
-// function showLogin() {
-//     document.getElementById('login-form')?.classList.add('active');
-//     document.getElementById('register-form')?.classList.remove('active');
-//     const tabBtns = document.querySelectorAll('.tab-btn');
-//     if (tabBtns.length > 0) {
-//         tabBtns[0].classList.add('active');
-//         tabBtns[1]?.classList.remove('active');
-//     }
-// }
-
-// function showRegister() {
-//     document.getElementById('register-form')?.classList.add('active');
-//     document.getElementById('login-form')?.classList.remove('active');
-//     const tabBtns = document.querySelectorAll('.tab-btn');
-//     if (tabBtns.length > 1) {
-//         tabBtns[1].classList.add('active');
-//         tabBtns[0]?.classList.remove('active');
-//     }
-// }
-
-// // ===== Role Check =====
-// function isAdminUser(user) {
-//     return user?.role?.toLowerCase() === 'admin';
-// }
-
-// // ===== Check Authentication =====
-// async function checkAuth() {
-//     const token = localStorage.getItem('token');
-//     const currentPath = window.location.pathname;
-
-//     if (token && (currentPath.endsWith('index.html') || currentPath === '/')) {
-//         try {
-//             const response = await fetch(`${API_BASE_URL}/users/me`, {
-//                 headers: {
-//                     'Authorization': `Bearer ${token}`,
-//                     'Accept': 'application/json'
-//                 },
-//                 credentials: 'include'
-//             });
-
-//             if (!response.ok) {
-//                 if (response.status === 401) {
-//                     localStorage.clear();
-//                     if (!currentPath.endsWith('index.html')) window.location.href = 'index.html';
-//                 }
-//                 return;
-//             }
-
-//             const userData = await response.json();
-//             if (!userData) throw new Error('No user data received');
-
-//             localStorage.setItem('user', JSON.stringify(userData));
-
-//             // Redirect based on role
-//             if (isAdminUser(userData)) {
-//                 if (!currentPath.endsWith('admin-dashboard.html')) {
-//                     window.location.href = 'admin-dashboard.html';
-//                 }
-//             } else if (!currentPath.endsWith('dashboard.html')) {
-//                 window.location.href = 'dashboard.html';
-//             }
-
-//         } catch (error) {
-//             console.error('Auth check failed:', error);
-//             localStorage.clear();
-//             if (!currentPath.endsWith('index.html')) window.location.href = 'index.html';
-//         }
-//     } else if (!token && !currentPath.endsWith('index.html') && currentPath !== '/') {
-//         window.location.href = 'index.html';
-//     }
-// }
-
-// // ===== Handle Login =====
-// async function handleLogin(event) {
-//     event.preventDefault();
-//     const username = document.getElementById('login-username').value;
-//     const password = document.getElementById('login-password').value;
-
-//     try {
-//         const response = await fetch(`${API_BASE_URL}/users/login`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Accept': 'application/json',
-//                 'X-CSRFToken': getCSRFToken() || ''
-//             },
-//             credentials: 'include',
-//             body: JSON.stringify({ username, password })
-//         });
-
-//         if (!response.ok) {
-//             const errorData = await response.json().catch(() => ({}));
-//             throw new Error(errorData.detail || 'Login failed');
-//         }
-
-//         const data = await response.json();
-//         if (!data.access_token) throw new Error('No access token received');
-
-//         localStorage.setItem('token', data.access_token);
-
-//         const userData = data.user || (await fetch(`${API_BASE_URL}/users/me`, {
-//             headers: { 'Authorization': `Bearer ${data.access_token}` }
-//         }).then(res => res.json()));
-
-//         if (!userData) throw new Error('Unable to retrieve user data');
-
-//         localStorage.setItem('user', JSON.stringify(userData));
-//         localStorage.setItem('username', userData.username || '');
-//         if (userData.full_name) localStorage.setItem('full_name', userData.full_name);
-
-//         if (isAdminUser(userData)) {
-//             window.location.href = 'admin-dashboard.html';
-//         } else {
-//             window.location.href = 'dashboard.html';
-//         }
-
-//     } catch (error) {
-//         console.error('Login error:', error);
-//         showAlert(error.message || 'Failed to login. Please try again.', 'error');
-//     }
-// }
-
-// // ===== Handle Register =====
-// async function handleRegister(event) {
-//     event.preventDefault();
-//     const formData = new FormData(event.target);
-
-//     const userData = {
-//         username: formData.get('username'),
-//         email: formData.get('email'),
-//         password: formData.get('password'),
-//         full_name: formData.get('fullname')
-//     };
-
-//     try {
-//         const response = await fetch(`${API_BASE_URL}/users/register`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Accept': 'application/json',
-//                 'X-CSRFToken': getCSRFToken() || ''
-//             },
-//             credentials: 'include',
-//             body: JSON.stringify(userData)
-//         });
-
-//         if (!response.ok) {
-//             const errorData = await response.json().catch(() => ({}));
-//             throw new Error(errorData.detail || 'Registration failed');
-//         }
-
-//         showAlert('Registration successful! Please login.', 'success');
-//         showLogin();
-//         event.target.reset();
-
-//     } catch (error) {
-//         console.error('Registration error:', error);
-//         showAlert(error.message || 'Failed to register. Please try again.', 'error');
-//     }
-// }
-
-// // ===== Logout =====
-// function logout() {
-//     localStorage.clear();
-//     window.location.href = 'index.html';
-// }
-
-// // ===== Initialize =====
-// document.addEventListener('DOMContentLoaded', () => {
-//     document.getElementById('login-form')?.addEventListener('submit', handleLogin);
-//     document.getElementById('register-form')?.addEventListener('submit', handleRegister);
-//     document.getElementById('logout-btn')?.addEventListener('click', logout);
-//     checkAuth();
-// });

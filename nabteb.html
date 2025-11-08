@@ -6,32 +6,27 @@
     <title>NABTEB Tests - CBT Platform</title>
     <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdown = document.querySelector('.dropdown');
-            dropdown?.addEventListener('mouseenter', function() {
-                dropdown.classList.add('active');
-            });
-            dropdown?.querySelector('a').addEventListener('click', function(e) {
-                e.preventDefault();
-            });
-            document.addEventListener('click', function(e) {
-                if (!dropdown?.contains(e.target)) dropdown?.classList.remove('active');
-            });
-        });
-    </script>
+    <script src="js/mobile-nav.js"></script>
 </head>
 <body>
     <header>
         <nav>
-            <div class="logo">CBT Africa</div>
-            <ul>
+            <div class="nav-left">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="logo">CBT Africa</div>
+            </div>
+            <div class="nav-overlay"></div>
+            <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="index.html#about">About</a></li>
                 <li><a href="index.html#features">Features</a></li>
                 <li><a href="index.html#news">News</a></li>
                 <li class="dropdown">
-                    <a href="#">Exam Types</a>
+                    <a href="#" class="dropdown-toggle">Exam Types</a>
                     <div class="dropdown-content">
                         <a href="neco.html">NECO</a>
                         <a href="waec.html">WAEC</a>
@@ -39,7 +34,6 @@
                         <a href="nabteb.html">NABTEB</a>
                     </div>
                 </li>
-                <!-- <li><a href="index.html#news">News</a></li> -->
             </ul>
         </nav>
     </header>

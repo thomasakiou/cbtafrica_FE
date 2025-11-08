@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';  // Using Netlify proxy
+const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1'; 
 
 // Helper function to get CSRF token from cookies
 function getCSRFToken() {

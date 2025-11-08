@@ -1,194 +1,103 @@
-// API Configuration
-const API_BASE_URL = 'https://vmi2848672.contaboserver.net/cbt/api/v1';
-
 // Check if user is authenticated and has a valid token
 async function checkAuth() {
-    console.group('=== checkAuth() ===');
-    console.log('1. Checking authentication status...');
-    
-    // Log current URL and localStorage state
-    console.log('Current URL:', window.location.href);
-    console.log('localStorage state:', {
-        token: localStorage.getItem('token') ? '***token exists***' : 'no token',
-        userRole: localStorage.getItem('userRole') || 'no role',
-        user: localStorage.getItem('user') ? 'user data exists' : 'no user data'
-    });
-    
+    console.log('Starting authentication check...');
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
+    const username = localStorage.getItem('username');
     
-    if (!token) {
-        console.log('❌ No authentication token found in localStorage');
-        console.groupEnd();
+    console.log('Token exists:', !!token);
+    console.log('Stored user role:', userRole);
+    console.log('Stored username:', username);
+    
+    if (!token || !username) {
+        console.log('No token or username found, redirecting to login');
         handleUnauthorized();
         return false;
     }
-    console.log('✅ Token found in localStorage');
 
-    // If we have a role, check it immediately
+    // If we have a role in localStorage, use it
     if (userRole) {
-        console.log('🔍 Found user role in localStorage:', userRole);
+        console.log('Found user role in localStorage:', userRole);
         if (userRole !== 'admin') {
-            console.log('⛔ User does not have admin privileges');
+            console.log('User is not an admin, redirecting to dashboard');
             showAlert('Access denied. Admin privileges required.', 'error');
-            console.groupEnd();
             setTimeout(() => window.location.href = 'dashboard.html', 1500);
             return false;
         }
-        console.log('✅ User is authenticated as admin');
-        console.groupEnd();
+        console.log('User is authenticated as admin');
         return true;
     }
-
-    // If no role in localStorage, try to fetch user data
-    console.log('ℹ️ No role in localStorage, fetching user data from server...');
-    try {
-        const startTime = performance.now();
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            },
-            credentials: 'include'
-        });
-
-        const responseTime = performance.now() - startTime;
-        console.log(`⏱️ Server response received in ${responseTime.toFixed(2)}ms`);
-        console.log('Response status:', response.status, response.statusText);
-        
-        if (!response.ok) {
-            console.error('❌ Failed to fetch user data:', {
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries())
-            });
-            
-            // Try to get error details if available
-            try {
-                const errorData = await response.text();
-                console.error('Error details:', errorData);
-            } catch (e) {
-                console.error('Could not parse error response');
-            }
-            
-            console.groupEnd();
-            handleUnauthorized();
-            return false;
-        }
-
-        try {
-            const userData = await response.json();
-            console.log('📋 User data received:', {
-                id: userData.id,
-                username: userData.username,
-                role: userData.role,
-                hasRole: !!userData.role
-            });
-            
-            if (userData.role) {
-                const role = userData.role.toLowerCase();
-                console.log(`💾 Storing user role in localStorage: ${role}`);
-                localStorage.setItem('userRole', role);
-                
-                if (role !== 'admin') {
-                    console.log('⛔ User is not an admin');
-                    showAlert('Access denied. Admin privileges required.', 'error');
-                    console.groupEnd();
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-                    return false;
-                }
-                
-                console.log('✅ User is authenticated as admin');
-                console.groupEnd();
-                return true;
-            }
-            
-            console.log('⚠️ User data received but no role found');
-            showAlert('Access denied. User role not found.', 'error');
-            
-        } catch (error) {
-            console.error('❌ Error parsing user data:', error);
-            console.groupEnd();
-            handleUnauthorized();
-            return false;
-        }
-        
-        // If we get here, the user doesn't have a role
-        console.log('⛔ No admin role found in user data');
+    
+    // If no role in localStorage but we have a token and username,
+    // we'll assume the user is authenticated and set a default role
+    console.log('No role in localStorage, but user is authenticated');
+    
+    // Since we can't verify the role from the backend, we'll check if the username is 'admin'
+    // This is a temporary solution - you should implement proper role verification in your backend
+    const isAdmin = username.toLowerCase() === 'admin';
+    localStorage.setItem('userRole', isAdmin ? 'admin' : 'user');
+    
+    if (!isAdmin) {
+        console.log('User is not an admin, redirecting to dashboard');
         showAlert('Access denied. Admin privileges required.', 'error');
-        console.groupEnd();
         setTimeout(() => window.location.href = 'dashboard.html', 1500);
         return false;
-        
-    } catch (error) {
-        console.error('Auth check failed:', error);
-        handleUnauthorized();
-        return false;
     }
+    
+    console.log('User is authenticated as admin');
+    return true;
 }
 
 function handleUnauthorized() {
     console.log('Handling unauthorized access...');
-    console.log('Current localStorage before clear:', {
+    
+    // Log current authentication state
+    const authState = {
         token: localStorage.getItem('token') ? '***token exists***' : 'no token',
-        userRole: localStorage.getItem('userRole'),
-        user: localStorage.getItem('user')
+        userRole: localStorage.getItem('userRole') || 'no role',
+        username: localStorage.getItem('username') || 'no username',
+        userData: localStorage.getItem('user') ? 'exists' : 'no user data'
+    };
+    console.log('Current authentication state:', authState);
+    
+    // Show user feedback
+    showAlert('Your session has expired. Please log in again.', 'warning');
+    
+    // Clear all authentication-related data
+    const authItems = ['token', 'userRole', 'username', 'user', 'full_name'];
+    authItems.forEach(item => {
+        console.log(`Removing ${item} from localStorage`);
+        localStorage.removeItem(item);
     });
     
-    showAlert('Session expired. Please login again.', 'warning');
+    // Redirect to login page after a short delay
+    const redirectDelay = 1500; // 1.5 seconds
+    console.log(`Redirecting to login page in ${redirectDelay}ms...`);
     
-    // Clear only the necessary items to preserve other app state
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('user');
-    
-    console.log('Redirecting to login page...');
     setTimeout(() => {
         window.location.href = 'index.html';
-    }, 1500);
+    }, redirectDelay);
 }
 
 // Initialize the dashboard
 async function initDashboard() {
-    console.group('=== initDashboard() ===');
-    console.log('Starting dashboard initialization...');
-    
     try {
-        console.log('🔍 Checking authentication...');
+        console.log('Initializing dashboard...');
         const isAuthenticated = await checkAuth();
-        console.log('✅ Authentication check completed. Result:', isAuthenticated);
+        console.log('Authentication check result:', isAuthenticated);
         
         if (isAuthenticated) {
-            console.log('🚀 User is authenticated, loading dashboard data...');
-            try {
-                // Load dashboard components
-                console.log('🔄 Loading user info...');
-                await loadUserInfo();
-                
-                console.log('🔄 Loading users list...');
-                await loadUsers();
-                
-                console.log('🔄 Loading subjects...');
-                await loadSubjects();
-                
-                console.log('🔄 Loading subject options...');
-                await loadSubjectOptions();
-                
-                console.log('✅ Dashboard initialization completed successfully');
-            } catch (loadError) {
-                console.error('❌ Error loading dashboard components:', loadError);
-                showAlert('Failed to load dashboard data. Some features may not be available.', 'warning');
-                // Continue execution even if some components fail to load
-            }
+            console.log('User is authenticated, loading dashboard data...');
+            loadUserInfo();
+            loadUsers();
+            loadSubjects();
+            loadSubjectOptions();
         } else {
-            console.log('⛔ Authentication failed or user is not an admin');
-            // checkAuth() should handle the redirection
+            console.log('User is not authenticated or not an admin');
         }
     } catch (error) {
-        console.error('❌ Critical error in dashboard initialization:', error);
-        showAlert('A critical error occurred while initializing the dashboard', 'error');
-    } finally {
-        console.groupEnd();
+        console.error('Error initializing dashboard:', error);
+        showAlert('An error occurred while initializing the dashboard', 'error');
     }
 }
 

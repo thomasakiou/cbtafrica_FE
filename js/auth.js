@@ -59,17 +59,10 @@ async function checkAuth() {
                 
                 localStorage.setItem('user', JSON.stringify(userData));
                 
-                // Check for admin role - handle both string and array formats
-                const isAdmin = (Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
-                             (typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin') ||
-                             (userData.role_id === 1 || userData.role_id === '1');
+                // Check for admin role (backend uses simple string 'admin')
+                const isAdmin = userData.role && userData.role.toLowerCase() === 'admin';
                 
-                console.log('Auth check - User role info:', {
-                    roles: userData.roles,
-                    role: userData.role,
-                    role_id: userData.role_id,
-                    isAdmin: isAdmin
-                });
+                console.log('User role:', userData.role, 'Is admin?', isAdmin);
                 
                 // Redirect based on user role
                 if (isAdmin) {
@@ -149,17 +142,8 @@ async function handleLogin(event) {
                     localStorage.setItem('full_name', userData.full_name);
                 }
                 
-                // Check for admin role - handle both string and array formats
-                const isAdmin = (Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
-                             (typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin') ||
-                             (userData.role_id === 1 || userData.role_id === '1');
-                
-                console.log('User role info:', {
-                    roles: userData.roles,
-                    role: userData.role,
-                    role_id: userData.role_id,
-                    isAdmin: isAdmin
-                });
+                // Check for admin role (simple string check)
+                const isAdmin = userData.role && userData.role.toLowerCase() === 'admin';
                 
                 // Redirect based on admin status
                 if (isAdmin) {
@@ -184,20 +168,8 @@ async function handleLogin(event) {
                         const userData = await userResponse.json();
                         localStorage.setItem('user', JSON.stringify(userData));
                         
-                        // Check for admin role in the fetched user data
-                        const isAdmin = (Array.isArray(userData.roles) && userData.roles.includes('admin')) ||
-                                     (typeof userData.role === 'string' && userData.role.toLowerCase() === 'admin') ||
-                                     (userData.role_id === 1 || userData.role_id === '1');
-                        
-                        console.log('Fetched user role info:', {
-                            roles: userData.roles,
-                            role: userData.role,
-                            role_id: userData.role_id,
-                            isAdmin: isAdmin
-                        });
-                        
-                        if (isAdmin) {
-                            console.log('Admin user from fetched data, redirecting to admin dashboard');
+                        // Check for admin role (simple string check)
+                        if (userData.role && userData.role.toLowerCase() === 'admin') {
                             window.location.href = 'admin-dashboard.html';
                             return;
                         }

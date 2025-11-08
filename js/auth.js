@@ -120,69 +120,62 @@ async function handleLogin(event) {
         }
 
         const data = await response.json();
-        console.log('Login successful:', data);
+        console.log('Login response data:', data);
         
+        // Store the token if it exists in the response
         if (data.access_token) {
+            console.log('Storing access token in localStorage');
             localStorage.setItem('token', data.access_token);
-            
-            // Get user data from the response or fetch it if not available
-            if (data.user) {
-                // Store user data
-                const userData = data.user;
-                localStorage.setItem('user', JSON.stringify(userData));
-                localStorage.setItem('username', userData.username || '');
-                
-                if (userData.full_name) {
-                    localStorage.setItem('full_name', userData.full_name);
-                }
-                
-                // Store user role in localStorage
-                if (userData.role) {
-                    localStorage.setItem('userRole', userData.role.toLowerCase());
-                }
-                
-                // Check for admin role (simple string check)
-                const isAdmin = userData.role && userData.role.toLowerCase() === 'admin';
-                
-                console.log('User role:', userData.role, 'Is admin?', isAdmin);
-                
-                // Redirect based on admin status
-                if (isAdmin) {
-                    console.log('Admin user detected, redirecting to admin dashboard');
-                    window.location.href = 'admin-dashboard.html';
-                } else {
-                    console.log('Regular user, redirecting to dashboard');
-                    window.location.href = 'dashboard.html';
-                }
-            } else {
-                // If user data isn't in the login response, fetch it
-                try {
-                    const userResponse = await fetch(`${API_BASE_URL}/users/me`, {
-                        headers: {
-                            'Authorization': `Bearer ${data.access_token}`,
-                            'Accept': 'application/json'
-                        },
-                        credentials: 'include'
-                    });
-                    
-                    if (userResponse.ok) {
-                        const userData = await userResponse.json();
-                        localStorage.setItem('user', JSON.stringify(userData));
-                        
-                        // Check for admin role (simple string check)
-                        if (userData.role && userData.role.toLowerCase() === 'admin') {
-                            window.location.href = 'admin-dashboard.html';
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                }
-                
-                // Default to regular dashboard if we can't determine admin status
-                window.location.href = 'dashboard.html';
-            }
+        } else if (data.token) {
+            console.log('Storing token in localStorage');
+            localStorage.setItem('token', data.token);
+        } else {
+            console.warn('No access token found in login response');
         }
+        
+        // Store username in localStorage for role checking
+        console.log('Storing username in localStorage:', username);
+        localStorage.setItem('username', username);
+        
+        // Store user data if available in the response
+        if (data.user) {
+            const userData = data.user;
+            console.log('Storing user data:', userData);
+            
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            // Store role if available
+            if (userData.role) {
+                console.log('Storing user role:', userData.role);
+                localStorage.setItem('userRole', userData.role.toLowerCase());
+            } else {
+                // If no role in response, set a default role based on username
+                const defaultRole = username.toLowerCase() === 'admin' ? 'admin' : 'user';
+                console.log('No role in response, setting default role:', defaultRole);
+                localStorage.setItem('userRole', defaultRole);
+            }
+        } else {
+            // If no user data in response, set role based on username
+            const defaultRole = username.toLowerCase() === 'admin' ? 'admin' : 'user';
+            console.log('No user data in response, setting default role:', defaultRole);
+            localStorage.setItem('userRole', defaultRole);
+        }
+        
+        // Check if user is admin (case-insensitive check)
+        const isAdmin = username.toLowerCase() === 'admin';
+        console.log('User is admin?', isAdmin);
+        
+        // Redirect based on admin status
+        if (isAdmin) {
+            console.log('Admin user detected, redirecting to admin dashboard');
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            console.log('Regular user, redirecting to dashboard');
+            window.location.href = 'dashboard.html';
+        }
+        
+        // If we have a token but no user data, we'll handle it in the checkAuth function
+        return;
     } catch (error) {
         console.error('Login error:', error);
         showAlert(error.message || 'Failed to login. Please try again.', 'error');

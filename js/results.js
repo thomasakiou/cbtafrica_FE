@@ -119,6 +119,10 @@ function renderReviewPage() {
                             '<span class="correct-icon">✓ Correct</span>' :
                             '<span class="wrong-icon">✗ Incorrect - Your answer: ' + (result.userAnswer || 'Not answered') + '</span>'}
                         ${result.explanation ? '<p class="explanation"><strong>Explanation:</strong> ' + result.explanation + '</p>' : ''}
+                        ${result.explanation_image ? 
+                            '<div class="explanation-image" style="margin-top: 1rem;"><img src="' + 
+                            (result.explanation_image.startsWith('http') ? result.explanation_image : 'https://vmi2848672.contaboserver.net/cbt/' + result.explanation_image) + 
+                            '" alt="Explanation diagram" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd;"></div>' : ''}
                     </div>
                 </div>
             </div>
@@ -181,6 +185,7 @@ window.retakeExam = function() {
         localStorage.removeItem('examResult');
         localStorage.removeItem('correctAnswers');
         localStorage.removeItem('explanations');
+        localStorage.removeItem('explanationImages');
         
         // Store new exam config (startTime will be set when exam.html loads)
         const examConfig = {

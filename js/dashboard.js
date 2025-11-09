@@ -103,6 +103,7 @@ async function startExam(event) {
     localStorage.removeItem('examResult');
     localStorage.removeItem('correctAnswers');
     localStorage.removeItem('explanations');
+    localStorage.removeItem('explanationImages');
     
     // Store exam configuration (startTime will be set when exam.html loads)
     localStorage.setItem('examConfig', JSON.stringify({

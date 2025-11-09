@@ -53,14 +53,64 @@ function previewExplanationImage(event, previewId) {
     }
 }
 
-// Convert image file to base64
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
+// Upload explanation image to backend
+async function uploadExplanationImage(questionId, imageFile) {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/questions/${questionId}/upload-explanation-image`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Image uploaded successfully:', data.explanation_image);
+            return data;
+        } else if (response.status === 401) {
+            handleUnauthorized();
+            throw new Error('Unauthorized');
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to upload image');
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+    }
+}
+
+// Delete explanation image from backend
+async function deleteExplanationImage(questionId) {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/questions/${questionId}/explanation-image`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            console.log('Image deleted successfully');
+            return true;
+        } else if (response.status === 401) {
+            handleUnauthorized();
+            throw new Error('Unauthorized');
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to delete image');
+        }
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        throw error;
+    }
 }
 
 // Check if user is authenticated and has admin privileges
@@ -499,7 +549,10 @@ function displayQuestions(questions) {
                             ` : 'N/A'}
                         </td>
                         <td>${question.correct_answer}</td>
-                        <td>${question.explanation || 'N/A'}</td>
+                        <td>
+                            ${question.explanation || 'N/A'}
+                            ${question.explanation_image ? '<br><span style="color: #27ae60; font-size: 0.85rem;">📷 Has image</span>' : ''}
+                        </td>
                         <td style="white-space: nowrap;">
                             <button onclick="editQuestion(${question.id})" class="edit-btn" style="margin-right: 0.5rem;">Edit</button>
                             <button onclick="deleteQuestion(${question.id})" class="delete-btn">Delete</button>
@@ -569,18 +622,6 @@ async function addQuestion(event) {
         correct_answer: correctAnswer
     };
     
-    // Handle explanation image if provided
-    if (explanationImageFile) {
-        try {
-            const base64Image = await fileToBase64(explanationImageFile);
-            payload.explanation_image = base64Image;
-        } catch (error) {
-            console.error('Error converting image to base64:', error);
-            showAlert('Error processing explanation image', 'error');
-            return;
-        }
-    }
-    
     console.log('Sending question payload:', payload);
     
     try {
@@ -594,7 +635,21 @@ async function addQuestion(event) {
         });
         
         if (response.ok) {
-            showAlert('Question added successfully!', 'success');
+            const questionData = await response.json();
+            console.log('Question created:', questionData);
+            
+            // Upload explanation image if provided
+            if (explanationImageFile) {
+                try {
+                    await uploadExplanationImage(questionData.id, explanationImageFile);
+                    showAlert('Question and explanation image added successfully!', 'success');
+                } catch (imgError) {
+                    showAlert('Question added, but failed to upload image: ' + imgError.message, 'warning');
+                }
+            } else {
+                showAlert('Question added successfully!', 'success');
+            }
+            
             event.target.reset();
             document.getElementById('explanation-preview').innerHTML = '';
             currentPage = 1;
@@ -661,10 +716,18 @@ async function editQuestion(questionId) {
     // Display current explanation image if exists
     const currentImageDiv = document.getElementById('edit-current-explanation-image');
     if (question.explanation_image) {
+        // Construct proper image URL
+        const imageUrl = question.explanation_image.startsWith('http') 
+            ? question.explanation_image 
+            : `${API_BASE_URL.replace('/api/v1', '')}/${question.explanation_image}`;
+        
         currentImageDiv.innerHTML = `
             <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">Current Explanation Image:</p>
-            <img src="${question.explanation_image}" alt="Explanation" style="max-width: 100%; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
-            <p style="font-size: 0.85rem; color: #999; margin: 0.3rem 0;">Upload a new image to replace this one</p>
+            <img src="${imageUrl}" alt="Explanation" style="max-width: 100%; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
+            <div style="margin-top: 0.5rem;">
+                <button type="button" onclick="removeCurrentExplanationImage(${question.id})" class="remove-image" style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Delete Current Image</button>
+                <p style="font-size: 0.85rem; color: #999; margin: 0.5rem 0;">Or upload a new image to replace it</p>
+            </div>
         `;
     } else {
         currentImageDiv.innerHTML = '<p style="font-size: 0.9rem; color: #999;">No explanation image currently set</p>';
@@ -675,6 +738,27 @@ async function editQuestion(questionId) {
 
 window.closeEditModal = function() {
     document.getElementById('edit-question-modal').style.display = 'none';
+}
+
+window.removeCurrentExplanationImage = async function(questionId) {
+    if (!confirm('Are you sure you want to delete the current explanation image?')) {
+        return;
+    }
+    
+    try {
+        await deleteExplanationImage(questionId);
+        showAlert('Explanation image deleted successfully!', 'success');
+        
+        // Refresh the edit modal to show updated state
+        const question = allQuestions.find(q => q.id === questionId);
+        if (question) {
+            question.explanation_image = null;
+            document.getElementById('edit-current-explanation-image').innerHTML = 
+                '<p style="font-size: 0.9rem; color: #999;">No explanation image currently set</p>';
+        }
+    } catch (error) {
+        showAlert('Failed to delete image: ' + error.message, 'error');
+    }
 }
 
 async function loadEditSubjectOptions() {
@@ -724,18 +808,6 @@ window.updateQuestion = async function(event) {
         correct_answer: correctAnswer
     };
     
-    // Handle explanation image if a new one is provided
-    if (explanationImageFile) {
-        try {
-            const base64Image = await fileToBase64(explanationImageFile);
-            payload.explanation_image = base64Image;
-        } catch (error) {
-            console.error('Error converting image to base64:', error);
-            showAlert('Error processing explanation image', 'error');
-            return;
-        }
-    }
-    
     try {
         const response = await fetch(`${API_BASE_URL}/questions/${questionId}`, {
             method: 'PUT',
@@ -747,7 +819,18 @@ window.updateQuestion = async function(event) {
         });
         
         if (response.ok) {
-            showAlert('Question updated successfully!', 'success');
+            // Upload new explanation image if provided
+            if (explanationImageFile) {
+                try {
+                    await uploadExplanationImage(questionId, explanationImageFile);
+                    showAlert('Question and explanation image updated successfully!', 'success');
+                } catch (imgError) {
+                    showAlert('Question updated, but failed to upload image: ' + imgError.message, 'warning');
+                }
+            } else {
+                showAlert('Question updated successfully!', 'success');
+            }
+            
             document.getElementById('edit-explanation-preview').innerHTML = '';
             closeEditModal();
             currentPage = 1;

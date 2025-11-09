@@ -201,15 +201,20 @@ async function loadQuestions() {
         ));
     }
     
-    // Store correct answers and explanations before removing them
+    // Store correct answers, explanations, and explanation images before removing them
     const correctAnswers = {};
     const explanations = {};
+    const explanationImages = {};
     questions.forEach(q => {
         correctAnswers[q.id] = q.correct_answer;
         explanations[q.id] = q.explanation;
+        if (q.explanation_image) {
+            explanationImages[q.id] = q.explanation_image;
+        }
     });
     localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
     localStorage.setItem('explanations', JSON.stringify(explanations));
+    localStorage.setItem('explanationImages', JSON.stringify(explanationImages));
     
     // Remove correct answers from questions for security
     questions = questions.map(q => ({
@@ -495,9 +500,10 @@ async function confirmSubmit() {
             submitButton.innerHTML = '<span class="spinner">Submitting...</span>';
         }
         
-        // Get correct answers and explanations
+        // Get correct answers, explanations, and explanation images
         const correctAnswers = JSON.parse(localStorage.getItem('correctAnswers') || '{}');
         const explanations = JSON.parse(localStorage.getItem('explanations') || '{}');
+        const explanationImages = JSON.parse(localStorage.getItem('explanationImages') || '{}');
         
         // Calculate results locally
         let correctCount = 0;
@@ -513,6 +519,7 @@ async function confirmSubmit() {
                 userAnswer: userAnswer || 'Not answered',
                 correctAnswer: correctAnswer,
                 explanation: explanations[question.id],
+                explanation_image: explanationImages[question.id],
                 isCorrect: isCorrect
             };
         });
@@ -544,6 +551,7 @@ async function confirmSubmit() {
         localStorage.removeItem('examConfig');
         localStorage.removeItem('correctAnswers');
         localStorage.removeItem('explanations');
+        localStorage.removeItem('explanationImages');
         
         // Force navigation to results page
         window.location.href = 'results.html';

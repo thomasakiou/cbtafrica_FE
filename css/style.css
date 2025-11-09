@@ -1318,6 +1318,57 @@ footer {
     border-radius: 4px;
 }
 
+.form-group input[type="file"] {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.image-preview {
+    margin-top: 0.5rem;
+    min-height: 50px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-top: 0.5rem;
+}
+
+.image-preview .remove-image {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.image-preview .remove-image:hover {
+    background: #c0392b;
+}
+
+#edit-current-explanation-image {
+    margin-top: 0.5rem;
+}
+
+#edit-current-explanation-image img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+#edit-current-explanation-image p {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0.5rem 0;
+}
+
 /* ======================
    Responsive Design
    ====================== */

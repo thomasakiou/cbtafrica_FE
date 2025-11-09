@@ -4,6 +4,65 @@ if (typeof API_BASE_URL === 'undefined') {
     console.error('API_BASE_URL is not defined. Make sure auth.js loads before admin-dashboard.js');
 }
 
+// Image preview function for explanation images
+function previewExplanationImage(event, previewId) {
+    const file = event.target.files[0];
+    const previewDiv = document.getElementById(previewId);
+    
+    // Clear previous preview
+    previewDiv.innerHTML = '';
+    
+    if (file) {
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showAlert('Image size should not exceed 5MB', 'warning');
+            event.target.value = '';
+            return;
+        }
+        
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+            showAlert('Please select a valid image file', 'warning');
+            event.target.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '300px';
+            img.style.borderRadius = '4px';
+            img.style.border = '1px solid #ddd';
+            img.style.marginTop = '0.5rem';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-image';
+            removeBtn.textContent = 'Remove Image';
+            removeBtn.onclick = function() {
+                previewDiv.innerHTML = '';
+                event.target.value = '';
+            };
+            
+            previewDiv.appendChild(img);
+            previewDiv.appendChild(removeBtn);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Convert image file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
 // Check if user is authenticated and has admin privileges
 async function checkAdminAuth() {
     console.log('=== ADMIN AUTH CHECK START ===');
@@ -486,6 +545,7 @@ async function addQuestion(event) {
     const optionC = document.getElementById('option-c').value;
     const optionD = document.getElementById('option-d').value;
     const correctAnswer = document.getElementById('correct-answer').value;
+    const explanationImageFile = document.getElementById('explanation-image').files[0];
     
     const examTypeMap = {
         'NECO': 1,
@@ -509,6 +569,18 @@ async function addQuestion(event) {
         correct_answer: correctAnswer
     };
     
+    // Handle explanation image if provided
+    if (explanationImageFile) {
+        try {
+            const base64Image = await fileToBase64(explanationImageFile);
+            payload.explanation_image = base64Image;
+        } catch (error) {
+            console.error('Error converting image to base64:', error);
+            showAlert('Error processing explanation image', 'error');
+            return;
+        }
+    }
+    
     console.log('Sending question payload:', payload);
     
     try {
@@ -524,6 +596,7 @@ async function addQuestion(event) {
         if (response.ok) {
             showAlert('Question added successfully!', 'success');
             event.target.reset();
+            document.getElementById('explanation-preview').innerHTML = '';
             currentPage = 1;
             loadQuestions();
         } else if (response.status === 401) {
@@ -581,6 +654,22 @@ async function editQuestion(questionId) {
     document.getElementById('edit-option-d').value = question.options?.D || '';
     document.getElementById('edit-correct-answer').value = question.correct_answer;
     
+    // Clear previous image preview and file input
+    document.getElementById('edit-explanation-image').value = '';
+    document.getElementById('edit-explanation-preview').innerHTML = '';
+    
+    // Display current explanation image if exists
+    const currentImageDiv = document.getElementById('edit-current-explanation-image');
+    if (question.explanation_image) {
+        currentImageDiv.innerHTML = `
+            <p style="font-size: 0.9rem; color: #666; margin: 0.5rem 0;">Current Explanation Image:</p>
+            <img src="${question.explanation_image}" alt="Explanation" style="max-width: 100%; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
+            <p style="font-size: 0.85rem; color: #999; margin: 0.3rem 0;">Upload a new image to replace this one</p>
+        `;
+    } else {
+        currentImageDiv.innerHTML = '<p style="font-size: 0.9rem; color: #999;">No explanation image currently set</p>';
+    }
+    
     document.getElementById('edit-question-modal').style.display = 'flex';
 }
 
@@ -621,6 +710,7 @@ window.updateQuestion = async function(event) {
     const optionC = document.getElementById('edit-option-c').value;
     const optionD = document.getElementById('edit-option-d').value;
     const correctAnswer = document.getElementById('edit-correct-answer').value;
+    const explanationImageFile = document.getElementById('edit-explanation-image').files[0];
     
     const examTypeMap = { 'NECO': 1, 'WAEC': 2, 'JAMB': 3, 'NABTEB': 4 };
     
@@ -634,6 +724,18 @@ window.updateQuestion = async function(event) {
         correct_answer: correctAnswer
     };
     
+    // Handle explanation image if a new one is provided
+    if (explanationImageFile) {
+        try {
+            const base64Image = await fileToBase64(explanationImageFile);
+            payload.explanation_image = base64Image;
+        } catch (error) {
+            console.error('Error converting image to base64:', error);
+            showAlert('Error processing explanation image', 'error');
+            return;
+        }
+    }
+    
     try {
         const response = await fetch(`${API_BASE_URL}/questions/${questionId}`, {
             method: 'PUT',
@@ -646,6 +748,7 @@ window.updateQuestion = async function(event) {
         
         if (response.ok) {
             showAlert('Question updated successfully!', 'success');
+            document.getElementById('edit-explanation-preview').innerHTML = '';
             closeEditModal();
             currentPage = 1;
             loadQuestions();

@@ -1780,7 +1780,7 @@ footer {
 
     .modal-content {
         width: 95%;
-        margin: 10vh auto;
+        margin: 10vh auto auto;
         padding: 1.25rem;
     }
     

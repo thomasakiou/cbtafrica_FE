@@ -192,6 +192,24 @@ async function handleLogin(event) {
     const password = document.getElementById('login-password').value;
     
     try {
+        // Test localStorage availability
+        console.log('0. Testing localStorage availability...');
+        try {
+            const testKey = '__localStorage_test__';
+            localStorage.setItem(testKey, 'test');
+            const retrieved = localStorage.getItem(testKey);
+            localStorage.removeItem(testKey);
+            console.log('0a. localStorage test PASSED:', retrieved === 'test');
+            
+            if (retrieved !== 'test') {
+                throw new Error('localStorage is not working properly on this browser/device');
+            }
+        } catch (e) {
+            console.error('0a. localStorage test FAILED:', e);
+            showAlert('Your browser is blocking data storage. Please check your browser settings or try a different browser.', 'error');
+            return;
+        }
+        
         console.log('1. Starting login process for user:', username);
         console.log('2. Sending login request to:', `${API_BASE_URL}/users/login`);
         
@@ -248,15 +266,43 @@ async function handleLogin(event) {
             throw new Error('Authentication failed: No token received');
         }
         
-        console.log('8. Storing token in localStorage');
-        localStorage.setItem('token', token);
+        console.log('8. Storing token in localStorage (length:', token.length, ')');
+        console.log('8a. Token preview:', token.substring(0, 30) + '...');
         
-        // Verify token was stored
-        const storedToken = localStorage.getItem('token');
-        console.log('9. Token stored successfully:', storedToken ? 'Yes' : 'No');
+        // Try to store token with multiple attempts
+        let attempts = 0;
+        let storedToken = null;
+        
+        while (attempts < 3 && !storedToken) {
+            attempts++;
+            console.log(`8b. Attempt ${attempts} to store token...`);
+            
+            try {
+                localStorage.setItem('token', token);
+                storedToken = localStorage.getItem('token');
+                
+                if (storedToken && storedToken === token) {
+                    console.log(`8c. Attempt ${attempts} SUCCESS - token stored and verified`);
+                    break;
+                } else {
+                    console.error(`8c. Attempt ${attempts} FAILED - stored token doesn't match`);
+                    console.error('Expected:', token.substring(0, 50));
+                    console.error('Got:', storedToken ? storedToken.substring(0, 50) : 'null');
+                }
+            } catch (e) {
+                console.error(`8c. Attempt ${attempts} ERROR:`, e);
+            }
+        }
+        
+        // Final verification
+        console.log('9. Final token verification - stored successfully:', !!storedToken);
+        console.log('9a. Stored token matches original:', storedToken === token);
         
         if (!storedToken) {
-            console.error('Failed to store token in localStorage');
+            console.error('CRITICAL: Failed to store token after 3 attempts');
+            console.error('localStorage available:', typeof Storage !== 'undefined');
+            console.error('localStorage.length:', localStorage.length);
+            showAlert('Failed to save login session. Please check your browser settings and try again.', 'error');
             throw new Error('Failed to store authentication token');
         }
         

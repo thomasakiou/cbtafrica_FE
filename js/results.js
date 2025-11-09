@@ -9,23 +9,28 @@ const REVIEW_PAGE_SIZE = 10;
 function getImageUrl(imagePath) {
     if (!imagePath) return null;
     
+    console.log('getImageUrl called with:', imagePath);
+    
     // If already a full URL, return as is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        console.log('Already full URL, returning:', imagePath);
         return imagePath;
     }
     
-    // For Netlify deployment, use relative path to go through proxy
-    // For local development, use full backend URL
+    // Remove any leading slashes and add one back for consistency
+    let cleanPath = imagePath.replace(/^\/+/, '');
+    
+    // Construct the URL based on environment
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Local development - use full backend URL
-        const baseUrl = 'https://vmi2848672.contaboserver.net/cbt';
-        const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
-        return baseUrl + cleanPath;
+        const fullUrl = `https://vmi2848672.contaboserver.net/cbt/${cleanPath}`;
+        console.log('Local - Constructed full URL:', fullUrl);
+        return fullUrl;
     } else {
-        // Production (Netlify) - use relative path to leverage proxy
-        // This will go through netlify.toml redirects
-        const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
-        return cleanPath;
+        // Production (Netlify) - use relative path through proxy
+        const relativeUrl = `/${cleanPath}`;
+        console.log('Production - Using relative URL:', relativeUrl);
+        return relativeUrl;
     }
 }
 

@@ -910,7 +910,7 @@ main {
 
 .modal-content {
     background-color: white;
-    margin: 15vh auto;
+    margin: 15vh auto auto;
     padding: 1.5rem 1.5rem 1rem;
     border-radius: 8px;
     width: 90%;

@@ -17,8 +17,8 @@ function getQuestionImageUrl(imagePath) {
         return imagePath;
     }
     
-    // Remove any leading slashes and add one back for consistency
-    let cleanPath = imagePath.replace(/^\/+/, '');
+    // Remove any leading slashes and 'cbt/' prefix if present
+    let cleanPath = imagePath.replace(/^\/+/, '').replace(/^cbt\//, '');
     
     // For production, use relative URL which will go through Netlify proxy
     // For local development, use full backend URL
@@ -26,6 +26,10 @@ function getQuestionImageUrl(imagePath) {
         return `https://vmi2848672.contaboserver.net/cbt/${cleanPath}`;
     } else {
         // Use relative path - Netlify will proxy to backend
+        // Make sure path starts with /uploads/ for the proxy to work
+        if (!cleanPath.startsWith('uploads/')) {
+            console.error('Invalid image path, expected uploads/... but got:', cleanPath);
+        }
         return `/${cleanPath}`;
     }
 }

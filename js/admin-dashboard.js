@@ -168,6 +168,10 @@ async function uploadQuestionImage(questionId, imageFile) {
     const formData = new FormData();
     formData.append('file', imageFile);
     
+    console.log('Uploading question image for question ID:', questionId);
+    console.log('Image file:', imageFile.name, 'Size:', imageFile.size);
+    console.log('Upload URL:', `${API_BASE_URL}/questions/${questionId}/upload-question-image`);
+    
     try {
         const response = await fetch(`${API_BASE_URL}/questions/${questionId}/upload-question-image`, {
             method: 'POST',
@@ -177,15 +181,19 @@ async function uploadQuestionImage(questionId, imageFile) {
             body: formData
         });
         
+        console.log('Upload response status:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
-            console.log('Question image uploaded successfully:', data.question_image);
+            console.log('Question image uploaded successfully. Full response:', data);
+            console.log('Question image path:', data.question_image);
             return data;
         } else if (response.status === 401) {
             handleUnauthorized();
             throw new Error('Unauthorized');
         } else {
             const error = await response.json();
+            console.error('Upload failed with error:', error);
             throw new Error(error.detail || 'Failed to upload question image');
         }
     } catch (error) {
@@ -754,21 +762,29 @@ async function addQuestion(event) {
             // Upload images if provided
             let questionImageUploaded = false;
             let explanationImageUploaded = false;
+            let questionImageError = null;
+            let explanationImageError = null;
             
             if (questionImageFile) {
+                console.log('Attempting to upload question image...');
                 try {
-                    await uploadQuestionImage(questionData.id, questionImageFile);
+                    const result = await uploadQuestionImage(questionData.id, questionImageFile);
                     questionImageUploaded = true;
+                    console.log('Question image upload successful, result:', result);
                 } catch (imgError) {
+                    questionImageError = imgError.message;
                     console.error('Failed to upload question image:', imgError);
                 }
             }
             
             if (explanationImageFile) {
+                console.log('Attempting to upload explanation image...');
                 try {
-                    await uploadExplanationImage(questionData.id, explanationImageFile);
+                    const result = await uploadExplanationImage(questionData.id, explanationImageFile);
                     explanationImageUploaded = true;
+                    console.log('Explanation image upload successful, result:', result);
                 } catch (imgError) {
+                    explanationImageError = imgError.message;
                     console.error('Failed to upload explanation image:', imgError);
                 }
             }
@@ -777,9 +793,16 @@ async function addQuestion(event) {
             if (questionImageUploaded && explanationImageUploaded) {
                 showAlert('Question and images added successfully!', 'success');
             } else if (questionImageUploaded || explanationImageUploaded) {
-                showAlert('Question added with images!', 'success');
+                let msg = 'Question added';
+                if (questionImageUploaded) msg += ' with question image';
+                if (explanationImageUploaded) msg += ' with explanation image';
+                msg += '!';
+                showAlert(msg, 'success');
             } else if (questionImageFile || explanationImageFile) {
-                showAlert('Question added, but some images failed to upload', 'warning');
+                let errorMsg = 'Question added, but image upload failed: ';
+                if (questionImageError) errorMsg += `Question image: ${questionImageError}. `;
+                if (explanationImageError) errorMsg += `Explanation image: ${explanationImageError}.`;
+                showAlert(errorMsg, 'warning');
             } else {
                 showAlert('Question added successfully!', 'success');
             }
@@ -1000,21 +1023,29 @@ window.updateQuestion = async function(event) {
             // Upload new images if provided
             let questionImageUploaded = false;
             let explanationImageUploaded = false;
+            let questionImageError = null;
+            let explanationImageError = null;
             
             if (questionImageFile) {
+                console.log('Attempting to upload question image...');
                 try {
-                    await uploadQuestionImage(questionId, questionImageFile);
+                    const result = await uploadQuestionImage(questionId, questionImageFile);
                     questionImageUploaded = true;
+                    console.log('Question image upload successful, result:', result);
                 } catch (imgError) {
+                    questionImageError = imgError.message;
                     console.error('Failed to upload question image:', imgError);
                 }
             }
             
             if (explanationImageFile) {
+                console.log('Attempting to upload explanation image...');
                 try {
-                    await uploadExplanationImage(questionId, explanationImageFile);
+                    const result = await uploadExplanationImage(questionId, explanationImageFile);
                     explanationImageUploaded = true;
+                    console.log('Explanation image upload successful, result:', result);
                 } catch (imgError) {
+                    explanationImageError = imgError.message;
                     console.error('Failed to upload explanation image:', imgError);
                 }
             }
@@ -1023,9 +1054,16 @@ window.updateQuestion = async function(event) {
             if (questionImageUploaded && explanationImageUploaded) {
                 showAlert('Question and images updated successfully!', 'success');
             } else if (questionImageUploaded || explanationImageUploaded) {
-                showAlert('Question updated with images!', 'success');
+                let msg = 'Question updated';
+                if (questionImageUploaded) msg += ' with question image';
+                if (explanationImageUploaded) msg += ' with explanation image';
+                msg += '!';
+                showAlert(msg, 'success');
             } else if (questionImageFile || explanationImageFile) {
-                showAlert('Question updated, but some images failed to upload', 'warning');
+                let errorMsg = 'Question updated, but image upload failed: ';
+                if (questionImageError) errorMsg += `Question image: ${questionImageError}. `;
+                if (explanationImageError) errorMsg += `Explanation image: ${explanationImageError}.`;
+                showAlert(errorMsg, 'warning');
             } else {
                 showAlert('Question updated successfully!', 'success');
             }

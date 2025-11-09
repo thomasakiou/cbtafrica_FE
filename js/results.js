@@ -1,8 +1,28 @@
 // const API_BASE_URL = 'http://localhost:8000/api/v1';
+// API_BASE_URL is defined in auth.js which loads first
 
 let examResult = {};
 let currentReviewPage = 1;
 const REVIEW_PAGE_SIZE = 10;
+
+// Helper function to construct image URL
+function getImageUrl(imagePath) {
+    if (!imagePath) return null;
+    
+    // If already a full URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        return imagePath;
+    }
+    
+    // Construct URL from backend base
+    const baseUrl = typeof API_BASE_URL !== 'undefined' 
+        ? API_BASE_URL.replace('/api/v1', '') 
+        : 'https://vmi2848672.contaboserver.net/cbt';
+    
+    // Ensure proper path joining
+    const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+    return baseUrl + cleanPath;
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
@@ -17,6 +37,10 @@ function loadResults() {
         setTimeout(() => window.location.href = 'dashboard.html', 1500);
         return;
     }
+    
+    console.log('Exam result loaded:', examResult);
+    console.log('First result item:', examResult.results?.[0]);
+    console.log('Has explanation_image?', examResult.results?.[0]?.explanation_image);
     
     displayResults();
 }
@@ -119,10 +143,22 @@ function renderReviewPage() {
                             '<span class="correct-icon">✓ Correct</span>' :
                             '<span class="wrong-icon">✗ Incorrect - Your answer: ' + (result.userAnswer || 'Not answered') + '</span>'}
                         ${result.explanation ? '<p class="explanation"><strong>Explanation:</strong> ' + result.explanation + '</p>' : ''}
-                        ${result.explanation_image ? 
-                            '<div class="explanation-image" style="margin-top: 1rem;"><img src="' + 
-                            (result.explanation_image.startsWith('http') ? result.explanation_image : 'https://vmi2848672.contaboserver.net/cbt/' + result.explanation_image) + 
-                            '" alt="Explanation diagram" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd;"></div>' : ''}
+                        ${(() => {
+                            if (result.explanation_image) {
+                                const imageUrl = getImageUrl(result.explanation_image);
+                                console.log('Rendering explanation image for question:', result.question.substring(0, 50));
+                                console.log('Image path:', result.explanation_image);
+                                console.log('Full URL:', imageUrl);
+                                return '<div class="explanation-image" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">' +
+                                       '<p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #666;">Visual Explanation:</p>' +
+                                       '<img src="' + imageUrl + '" alt="Explanation diagram" ' +
+                                       'style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd; display: block;" ' +
+                                       'onerror="console.error(\'Failed to load image:\', this.src); this.style.display=\'none\'; this.parentElement.innerHTML += \'<p style=\\\'color: red;\\\'>(Image failed to load)</p>\'">' +
+                                       '</div>';
+                            } else {
+                                return '';
+                            }
+                        })()}
                     </div>
                 </div>
             </div>

@@ -20,18 +20,10 @@ function getImageUrl(imagePath) {
     // Remove any leading slashes and add one back for consistency
     let cleanPath = imagePath.replace(/^\/+/, '');
     
-    // Construct the URL based on environment
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        // Local development - use full backend URL
-        const fullUrl = `https://vmi2848672.contaboserver.net/cbt/${cleanPath}`;
-        console.log('Local - Constructed full URL:', fullUrl);
-        return fullUrl;
-    } else {
-        // Production (Netlify) - use relative path through proxy
-        const relativeUrl = `/${cleanPath}`;
-        console.log('Production - Using relative URL:', relativeUrl);
-        return relativeUrl;
-    }
+    // Always use the backend URL directly - images are stored on backend server
+    const fullUrl = `https://vmi2848672.contaboserver.net/cbt/${cleanPath}`;
+    console.log('Constructed backend URL:', fullUrl);
+    return fullUrl;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

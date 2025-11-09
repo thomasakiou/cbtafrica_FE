@@ -39,10 +39,17 @@ function initializeExam() {
     if (!examConfig.startTime) {
         examConfig.startTime = Date.now();
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
+        // Set full time remaining for new exam
+        timeRemaining = examConfig.duration * 60;
     } else if (!savedState) {
         // Only calculate time remaining if we're not restoring from saved state
         const elapsedSeconds = Math.floor((Date.now() - examConfig.startTime) / 1000);
         timeRemaining = Math.max(0, (examConfig.duration * 60) - elapsedSeconds);
+    }
+    
+    // Ensure timeRemaining is set to full duration if it's still 0 and not a saved state
+    if (timeRemaining === 0 && savedState !== 'true') {
+        timeRemaining = examConfig.duration * 60;
     }
     
     // Debug: Log all localStorage items

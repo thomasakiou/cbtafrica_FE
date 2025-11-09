@@ -14,14 +14,19 @@ function getImageUrl(imagePath) {
         return imagePath;
     }
     
-    // Construct URL from backend base
-    const baseUrl = typeof API_BASE_URL !== 'undefined' 
-        ? API_BASE_URL.replace('/api/v1', '') 
-        : 'https://vmi2848672.contaboserver.net/cbt';
-    
-    // Ensure proper path joining
-    const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
-    return baseUrl + cleanPath;
+    // For Netlify deployment, use relative path to go through proxy
+    // For local development, use full backend URL
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // Local development - use full backend URL
+        const baseUrl = 'https://vmi2848672.contaboserver.net/cbt';
+        const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+        return baseUrl + cleanPath;
+    } else {
+        // Production (Netlify) - use relative path to leverage proxy
+        // This will go through netlify.toml redirects
+        const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+        return cleanPath;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

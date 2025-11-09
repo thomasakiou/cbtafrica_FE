@@ -8,6 +8,28 @@ let userAnswers = {};
 let timer = null;
 let timeRemaining = 0;
 
+// Helper function to construct question image URL
+function getQuestionImageUrl(imagePath) {
+    if (!imagePath) return null;
+    
+    // If already a full URL, return as is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        return imagePath;
+    }
+    
+    // Remove any leading slashes and add one back for consistency
+    let cleanPath = imagePath.replace(/^\/+/, '');
+    
+    // For production, use relative URL which will go through Netlify proxy
+    // For local development, use full backend URL
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return `https://vmi2848672.contaboserver.net/cbt/${cleanPath}`;
+    } else {
+        // Use relative path - Netlify will proxy to backend
+        return `/${cleanPath}`;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
     initializeExam();
@@ -278,7 +300,28 @@ function displayQuestion() {
     const questionDisplayEl = document.getElementById('question-display');
     
     if (questionNumEl) questionNumEl.textContent = currentQuestionIndex + 1;
-    if (questionDisplayEl) questionDisplayEl.textContent = question.question_text;
+    
+    // Display question text and image (text above image if both exist)
+    if (questionDisplayEl) {
+        let content = '';
+        
+        // Add question text if available
+        if (question.question_text && question.question_text.trim()) {
+            content += `<p style="margin: 0 0 1rem 0; font-size: 1.1rem; line-height: 1.6;">${question.question_text}</p>`;
+        }
+        
+        // Add question image if available
+        if (question.question_image) {
+            const imageUrl = getQuestionImageUrl(question.question_image);
+            content += `<div style="margin: 1rem 0;">
+                <img src="${imageUrl}" alt="Question diagram" 
+                     style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd; display: block;"
+                     onerror="this.style.display='none';">
+            </div>`;
+        }
+        
+        questionDisplayEl.innerHTML = content || '<p style="color: #999;">No question content available</p>';
+    }
     
     // Display options
     if (question.options && typeof question.options === 'object') {

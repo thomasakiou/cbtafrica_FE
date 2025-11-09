@@ -46,18 +46,31 @@ function initializeExam() {
         console.log('Resuming exam with saved state:', { timeRemaining, currentQuestionIndex });
     } else {
         // Starting a fresh exam
-        console.log('Starting new exam with duration:', examConfig.duration, 'minutes');
+        console.log('=== STARTING NEW EXAM ===');
+        console.log('Exam config:', JSON.stringify(examConfig, null, 2));
+        console.log('Duration from config:', examConfig.duration);
+        console.log('Duration type:', typeof examConfig.duration);
         
         // Set start time for new exam
         examConfig.startTime = Date.now();
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
         
-        // Initialize with full duration
-        timeRemaining = examConfig.duration * 60;
+        // Initialize with full duration - ensure it's a number
+        const durationInMinutes = parseInt(examConfig.duration);
+        if (isNaN(durationInMinutes) || durationInMinutes <= 0) {
+            console.error('Invalid duration:', examConfig.duration);
+            showAlert('Invalid exam duration. Redirecting to dashboard.', 'error');
+            setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            return;
+        }
+        
+        timeRemaining = durationInMinutes * 60;
         userAnswers = {};
         currentQuestionIndex = 0;
         
-        console.log('New exam initialized. Time remaining (seconds):', timeRemaining);
+        console.log('Duration in minutes:', durationInMinutes);
+        console.log('Time remaining set to (seconds):', timeRemaining);
+        console.log('=== END NEW EXAM SETUP ===');
     }
     
     // Debug: Log all localStorage items
@@ -408,16 +421,35 @@ function updateQuestionNavigator() {
 }
 
 function startTimer() {
+    console.log('=== STARTING TIMER ===');
+    console.log('Time remaining at timer start:', timeRemaining);
+    console.log('Time remaining type:', typeof timeRemaining);
+    
+    // Validate timeRemaining before starting
+    if (isNaN(timeRemaining) || timeRemaining <= 0) {
+        console.error('INVALID TIME REMAINING:', timeRemaining);
+        console.error('Exam config:', examConfig);
+        showAlert('Timer initialization failed. Please restart the exam.', 'error');
+        setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        return;
+    }
+    
     updateTimerDisplay();
     
     // Clear any existing timer to prevent multiple timers
-    if (timer) clearInterval(timer);
+    if (timer) {
+        console.log('Clearing existing timer');
+        clearInterval(timer);
+    }
+    
+    console.log('Timer started successfully');
     
     timer = setInterval(() => {
         timeRemaining--;
         updateTimerDisplay();
         
         if (timeRemaining <= 0) {
+            console.log('Time expired - showing timeout modal');
             clearInterval(timer);
             timer = null;
             showTimeoutModal();

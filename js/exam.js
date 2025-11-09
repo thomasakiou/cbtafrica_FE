@@ -7,10 +7,17 @@ let currentQuestionIndex = 0;
 let userAnswers = {};
 let timer = null;
 let timeRemaining = 0;
+let isInitialized = false;  // Flag to prevent multiple initializations
 
 document.addEventListener('DOMContentLoaded', function() {
-    checkAuth();
-    initializeExam();
+    console.log('DOMContentLoaded fired, isInitialized:', isInitialized);
+    if (!isInitialized) {
+        isInitialized = true;
+        checkAuth();
+        initializeExam();
+    } else {
+        console.log('Exam already initialized, skipping duplicate initialization');
+    }
 });
 
 function initializeExam() {
@@ -424,6 +431,7 @@ function startTimer() {
     console.log('=== STARTING TIMER ===');
     console.log('Time remaining at timer start:', timeRemaining);
     console.log('Time remaining type:', typeof timeRemaining);
+    console.log('Existing timer:', timer ? 'YES' : 'NO');
     
     // Validate timeRemaining before starting
     if (isNaN(timeRemaining) || timeRemaining <= 0) {
@@ -434,15 +442,16 @@ function startTimer() {
         return;
     }
     
-    updateTimerDisplay();
-    
-    // Clear any existing timer to prevent multiple timers
+    // Prevent starting multiple timers
     if (timer) {
-        console.log('Clearing existing timer');
+        console.warn('Timer already running! Clearing existing timer to prevent duplicates.');
         clearInterval(timer);
+        timer = null;
     }
     
-    console.log('Timer started successfully');
+    updateTimerDisplay();
+    
+    console.log('Starting new timer interval');
     
     timer = setInterval(() => {
         timeRemaining--;
@@ -455,6 +464,8 @@ function startTimer() {
             showTimeoutModal();
         }
     }, 1000);
+    
+    console.log('Timer started successfully with ID:', timer);
 }
 
 function updateTimerDisplay() {

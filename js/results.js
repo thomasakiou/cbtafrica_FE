@@ -173,9 +173,6 @@ window.showTab = function(tabName, event) {
 
 window.retakeExam = function() {
     showConfirm('Are you sure you want to retake this exam?', () => {
-        console.log('=== RETAKE EXAM ===');
-        console.log('Current examResult:', examResult);
-        
         // Clear all exam-related data from localStorage
         localStorage.removeItem('examInProgress');
         localStorage.removeItem('timeRemaining');
@@ -191,17 +188,13 @@ window.retakeExam = function() {
             examType: examResult.examType,
             subjectId: examResult.subjectId,
             subjectName: examResult.subjectName,
-            duration: parseInt(examResult.duration),  // Ensure it's a number
-            questionCount: parseInt(examResult.totalQuestions)  // Ensure it's a number
+            duration: examResult.duration,
+            questionCount: examResult.totalQuestions
         };
-        
-        console.log('Storing retake config:', JSON.stringify(examConfig, null, 2));
-        console.log('Duration:', examConfig.duration, 'Type:', typeof examConfig.duration);
         
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
         
         // Go to exam page with a cache-busting parameter
-        console.log('Navigating to exam.html for retake');
         window.location.href = 'exam.html?retake=' + Date.now();
     });
 }

@@ -76,8 +76,6 @@ function displayPreviousResults(results) {
 async function startExam(event) {
     event.preventDefault();
     
-    console.log('=== START EXAM FORM SUBMITTED ===');
-    
     const examType = document.getElementById('exam-type').value;
     const subjectId = document.getElementById('subject').value;
     const subjectSelect = document.getElementById('subject');
@@ -85,24 +83,8 @@ async function startExam(event) {
     const duration = parseInt(document.getElementById('test-duration').value);
     const questionCount = parseInt(document.getElementById('question-count').value);
     
-    console.log('Form values:', {
-        examType,
-        subjectId,
-        subjectName,
-        duration,
-        durationtype: typeof duration,
-        questionCount,
-        questionCountType: typeof questionCount
-    });
-    
     if (!examType || !subjectId || !duration || !questionCount || subjectName === 'Choose Subject') {
         showAlert('Please fill in all fields', 'warning');
-        return;
-    }
-    
-    if (isNaN(duration) || duration <= 0) {
-        console.error('Invalid duration value:', duration);
-        showAlert('Invalid duration selected', 'error');
         return;
     }
     
@@ -123,19 +105,15 @@ async function startExam(event) {
     localStorage.removeItem('explanations');
     
     // Store exam configuration (startTime will be set when exam.html loads)
-    const configToStore = {
+    localStorage.setItem('examConfig', JSON.stringify({
         examType,
         subjectId: parseInt(subjectId),
         subjectName,
         examTypeId: examTypeMap[examType],
-        duration: duration,  // Already parsed as int
-        questionCount: questionCount  // Already parsed as int
-    };
+        duration,
+        questionCount
+    }));
     
-    console.log('Storing exam config:', JSON.stringify(configToStore, null, 2));
-    localStorage.setItem('examConfig', JSON.stringify(configToStore));
-    
-    console.log('Navigating to exam.html');
     window.location.href = 'exam.html';
 }
 

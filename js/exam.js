@@ -7,17 +7,10 @@ let currentQuestionIndex = 0;
 let userAnswers = {};
 let timer = null;
 let timeRemaining = 0;
-let isInitialized = false;  // Flag to prevent multiple initializations
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded fired, isInitialized:', isInitialized);
-    if (!isInitialized) {
-        isInitialized = true;
-        checkAuth();
-        initializeExam();
-    } else {
-        console.log('Exam already initialized, skipping duplicate initialization');
-    }
+    checkAuth();
+    initializeExam();
 });
 
 function initializeExam() {
@@ -53,31 +46,18 @@ function initializeExam() {
         console.log('Resuming exam with saved state:', { timeRemaining, currentQuestionIndex });
     } else {
         // Starting a fresh exam
-        console.log('=== STARTING NEW EXAM ===');
-        console.log('Exam config:', JSON.stringify(examConfig, null, 2));
-        console.log('Duration from config:', examConfig.duration);
-        console.log('Duration type:', typeof examConfig.duration);
+        console.log('Starting new exam with duration:', examConfig.duration, 'minutes');
         
         // Set start time for new exam
         examConfig.startTime = Date.now();
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
         
-        // Initialize with full duration - ensure it's a number
-        const durationInMinutes = parseInt(examConfig.duration);
-        if (isNaN(durationInMinutes) || durationInMinutes <= 0) {
-            console.error('Invalid duration:', examConfig.duration);
-            showAlert('Invalid exam duration. Redirecting to dashboard.', 'error');
-            setTimeout(() => window.location.href = 'dashboard.html', 2000);
-            return;
-        }
-        
-        timeRemaining = durationInMinutes * 60;
+        // Initialize with full duration
+        timeRemaining = examConfig.duration * 60;
         userAnswers = {};
         currentQuestionIndex = 0;
         
-        console.log('Duration in minutes:', durationInMinutes);
-        console.log('Time remaining set to (seconds):', timeRemaining);
-        console.log('=== END NEW EXAM SETUP ===');
+        console.log('New exam initialized. Time remaining (seconds):', timeRemaining);
     }
     
     // Debug: Log all localStorage items
@@ -428,44 +408,21 @@ function updateQuestionNavigator() {
 }
 
 function startTimer() {
-    console.log('=== STARTING TIMER ===');
-    console.log('Time remaining at timer start:', timeRemaining);
-    console.log('Time remaining type:', typeof timeRemaining);
-    console.log('Existing timer:', timer ? 'YES' : 'NO');
-    
-    // Validate timeRemaining before starting
-    if (isNaN(timeRemaining) || timeRemaining <= 0) {
-        console.error('INVALID TIME REMAINING:', timeRemaining);
-        console.error('Exam config:', examConfig);
-        showAlert('Timer initialization failed. Please restart the exam.', 'error');
-        setTimeout(() => window.location.href = 'dashboard.html', 2000);
-        return;
-    }
-    
-    // Prevent starting multiple timers
-    if (timer) {
-        console.warn('Timer already running! Clearing existing timer to prevent duplicates.');
-        clearInterval(timer);
-        timer = null;
-    }
-    
     updateTimerDisplay();
     
-    console.log('Starting new timer interval');
+    // Clear any existing timer to prevent multiple timers
+    if (timer) clearInterval(timer);
     
     timer = setInterval(() => {
         timeRemaining--;
         updateTimerDisplay();
         
         if (timeRemaining <= 0) {
-            console.log('Time expired - showing timeout modal');
             clearInterval(timer);
             timer = null;
             showTimeoutModal();
         }
     }, 1000);
-    
-    console.log('Timer started successfully with ID:', timer);
 }
 
 function updateTimerDisplay() {

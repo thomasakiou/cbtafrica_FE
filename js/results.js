@@ -149,6 +149,22 @@ function renderReviewPage() {
                 </div>
                 <div class="question-content">
                     <p><strong>Question:</strong> ${result.question}</p>
+                    ${(() => {
+                        if (result.question_image) {
+                            const imageUrl = getImageUrl(result.question_image);
+                            console.log('Rendering question image for question:', result.question.substring(0, 50));
+                            console.log('Image path:', result.question_image);
+                            console.log('Full URL:', imageUrl);
+                            return '<div class="question-image" style="margin-top: 0.5rem; padding: 1rem; background: #f0f8ff; border-radius: 4px;">' +
+                                   '<p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #666;">Question Image:</p>' +
+                                   '<img src="' + imageUrl + '" alt="Question diagram" ' +
+                                   'style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd; display: block;" ' +
+                                   'onerror="console.error(\'Failed to load question image:\', this.src); this.style.display=\'none\'; this.parentElement.innerHTML += \'<p style=\\\'color: red;\\\'>(Image failed to load)</p>\'">' +
+                                   '</div>';
+                        } else {
+                            return '';
+                        }
+                    })()}
                     <div class="options-review">
                         ${optionsHTML}
                     </div>

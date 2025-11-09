@@ -562,6 +562,7 @@ async function confirmSubmit() {
             
             return {
                 question: question.question_text,
+                question_image: question.question_image, // Include question image
                 options: question.options,
                 userAnswer: userAnswer || 'Not answered',
                 correctAnswer: correctAnswer,

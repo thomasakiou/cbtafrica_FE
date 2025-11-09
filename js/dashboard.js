@@ -95,15 +95,23 @@ async function startExam(event) {
         'NABTEB': 4
     };
     
-    // Store exam configuration
+    // Clear any previous exam state
+    localStorage.removeItem('examInProgress');
+    localStorage.removeItem('timeRemaining');
+    localStorage.removeItem('userAnswers');
+    localStorage.removeItem('currentQuestionIndex');
+    localStorage.removeItem('examResult');
+    localStorage.removeItem('correctAnswers');
+    localStorage.removeItem('explanations');
+    
+    // Store exam configuration (startTime will be set when exam.html loads)
     localStorage.setItem('examConfig', JSON.stringify({
         examType,
         subjectId: parseInt(subjectId),
         subjectName,
         examTypeId: examTypeMap[examType],
         duration,
-        questionCount,
-        startTime: Date.now()
+        questionCount
     }));
     
     window.location.href = 'exam.html';

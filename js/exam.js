@@ -16,15 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeExam() {
     // Load saved state if exists
     const savedState = localStorage.getItem('examInProgress');
-    if (savedState === 'true') {
-        const savedTime = parseInt(localStorage.getItem('timeRemaining'));
-        const savedAnswers = localStorage.getItem('userAnswers');
-        const savedIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
-        
-        if (!isNaN(savedTime)) timeRemaining = savedTime;
-        if (savedAnswers) userAnswers = JSON.parse(savedAnswers);
-        if (!isNaN(savedIndex)) currentQuestionIndex = savedIndex;
-    }
     
     examConfig = JSON.parse(localStorage.getItem('examConfig'));
     currentAttempt = JSON.parse(localStorage.getItem('currentAttempt'));
@@ -35,21 +26,38 @@ function initializeExam() {
         return;
     }
     
-    // Set start time if not already set
-    if (!examConfig.startTime) {
+    // Handle exam state initialization
+    if (savedState === 'true') {
+        // Resuming an existing exam - restore saved state
+        const savedTime = parseInt(localStorage.getItem('timeRemaining'));
+        const savedAnswers = localStorage.getItem('userAnswers');
+        const savedIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+        
+        if (!isNaN(savedTime) && savedTime > 0) {
+            timeRemaining = savedTime;
+        } else {
+            // Fallback if saved time is invalid
+            timeRemaining = examConfig.duration * 60;
+        }
+        
+        if (savedAnswers) userAnswers = JSON.parse(savedAnswers);
+        if (!isNaN(savedIndex)) currentQuestionIndex = savedIndex;
+        
+        console.log('Resuming exam with saved state:', { timeRemaining, currentQuestionIndex });
+    } else {
+        // Starting a fresh exam
+        console.log('Starting new exam with duration:', examConfig.duration, 'minutes');
+        
+        // Set start time for new exam
         examConfig.startTime = Date.now();
         localStorage.setItem('examConfig', JSON.stringify(examConfig));
-        // Set full time remaining for new exam
+        
+        // Initialize with full duration
         timeRemaining = examConfig.duration * 60;
-    } else if (!savedState) {
-        // Only calculate time remaining if we're not restoring from saved state
-        const elapsedSeconds = Math.floor((Date.now() - examConfig.startTime) / 1000);
-        timeRemaining = Math.max(0, (examConfig.duration * 60) - elapsedSeconds);
-    }
-    
-    // Ensure timeRemaining is set to full duration if it's still 0 and not a saved state
-    if (timeRemaining === 0 && savedState !== 'true') {
-        timeRemaining = examConfig.duration * 60;
+        userAnswers = {};
+        currentQuestionIndex = 0;
+        
+        console.log('New exam initialized. Time remaining (seconds):', timeRemaining);
     }
     
     // Debug: Log all localStorage items

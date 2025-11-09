@@ -179,17 +179,17 @@ window.retakeExam = function() {
         localStorage.removeItem('userAnswers');
         localStorage.removeItem('currentQuestionIndex');
         localStorage.removeItem('examResult');
+        localStorage.removeItem('correctAnswers');
+        localStorage.removeItem('explanations');
         
-        // Store new exam config
+        // Store new exam config (startTime will be set when exam.html loads)
         const examConfig = {
             examTypeId: examResult.examTypeId,
             examType: examResult.examType,
             subjectId: examResult.subjectId,
             subjectName: examResult.subjectName,
             duration: examResult.duration,
-            questionCount: examResult.totalQuestions,
-            // Reset start time to now for the new attempt
-            startTime: Date.now()
+            questionCount: examResult.totalQuestions
         };
         
         localStorage.setItem('examConfig', JSON.stringify(examConfig));

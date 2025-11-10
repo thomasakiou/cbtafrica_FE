@@ -185,8 +185,18 @@ function clearAuthData() {
     });
 }
 
+let isLoggingIn = false;
+
 async function handleLogin(event) {
     event.preventDefault();
+    
+    // Prevent duplicate submissions
+    if (isLoggingIn) {
+        console.log('Login already in progress, ignoring duplicate submission');
+        return;
+    }
+    
+    isLoggingIn = true;
     
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
@@ -421,14 +431,36 @@ async function handleLogin(event) {
     } catch (error) {
         console.error('Login error:', error);
         showAlert(error.message || 'Failed to login. Please try again.', 'error');
+    } finally {
+        // Always reset the flag to allow future login attempts
+        isLoggingIn = false;
     }
 }
 
 // Handle user registration
+let isRegistering = false;
+
 async function handleRegister(event) {
     event.preventDefault();
     
+    // Prevent duplicate submissions
+    if (isRegistering) {
+        console.log('Registration already in progress, ignoring duplicate submission');
+        return;
+    }
+    
+    isRegistering = true;
+    
     const form = event.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton ? submitButton.textContent : '';
+    
+    // Disable button and show loading state
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating Account...';
+    }
+    
     const formData = new FormData(form);
     const userData = {
         username: formData.get('username'),
@@ -436,6 +468,13 @@ async function handleRegister(event) {
         password: formData.get('password'),
         full_name: formData.get('fullname')
     };
+
+    console.log('Attempting registration with:', {
+        username: userData.username,
+        email: userData.email,
+        full_name: userData.full_name,
+        hasPassword: !!userData.password
+    });
 
     try {
         const response = await fetch(`${API_BASE_URL}/users/register`, {
@@ -477,17 +516,21 @@ async function handleRegister(event) {
                 
                 // Check for duplicate email
                 if (errorDetail.includes('duplicate') && errorDetail.includes('email')) {
-                    throw new Error('This email address is already registered. Please use a different email or try logging in.');
+                    // Note: If the user was just created, this might be a backend transaction issue
+                    console.warn('Duplicate email detected. If you just registered, the account may have been created despite the error.');
+                    throw new Error('This email address is already registered. If you just created this account, please try logging in.');
                 }
                 
                 // Check for duplicate username
                 if (errorDetail.includes('duplicate') && errorDetail.includes('username')) {
-                    throw new Error('This username is already taken. Please choose a different username.');
+                    console.warn('Duplicate username detected. If you just registered, the account may have been created despite the error.');
+                    throw new Error('This username is already taken. If you just created this account, please try logging in.');
                 }
                 
                 // Generic duplicate error
                 if (errorDetail.includes('duplicate') || errorDetail.includes('unique')) {
-                    throw new Error('An account with these details already exists. Please try different credentials or login.');
+                    console.warn('Duplicate entry detected. If you just registered, the account may have been created despite the error.');
+                    throw new Error('An account with these details already exists. If you just created this account, please try logging in.');
                 }
             }
             
@@ -505,6 +548,13 @@ async function handleRegister(event) {
     } catch (error) {
         console.error('Registration error:', error);
         showAlert(error.message || 'Failed to register. Please try again.', 'error');
+    } finally {
+        // Always reset the flag and button state to allow future registrations
+        isRegistering = false;
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     }
 }
 

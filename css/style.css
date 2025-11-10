@@ -357,6 +357,20 @@ main {
     font-size: 0.9rem;
 }
 
+.news-item .read-more {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.news-item .read-more:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
 /* Auth Section */
 .auth-section {
     background: white;
@@ -2013,4 +2027,27 @@ footer {
     .option {
         page-break-inside: avoid;
     }
+}
+
+/* Subject Cards */
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.subject-card h3 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.subject-card p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Active nav link */
+.nav-links a.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
 }

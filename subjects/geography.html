@@ -60,7 +60,7 @@
                         <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                             <span style="font-size: 1.5rem;">🎥</span> Video Lectures
                         </h2>
-                        <div style="display: grid; gap: 1rem;">
+                        <div id="videoContainer" style="display: grid; gap: 1rem;">
                             <!-- Video 1 -->
                             <div class="video-lecture-item" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 1rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
@@ -301,6 +301,13 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Pagination Controls -->
+                        <div id="paginationControls" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+                            <button onclick="changePage('prev')" id="prevBtn" style="background: #667eea; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">← Previous</button>
+                            <div id="pageNumbers" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                            <button onclick="changePage('next')" id="nextBtn" style="background: #667eea; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">Next →</button>
+                        </div>
                     </section>
                 </div>
 
@@ -330,28 +337,28 @@
                             <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; color: #333;">📖 Topics Covered</h3>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <div style="padding: 0.6rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #667eea;">
-                                    <strong style="color: #333; font-size: 0.9rem;">Algebra</strong>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Equations, Inequalities</div>
+                                    <strong style="color: #333; font-size: 0.9rem;">Physical Geography</strong>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Landforms, Climate</div>
                                 </div>
                                 <div style="padding: 0.6rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #f5576c;">
-                                    <strong style="color: #333; font-size: 0.9rem;">Geometry</strong>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Angles, Shapes</div>
+                                    <strong style="color: #333; font-size: 0.9rem;">Human Geography</strong>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Population, Settlement</div>
                                 </div>
                                 <div style="padding: 0.6rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #00f2fe;">
-                                    <strong style="color: #333; font-size: 0.9rem;">Trigonometry</strong>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Sin, Cos, Tan</div>
+                                    <strong style="color: #333; font-size: 0.9rem;">Map Reading</strong>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Scale, Direction, Symbols</div>
                                 </div>
                                 <div style="padding: 0.6rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #fee140;">
-                                    <strong style="color: #333; font-size: 0.9rem;">Calculus</strong>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Differentiation</div>
+                                    <strong style="color: #333; font-size: 0.9rem;">Environmental Studies</strong>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Conservation, Pollution</div>
                                 </div>
                                 <div style="padding: 0.6rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #330867;">
-                                    <strong style="color: #333; font-size: 0.9rem;">Statistics</strong>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Probability, Data</div>
+                                    <strong style="color: #333; font-size: 0.9rem;">Regional Geography</strong>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Africa, World Regions</div>
                                 </div>
                                 <div style="padding: 0.6rem; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #fed6e3;">
-                                    <strong style="color: #333; font-size: 0.9rem;">Numbers</strong>
-                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Fractions, Decimals</div>
+                                    <strong style="color: #333; font-size: 0.9rem;">Geomorphology</strong>
+                                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">Rocks, Erosion</div>
                                 </div>
                             </div>
                         </div>
@@ -511,20 +518,92 @@
     </style>
 
     <script>
+        // Pagination variables
+        let currentPage = 1;
+        const videosPerPage = 10;
+        let allVideos = [];
+
+        // Initialize pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            allVideos = Array.from(document.querySelectorAll('.video-lecture-item'));
+            showPage(1);
+        });
+
+        function showPage(page) {
+            currentPage = page;
+            const startIndex = (page - 1) * videosPerPage;
+            const endIndex = startIndex + videosPerPage;
+
+            // Hide all videos
+            allVideos.forEach(video => video.style.display = 'none');
+
+            // Show only videos for current page
+            allVideos.slice(startIndex, endIndex).forEach(video => video.style.display = 'block');
+
+            // Update pagination controls
+            updatePaginationControls();
+
+            // Scroll to top of video section
+            document.querySelector('#videoContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(allVideos.length / videosPerPage);
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageNumbers = document.getElementById('pageNumbers');
+
+            // Update prev/next button states
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1';
+            prevBtn.style.cursor = currentPage === 1 ? 'not-allowed' : 'pointer';
+
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.style.opacity = currentPage === totalPages ? '0.5' : '1';
+            nextBtn.style.cursor = currentPage === totalPages ? 'not-allowed' : 'pointer';
+
+            // Generate page numbers
+            pageNumbers.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => showPage(i);
+                pageBtn.style.cssText = `
+                    padding: 0.5rem 0.8rem;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    background: ${i === currentPage ? '#667eea' : '#f0f0f0'};
+                    color: ${i === currentPage ? 'white' : '#333'};
+                `;
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(allVideos.length / videosPerPage);
+            if (direction === 'prev' && currentPage > 1) {
+                showPage(currentPage - 1);
+            } else if (direction === 'next' && currentPage < totalPages) {
+                showPage(currentPage + 1);
+            }
+        }
+
         function toggleVideo(videoId) {
             const videoContainer = document.getElementById(videoId);
             const button = event.target;
             
             // Close all other videos first
-            const allVideos = document.querySelectorAll('.video-container');
-            allVideos.forEach(video => {
+            const allVideoContainers = document.querySelectorAll('.video-container');
+            allVideoContainers.forEach(video => {
                 if (video.id !== videoId) {
                     video.style.display = 'none';
-                    // Reset all buttons to "Watch Now"
+                    // Reset all buttons to "Watch"
                     const otherButtons = document.querySelectorAll('.video-lecture-item button');
                     otherButtons.forEach(btn => {
                         if (btn !== button) {
-                            btn.innerHTML = '▶ Watch Now';
+                            btn.innerHTML = '▶ Watch';
                             btn.style.background = '#667eea';
                         }
                     });
@@ -543,7 +622,7 @@
                 }, 100);
             } else {
                 videoContainer.style.display = 'none';
-                button.innerHTML = '▶ Watch Now';
+                button.innerHTML = '▶ Watch';
                 button.style.background = '#667eea';
             }
         }

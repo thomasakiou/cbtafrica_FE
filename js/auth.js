@@ -252,6 +252,21 @@ async function handleLogin(event) {
         
         if (!response.ok) {
             console.error('7. Login failed with status:', response.status);
+            console.log('7a. Error data:', data);
+            
+            // Handle FastAPI validation errors (422) or other structured errors
+            if (response.status === 422 && data.detail) {
+                if (Array.isArray(data.detail)) {
+                    const errorMessages = data.detail.map(err => {
+                        const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
+                        return `${field}: ${err.msg}`;
+                    }).join('\n');
+                    throw new Error(errorMessages);
+                } else if (typeof data.detail === 'string') {
+                    throw new Error(data.detail);
+                }
+            }
+            
             throw new Error(data.detail || data.message || 'Login failed');
         }
 
@@ -438,7 +453,26 @@ async function handleRegister(event) {
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.detail || 'Registration failed');
+            console.log('Registration error data:', errorData);
+            
+            // Handle FastAPI validation errors (422)
+            if (response.status === 422 && errorData.detail) {
+                if (Array.isArray(errorData.detail)) {
+                    // FastAPI validation errors are an array of objects
+                    const errorMessages = errorData.detail.map(err => {
+                        const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
+                        return `${field}: ${err.msg}`;
+                    }).join('\n');
+                    throw new Error(errorMessages);
+                } else if (typeof errorData.detail === 'string') {
+                    throw new Error(errorData.detail);
+                } else {
+                    throw new Error('Validation failed. Please check your input.');
+                }
+            }
+            
+            // Handle other error formats
+            throw new Error(errorData.detail || errorData.message || 'Registration failed');
         }
 
         const data = await response.json();

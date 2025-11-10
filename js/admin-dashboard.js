@@ -1448,7 +1448,7 @@ window.updateNews = async function(event) {
     };
     
     try {
-        const response = await fetch(`${API_BASE_URL}/news/${newsId}/`, {
+        const response = await fetch(`${API_BASE_URL}/news/${newsId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1479,7 +1479,7 @@ async function deleteNews(newsId) {
         const token = localStorage.getItem('token');
         
         try {
-            const response = await fetch(`${API_BASE_URL}/news/${newsId}/`, {
+            const response = await fetch(`${API_BASE_URL}/news/${newsId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

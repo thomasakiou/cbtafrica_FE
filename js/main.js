@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Backend API configuration
 const BACKEND_URL = 'https://vmi2848672.contaboserver.net';
-const NEWS_API = `${BACKEND_URL}/cbt/api/v1/news`;
+const NEWS_API = `${BACKEND_URL}/cbt/api/v1/news/`;
 
 async function loadNewsFeed() {
     const newsFeed = document.querySelector('.news-feed');

@@ -1246,7 +1246,7 @@ async function loadNews() {
     console.log('Loading news with token:', token);
     
     try {
-        const response = await fetch(`${API_BASE_URL}/news?skip=0&limit=1000`, {
+        const response = await fetch(`${API_BASE_URL}/news/?skip=0&limit=1000`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -1367,7 +1367,7 @@ async function addNews(event) {
     console.log('Sending news payload:', payload);
     
     try {
-        const response = await fetch(`${API_BASE_URL}/news`, {
+        const response = await fetch(`${API_BASE_URL}/news/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1448,7 +1448,7 @@ window.updateNews = async function(event) {
     };
     
     try {
-        const response = await fetch(`${API_BASE_URL}/news/${newsId}`, {
+        const response = await fetch(`${API_BASE_URL}/news/${newsId}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1479,7 +1479,7 @@ async function deleteNews(newsId) {
         const token = localStorage.getItem('token');
         
         try {
-            const response = await fetch(`${API_BASE_URL}/news/${newsId}`, {
+            const response = await fetch(`${API_BASE_URL}/news/${newsId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -32,6 +32,7 @@
                 <button class="tab-btn active" onclick="showTab('subjects')">Subjects</button>
                 <button class="tab-btn" onclick="showTab('questions')">Questions</button>
                 <button class="tab-btn" onclick="showTab('users')">Users</button>
+                <button class="tab-btn" onclick="showTab('news')">News</button>
             </div>
 
             <!-- Subjects Tab -->
@@ -128,8 +129,66 @@
                 <h2>Manage Users</h2>
                 <div id="users-list" class="admin-list"></div>
             </div>
+
+            <!-- News Tab -->
+            <div id="news-tab" class="tab-content">
+                <h2>Manage News</h2>
+                <form id="news-form" onsubmit="addNews(event)">
+                    <div class="form-group">
+                        <label for="news-title">News Title:</label>
+                        <input type="text" id="news-title" placeholder="Enter news headline" required maxlength="500">
+                    </div>
+                    <div class="form-group">
+                        <label for="news-content">News Content:</label>
+                        <textarea id="news-content" placeholder="Enter a brief description of the news" required rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="news-url">Article URL:</label>
+                        <input type="url" id="news-url" placeholder="https://example.com/full-article" required>
+                        <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 0.3rem;">
+                            The full URL where readers can read the complete article
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="news-date">Publication Date:</label>
+                        <input type="datetime-local" id="news-date" required>
+                    </div>
+                    <button type="submit" class="admin-btn">Add News</button>
+                </form>
+                <div id="news-list" class="admin-list"></div>
+            </div>
         </div>
     </main>
+
+    <!-- Edit News Modal -->
+    <div id="edit-news-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3>Edit News</h3>
+            <form id="edit-news-form" onsubmit="updateNews(event)">
+                <input type="hidden" id="edit-news-id">
+                <div class="form-group">
+                    <label for="edit-news-title">News Title:</label>
+                    <input type="text" id="edit-news-title" required maxlength="500">
+                </div>
+                <div class="form-group">
+                    <label for="edit-news-content">News Content:</label>
+                    <textarea id="edit-news-content" required rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-news-url">Article URL:</label>
+                    <input type="url" id="edit-news-url" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-news-date">Publication Date:</label>
+                    <input type="datetime-local" id="edit-news-date" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="admin-btn">Update News</button>
+                    <button type="button" onclick="closeEditNewsModal()" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Edit Question Modal -->
     <div id="edit-question-modal" class="modal" style="display: none;">
@@ -221,6 +280,8 @@
                 loadUsers();
             } else if (tabName === 'subjects') {
                 loadSubjects();
+            } else if (tabName === 'news') {
+                loadNews();
             }
         }
     </script>

@@ -1235,3 +1235,268 @@ window.changeUserPage = function(page) {
     currentUserPage = page;
     displayUsers(allUsers);
 }
+
+// News Management Functions
+let allNews = [];
+let currentNewsPage = 1;
+const newsPerPage = 20;
+
+async function loadNews() {
+    const token = localStorage.getItem('token');
+    console.log('Loading news with token:', token);
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/news?skip=0&limit=1000`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        console.log('News response status:', response.status);
+        
+        if (response.ok) {
+            const news = await response.json();
+            console.log('News loaded:', news);
+            allNews = news;
+            displayNews(news);
+        } else if (response.status === 401) {
+            handleUnauthorized();
+        } else {
+            const errorText = await response.text();
+            console.error('Failed to load news:', response.status, errorText);
+            document.getElementById('news-list').innerHTML = `<p>Error loading news: ${response.status}</p>`;
+        }
+    } catch (error) {
+        console.error('Error loading news:', error);
+        document.getElementById('news-list').innerHTML = `<p>Error: ${error.message}</p>`;
+    }
+}
+
+function displayNews(news) {
+    const list = document.getElementById('news-list');
+    
+    if (news.length === 0) {
+        list.innerHTML = '<p>No news items found.</p>';
+        return;
+    }
+    
+    const totalPages = Math.ceil(news.length / newsPerPage);
+    const startIndex = (currentNewsPage - 1) * newsPerPage;
+    const endIndex = startIndex + newsPerPage;
+    const paginatedNews = news.slice(startIndex, endIndex);
+    
+    list.innerHTML = `
+        <div style="margin-bottom: 1rem; color: #7f8c8d;">
+            Showing ${startIndex + 1}-${Math.min(endIndex, news.length)} of ${news.length} news items
+        </div>
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Content Preview</th>
+                    <th>URL</th>
+                    <th>Publication Date</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${paginatedNews.map(item => `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td style="max-width: 200px;">${item.title}</td>
+                        <td style="max-width: 300px;">${item.content.substring(0, 100)}${item.content.length > 100 ? '...' : ''}</td>
+                        <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;">
+                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: none;">
+                                ${item.url.substring(0, 30)}${item.url.length > 30 ? '...' : ''}
+                            </a>
+                        </td>
+                        <td>${new Date(item.date).toLocaleDateString()}</td>
+                        <td>${new Date(item.created_at).toLocaleDateString()}</td>
+                        <td style="white-space: nowrap;">
+                            <button onclick="editNews(${item.id})" class="edit-btn" style="margin-right: 0.5rem;">Edit</button>
+                            <button onclick="deleteNews(${item.id})" class="delete-btn">Delete</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <button onclick="changeNewsPage(1)" ${currentNewsPage === 1 ? 'disabled' : ''}>First</button>
+            <button onclick="changeNewsPage(${currentNewsPage - 1})" ${currentNewsPage === 1 ? 'disabled' : ''}>Previous</button>
+            <span>Page ${currentNewsPage} of ${totalPages}</span>
+            <button onclick="changeNewsPage(${currentNewsPage + 1})" ${currentNewsPage === totalPages ? 'disabled' : ''}>Next</button>
+            <button onclick="changeNewsPage(${totalPages})" ${currentNewsPage === totalPages ? 'disabled' : ''}>Last</button>
+        </div>
+    `;
+}
+
+window.changeNewsPage = function(page) {
+    const totalPages = Math.ceil(allNews.length / newsPerPage);
+    if (page < 1 || page > totalPages) return;
+    currentNewsPage = page;
+    displayNews(allNews);
+}
+
+async function addNews(event) {
+    event.preventDefault();
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showAlert('Authentication required. Please login again.', 'warning');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+        return;
+    }
+    
+    const title = document.getElementById('news-title').value;
+    const content = document.getElementById('news-content').value;
+    const url = document.getElementById('news-url').value;
+    const dateInput = document.getElementById('news-date').value;
+    
+    // Convert datetime-local to ISO format
+    const date = new Date(dateInput).toISOString();
+    
+    const payload = {
+        title: title,
+        content: content,
+        url: url,
+        date: date
+    };
+    
+    console.log('Sending news payload:', payload);
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/news`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            const newsData = await response.json();
+            console.log('News created:', newsData);
+            showAlert('News added successfully!', 'success');
+            event.target.reset();
+            currentNewsPage = 1;
+            loadNews();
+        } else if (response.status === 401) {
+            handleUnauthorized();
+        } else {
+            const error = await response.json();
+            console.log('Error response:', error);
+            const errorMsg = Array.isArray(error.detail) 
+                ? error.detail.map(e => `${e.loc ? e.loc.join('.') + ': ' : ''}${e.msg}`).join(', ') 
+                : error.detail || JSON.stringify(error);
+            showAlert(`Failed to add news: ${errorMsg}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error adding news:', error);
+        if (error.message === 'Failed to fetch') {
+            showAlert('Cannot connect to backend server. Please ensure backend is running and CORS is enabled.', 'error');
+        } else {
+            showAlert(`Error adding news: ${error.message}`, 'error');
+        }
+    }
+}
+
+async function editNews(newsId) {
+    const newsItem = allNews.find(n => n.id === newsId);
+    if (!newsItem) return;
+    
+    // Populate modal fields
+    document.getElementById('edit-news-id').value = newsItem.id;
+    document.getElementById('edit-news-title').value = newsItem.title;
+    document.getElementById('edit-news-content').value = newsItem.content;
+    document.getElementById('edit-news-url').value = newsItem.url;
+    
+    // Convert ISO date to datetime-local format
+    const date = new Date(newsItem.date);
+    const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+    document.getElementById('edit-news-date').value = localDateTime;
+    
+    document.getElementById('edit-news-modal').style.display = 'flex';
+}
+
+window.closeEditNewsModal = function() {
+    document.getElementById('edit-news-modal').style.display = 'none';
+}
+
+window.updateNews = async function(event) {
+    event.preventDefault();
+    
+    const token = localStorage.getItem('token');
+    const newsId = document.getElementById('edit-news-id').value;
+    const title = document.getElementById('edit-news-title').value;
+    const content = document.getElementById('edit-news-content').value;
+    const url = document.getElementById('edit-news-url').value;
+    const dateInput = document.getElementById('edit-news-date').value;
+    
+    // Convert datetime-local to ISO format
+    const date = new Date(dateInput).toISOString();
+    
+    const payload = {
+        title: title,
+        content: content,
+        url: url,
+        date: date
+    };
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/news/${newsId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            showAlert('News updated successfully!', 'success');
+            closeEditNewsModal();
+            currentNewsPage = 1;
+            loadNews();
+        } else if (response.status === 401) {
+            handleUnauthorized();
+        } else {
+            const error = await response.json();
+            showAlert(`Failed to update news: ${error.detail || 'Unknown error'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error updating news:', error);
+        showAlert(`Error updating news: ${error.message}`, 'error');
+    }
+}
+
+async function deleteNews(newsId) {
+    showConfirm('Are you sure you want to delete this news item?', async () => {
+        const token = localStorage.getItem('token');
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/news/${newsId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                showAlert('News deleted successfully!', 'success');
+                loadNews();
+            } else if (response.status === 401) {
+                handleUnauthorized();
+            } else {
+                showAlert('Failed to delete news', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting news:', error);
+            showAlert('Error deleting news', 'error');
+        }
+    });
+}

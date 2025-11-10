@@ -255,50 +255,77 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function loadNewsFeed() {
-    // Simulate loading news from an API
-    const newsItems = [
-        {
-            title: "JAMB 2024 Registration Opens",
-            content: "The Joint Admissions and Matriculation Board has announced the commencement of registration for the 2024 UTME. Students are advised to visit the official JAMB website to begin their registration process.",
-            date: "2024-03-15"
-        },
-        {
-            title: "WAEC Releases New Syllabus",
-            content: "The West African Examinations Council has updated its syllabus for various subjects effective from 2024. The new syllabus includes modern topics and updated assessment criteria.",
-            date: "2024-03-10"
-        },
-        {
-            title: "NECO Announces Exam Dates",
-            content: "The National Examinations Council has released the timetable for the upcoming Senior School Certificate Examination. The exams are scheduled to begin in May 2024.",
-            date: "2024-03-08"
-        },
-        {
-            title: "New CBT Centers Approved",
-            content: "The examination bodies have approved additional Computer Based Test centers across the country to accommodate more candidates and reduce congestion.",
-            date: "2024-03-05"
-        },
-        {
-            title: "Study Tips for CBT Exams",
-            content: "Education experts share valuable tips for students preparing for computer-based tests, including time management strategies and practice techniques.",
-            date: "2024-03-01"
-        }
-    ];
-    
+// Backend API configuration
+const BACKEND_URL = 'https://vmi2848672.contaboserver.net';
+const NEWS_API = `${BACKEND_URL}/cbt/api/v1/news`;
+
+async function loadNewsFeed() {
     const newsFeed = document.querySelector('.news-feed');
-    if (newsFeed) {
-        newsFeed.innerHTML = newsItems.map(item => `
-            <article class="news-item">
-                <h3>${item.title}</h3>
-                <p>${item.content}</p>
-                <span class="date">${new Date(item.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                })}</span>
-            </article>
-        `).join('');
+    if (!newsFeed) return;
+    
+    try {
+        // Show loading state
+        newsFeed.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Loading news...</p>';
+        
+        // Fetch top 10 news items from the backend
+        const response = await fetch(`${NEWS_API}?skip=0&limit=10`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const newsItems = await response.json();
+        
+        // Display news items
+        if (newsItems.length === 0) {
+            newsFeed.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No news available at the moment.</p>';
+            return;
+        }
+        
+        newsFeed.innerHTML = newsItems.map(item => createNewsCard(item)).join('');
+        
+    } catch (error) {
+        console.error('Error loading news feed:', error);
+        
+        // Show error message with fallback
+        newsFeed.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #e74c3c;">
+                <p style="margin-bottom: 1rem;">Unable to load news feed at the moment.</p>
+                <p style="font-size: 0.9rem; color: #666;">Please check your internet connection or try again later.</p>
+            </div>
+        `;
     }
+}
+
+function createNewsCard(news) {
+    // Escape HTML to prevent XSS attacks
+    const title = escapeHtml(news.title);
+    const content = escapeHtml(news.content);
+    const url = escapeHtml(news.url);
+    
+    // Format the date
+    const date = new Date(news.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    return `
+        <article class="news-item">
+            <h3>${title}</h3>
+            <p>${content}</p>
+            <span class="date">${date}</span>
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more">
+                Read more →
+            </a>
+        </article>
+    `;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Utility functions

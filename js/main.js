@@ -314,10 +314,12 @@ function createNewsCard(news) {
         <article class="news-item">
             <h3>${title}</h3>
             <p>${content}</p>
-            <span class="date">${date}</span>
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more">
-                Read more →
-            </a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <span class="date">${date}</span>
+                <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more">
+                    Read more →
+                </a>
+            </div>
         </article>
     `;
 }

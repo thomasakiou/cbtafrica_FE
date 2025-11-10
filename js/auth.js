@@ -471,6 +471,26 @@ async function handleRegister(event) {
                 }
             }
             
+            // Handle duplicate user errors (400)
+            if (response.status === 400 && errorData.detail) {
+                const errorDetail = errorData.detail.toLowerCase();
+                
+                // Check for duplicate email
+                if (errorDetail.includes('duplicate') && errorDetail.includes('email')) {
+                    throw new Error('This email address is already registered. Please use a different email or try logging in.');
+                }
+                
+                // Check for duplicate username
+                if (errorDetail.includes('duplicate') && errorDetail.includes('username')) {
+                    throw new Error('This username is already taken. Please choose a different username.');
+                }
+                
+                // Generic duplicate error
+                if (errorDetail.includes('duplicate') || errorDetail.includes('unique')) {
+                    throw new Error('An account with these details already exists. Please try different credentials or login.');
+                }
+            }
+            
             // Handle other error formats
             throw new Error(errorData.detail || errorData.message || 'Registration failed');
         }

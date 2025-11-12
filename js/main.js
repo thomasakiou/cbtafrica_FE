@@ -259,16 +259,26 @@ document.addEventListener('DOMContentLoaded', function() {
 const BACKEND_URL = 'https://vmi2848672.contaboserver.net';
 const NEWS_API = `${BACKEND_URL}/cbt/api/v1/news/`;
 
-async function loadNewsFeed() {
+// News pagination state
+let currentNewsPage = 1;
+const newsPerPage = 5; // Show 5 news items per page
+let totalNewsItems = 0;
+
+async function loadNewsFeed(page = 1) {
     const newsFeed = document.querySelector('.news-feed');
+    const paginationControls = document.getElementById('news-pagination');
+    
     if (!newsFeed) return;
     
     try {
         // Show loading state
         newsFeed.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Loading news...</p>';
         
-        // Fetch top 10 news items from the backend
-        const response = await fetch(`${NEWS_API}?skip=0&limit=10`);
+        // Calculate skip value for pagination
+        const skip = (page - 1) * newsPerPage;
+        
+        // Fetch news items from the backend with pagination
+        const response = await fetch(`${NEWS_API}?skip=${skip}&limit=${newsPerPage}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -276,13 +286,23 @@ async function loadNewsFeed() {
         
         const newsItems = await response.json();
         
+        // Update current page
+        currentNewsPage = page;
+        
         // Display news items
         if (newsItems.length === 0) {
             newsFeed.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No news available at the moment.</p>';
+            if (paginationControls) {
+                paginationControls.style.display = 'none';
+            }
             return;
         }
         
+        // Display the news cards
         newsFeed.innerHTML = newsItems.map(item => createNewsCard(item)).join('');
+        
+        // Update pagination controls
+        updateNewsPaginationControls(newsItems.length);
         
     } catch (error) {
         console.error('Error loading news feed:', error);
@@ -294,6 +314,77 @@ async function loadNewsFeed() {
                 <p style="font-size: 0.9rem; color: #666;">Please check your internet connection or try again later.</p>
             </div>
         `;
+        
+        // Hide pagination on error
+        const paginationControls = document.getElementById('news-pagination');
+        if (paginationControls) {
+            paginationControls.style.display = 'none';
+        }
+    }
+}
+
+function updateNewsPaginationControls(itemsOnPage) {
+    const paginationControls = document.getElementById('news-pagination');
+    const prevBtn = document.getElementById('prev-news-btn');
+    const nextBtn = document.getElementById('next-news-btn');
+    const pageInfo = document.getElementById('news-page-info');
+    
+    if (!paginationControls) return;
+    
+    // Show pagination controls
+    paginationControls.style.display = 'block';
+    
+    // Update page info
+    if (pageInfo) {
+        pageInfo.textContent = `Page ${currentNewsPage}`;
+    }
+    
+    // Update previous button state
+    if (prevBtn) {
+        if (currentNewsPage === 1) {
+            prevBtn.disabled = true;
+            prevBtn.style.opacity = '0.5';
+            prevBtn.style.cursor = 'not-allowed';
+        } else {
+            prevBtn.disabled = false;
+            prevBtn.style.opacity = '1';
+            prevBtn.style.cursor = 'pointer';
+        }
+    }
+    
+    // Update next button state
+    if (nextBtn) {
+        // If we got fewer items than requested, we're on the last page
+        if (itemsOnPage < newsPerPage) {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+            nextBtn.style.cursor = 'not-allowed';
+        } else {
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+            nextBtn.style.cursor = 'pointer';
+        }
+    }
+}
+
+function changeNewsPage(direction) {
+    let newPage = currentNewsPage;
+    
+    if (direction === 'prev' && currentNewsPage > 1) {
+        newPage = currentNewsPage - 1;
+    } else if (direction === 'next') {
+        newPage = currentNewsPage + 1;
+    }
+    
+    if (newPage !== currentNewsPage) {
+        // Scroll to news section
+        const newsSection = document.getElementById('news');
+        if (newsSection) {
+            newsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // Load the new page
+        loadNewsFeed(newPage);
     }
 }
 

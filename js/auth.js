@@ -437,6 +437,24 @@ async function handleLogin(event) {
     }
 }
 
+/**
+ * Initialize session management after login
+ * Call this on dashboard pages to enable auto-refresh and idle timeout
+ */
+function initializeSessionManagement() {
+    if (typeof initSessionManager === 'function') {
+        console.log('Initializing session management...');
+        initSessionManager({
+            idleTimeout: 15 * 60 * 1000,        // 15 minutes of inactivity
+            tokenRefreshInterval: 5 * 60 * 1000, // Refresh token every 5 minutes
+            warningTime: 2 * 60 * 1000,         // Warn 2 minutes before timeout
+            apiBaseUrl: API_BASE_URL
+        });
+    } else {
+        console.warn('Session manager not available. Make sure session-manager.js is loaded.');
+    }
+}
+
 // Handle user registration
 let isRegistering = false;
 
@@ -560,10 +578,20 @@ async function handleRegister(event) {
 
 // Logout function
 function logout() {
+    console.log('Logging out user...');
+    
+    // Stop session manager if running
+    if (typeof stopSessionManager === 'function') {
+        stopSessionManager();
+    }
+    
+    // Clear all auth data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
     localStorage.removeItem('full_name');
+    
     window.location.href = 'index.html';
 }
 

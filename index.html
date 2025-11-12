@@ -224,6 +224,12 @@
                         <!-- News items will be loaded dynamically from the backend -->
                         <p style="text-align: center; color: #666; padding: 2rem;">Loading news...</p>
                     </div>
+                    <!-- Pagination Controls -->
+                    <div id="news-pagination" style="display: none; margin-top: 1.5rem; text-align: center;">
+                        <button id="prev-news-btn" onclick="changeNewsPage('prev')" style="padding: 0.5rem 1rem; margin: 0 0.5rem; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">← Previous</button>
+                        <span id="news-page-info" style="margin: 0 1rem; color: #666; font-size: 0.9rem;">Page 1</span>
+                        <button id="next-news-btn" onclick="changeNewsPage('next')" style="padding: 0.5rem 1rem; margin: 0 0.5rem; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Next →</button>
+                    </div>
                 </section>
             </div>
         </div>

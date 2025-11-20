@@ -122,16 +122,20 @@ function handleReplyButtonClick(e) {
         // Check if already showing reply form
         if (replyAction.querySelector('.reply-form')) return;
         
-        // Create reply form
+        // Get the post ID from the forum post
+        const postId = postDiv.getAttribute('data-post-id');
+        
+        // Create reply form with the post ID stored in a data attribute
         const replyForm = document.createElement('div');
         replyForm.className = 'reply-form';
+        replyForm.setAttribute('data-post-id', postId);
         replyForm.innerHTML = `
             <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
             <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
                 <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
                     Cancel
                 </button>
-                <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+                <button type="button" class="submit-reply-btn" data-post-id="${postId}" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
                     Post Reply
                 </button>
             </div>
@@ -151,9 +155,17 @@ function handleReplyButtonClick(e) {
         const replyForm = e.target.closest('.reply-form');
         if (!replyForm) return;
         
-        const postDiv = e.target.closest('.forum-post');
+        // Get post ID from the button's data attribute first, then fall back to the form's data attribute
+        let postId = e.target.getAttribute('data-post-id') || 
+                    (replyForm ? replyForm.getAttribute('data-post-id') : null) ||
+                    (e.target.closest('.forum-post') ? e.target.closest('.forum-post').getAttribute('data-post-id') : null);
+        
+        if (!postId) {
+            showNotification('Could not determine which post to reply to. Please refresh the page and try again.', 'error');
+            return;
+        }
+        
         const replyText = replyForm.querySelector('.reply-text').value.trim();
-        const postId = postDiv.getAttribute('data-post-id');
         
         if (!replyText) {
             showNotification('Please enter a reply.', 'warning');

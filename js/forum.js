@@ -1,6 +1,6 @@
 // forum.js - Handles loading and posting forum discussions for Mathematics page
 
-const FORUM_API_BASE = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts';
+const FORUM_API_BASE = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/api/v1/forum/posts';
 const postsContainer = document.getElementById('posts-container');
 const paginationContainer = document.getElementById('forum-pagination');
 const newPostForm = document.getElementById('new-post-form');

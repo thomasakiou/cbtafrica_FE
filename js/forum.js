@@ -63,7 +63,9 @@ function checkAuthForForum() {
         if (newPostContainer) {
             newPostContainer.style.display = 'block';
         }
-        // Load posts will be called from the DOMContentLoaded handler
+        // Load posts immediately since we're authenticated
+        setupEventListeners();
+        loadForumPosts();
     } else {
         // User is not logged in
         if (loginPrompt) {
@@ -92,6 +94,10 @@ function checkAuthForForum() {
         }
         if (newPostContainer) {
             newPostContainer.style.display = 'none';
+        }
+        // Clear posts container when not authenticated
+        if (postsContainer) {
+            postsContainer.innerHTML = '';
         }
     }
 }

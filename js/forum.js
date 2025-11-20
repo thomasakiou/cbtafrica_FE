@@ -70,11 +70,17 @@ function createForumPost(post) {
         imageHtml = `<div style="margin:1rem 0;"><img src="${post.imageUrl}" alt="Post image" style="max-width:100%;border-radius:6px;"></div>`;
     }
         // Show reply button only if user is logged in
-        let replyBtn = '';
-        if (isUserLoggedIn()) {
-            replyBtn = `<button class="reply-btn" style="margin-top:0.7rem;background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>`;
-        }
-    return `<div class="forum-post" style="background:#f8f9fa;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    let replySection = '';
+    if (isUserLoggedIn()) {
+        replySection = `
+            <button class="reply-btn" style="margin-top:0.7rem;background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
+            <div class="reply-box" style="display:none;margin-top:0.7rem;">
+                <textarea class="reply-text" rows="2" placeholder="Write a reply..." style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;"></textarea>
+                <button class="submit-reply-btn" style="margin-top:0.4rem;background:#27ae60;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Submit Reply</button>
+            </div>
+        `;
+    }
+    return `<div class="forum-post" data-post-id="${post._id || ''}" style="background:#f8f9fa;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
         <h4 style="margin:0 0 0.5rem 0;color:#667eea;">${title}</h4>
         <div style="color:#333;margin-bottom:0.7rem;">${content}</div>
         ${imageHtml}
@@ -82,8 +88,56 @@ function createForumPost(post) {
             <span>By ${author}</span>
             <span>${date}</span>
         </div>
-            ${replyBtn}
+        ${replySection}
     </div>`;
+// Event delegation for reply button and submit reply
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('reply-btn')) {
+        const postDiv = e.target.closest('.forum-post');
+        const replyBox = postDiv.querySelector('.reply-box');
+        if (replyBox) {
+            replyBox.style.display = replyBox.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+    if (e.target.classList.contains('submit-reply-btn')) {
+        const postDiv = e.target.closest('.forum-post');
+        const replyText = postDiv.querySelector('.reply-text').value.trim();
+        const postId = postDiv.getAttribute('data-post-id');
+        if (!replyText) {
+            showNotification('Reply cannot be empty.', 'warning');
+            return;
+        }
+        submitReply(postId, replyText, e.target);
+    }
+});
+
+async function submitReply(postId, replyText, btn) {
+    if (!postId) {
+        showNotification('Invalid post.', 'error');
+        return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    try {
+        const res = await fetch(FORUM_API_BASE + `/${postId}/reply`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            },
+            body: JSON.stringify({ content: replyText })
+        });
+        if (!res.ok) throw new Error('Failed to submit reply');
+        showNotification('Reply submitted!', 'success');
+        // Optionally reload posts or just clear the reply box
+        loadForumPosts(currentForumPage);
+    } catch (err) {
+        showNotification('Failed to submit reply.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Reply';
+    }
+}
 }
 
 function escapeHtml(text) {

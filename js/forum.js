@@ -75,41 +75,26 @@ function createForumPost(post) {
         }
     }
     author = escapeHtml(author);
-    const date = new Date(post.date || post.createdAt || Date.now()).toLocaleString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit' 
-    });
-    
-    // Get post ID from either _id or id field
-    const postId = post._id || post.id || '';
-    
+    const date = new Date(post.date || post.createdAt || Date.now()).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     let imageHtml = '';
     if (post.imageUrl) {
         imageHtml = `<div style="margin:1rem 0;"><img src="${post.imageUrl}" alt="Post image" style="max-width:100%;border-radius:6px;"></div>`;
     }
-    
-    // Show reply button only if user is logged in and we have a valid post ID
+        // Show reply button only if user is logged in
     let replySection = '';
-    if (isUserLoggedIn() && postId) {
+    if (isUserLoggedIn()) {
         replySection = `
             <div class="reply-action-container" style="margin-top:0.7rem;">
-                <button class="reply-btn" data-post-id="${postId}" style="background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
-                    Reply
-                </button>
+                <button class="reply-btn" style="background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
             </div>
         `;
     }
-    
-    return `
-    <div class="forum-post" data-post-id="${postId}" style="background:#f8f9fa;padding:1.5rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:1.5rem;">
-        <h4 style="margin:0 0 0.5rem 0;color:#667eea;font-size:1.2rem;">${title}</h4>
-        <div style="color:#333;margin-bottom:1rem;line-height:1.5;">${content}</div>
+    return `<div class="forum-post" data-post-id="${post._id || ''}" style="background:#f8f9fa;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+        <h4 style="margin:0 0 0.5rem 0;color:#667eea;">${title}</h4>
+        <div style="color:#333;margin-bottom:0.7rem;">${content}</div>
         ${imageHtml}
-        <div style="font-size:0.9rem;color:#888;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eee;padding-top:0.8rem;margin-top:1rem;">
-            <span><strong>By:</strong> ${author}</span>
+        <div style="font-size:0.9rem;color:#888;display:flex;justify-content:space-between;align-items:center;">
+            <span>By ${author}</span>
             <span>${date}</span>
         </div>
         ${replySection}
@@ -128,28 +113,11 @@ function handleReplyButtonClick(e) {
     // Handle reply button click
     if (e.target.classList.contains('reply-btn')) {
         e.preventDefault();
-        console.log('Reply button clicked'); // Debug log
-        
-        // Get post ID from button's data attribute first, then fall back to parent div
-        let postId = e.target.getAttribute('data-post-id');
         const postDiv = e.target.closest('.forum-post');
-        
-        if (!postDiv) {
-            console.error('Could not find parent forum post');
-            return;
-        }
-        
-        // If postId wasn't on the button, try to get it from the post div
-        if (!postId) {
-            postId = postDiv.getAttribute('data-post-id');
-            console.log('Got post ID from parent div:', postId);
-        }
+        if (!postDiv) return;
         
         const replyAction = postDiv.querySelector('.reply-action-container');
-        if (!replyAction) {
-            console.error('Could not find reply action container');
-            return;
-        }
+        if (!replyAction) return;
         
         // Check if already showing reply form
         if (replyAction.querySelector('.reply-form')) return;
@@ -206,10 +174,8 @@ function handleReplyButtonClick(e) {
 }
 
 async function submitReply(postId, replyText, btn) {
-    console.log('Submitting reply for post ID:', postId); // Debug log
     if (!postId) {
-        console.error('No post ID provided for reply');
-        showNotification('Invalid post. Please refresh the page and try again.', 'error');
+        showNotification('Invalid post.', 'error');
         return;
     }
     btn.disabled = true;

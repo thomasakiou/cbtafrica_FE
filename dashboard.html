@@ -12,22 +12,39 @@
 <body>
     <header>
         <nav>
-            <div class="logo">ExamPadi</div>
-            <div class="user-info">
-                <span id="user-name">Welcome, User</span>
-                <script>
-                    (function() {
-                        const username = localStorage.getItem('username');
-                        if (username) {
-                            document.getElementById('user-name').textContent = 'Welcome, ' + username;
-                        }
-                    })();
-                </script>
-                <!-- <a href="classroom.html" class="btn btn-primary" style="margin-right: 10px;">Classroom</a> -->
-                 <li><a href="classroom.html" >Classroom</a></li>
-                <button onclick="logout()">Logout</button>
-                <!-- <a href="#" onclick="logout(); return false;" class="btn btn-outline" style="padding: 0.5rem 1rem; color: #e53e3e; border-color: #e53e3e;">Logout</a> -->
+            <div class="nav-left">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="logo">ExamPadi</div>
             </div>
+            <div class="nav-overlay"></div>
+            <ul class="nav-links">
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="classroom.html">Classroom</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Exam Types</a>
+                    <div class="dropdown-content">
+                        <a href="neco.html">NECO</a>
+                        <a href="waec.html">WAEC</a>
+                        <a href="jamb.html">JAMB</a>
+                    </div>
+                </li>
+                <li class="user-info">
+                    <span id="user-name">Welcome, User</span>
+                    <script>
+                        (function() {
+                            const username = localStorage.getItem('username');
+                            if (username) {
+                                document.getElementById('user-name').textContent = 'Welcome, ' + username;
+                            }
+                        })();
+                    </script>
+                    <button onclick="logout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 15px;">Logout</button>
+                </li>
+            </ul>
         </nav>
     </header>
 

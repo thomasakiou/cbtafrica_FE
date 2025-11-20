@@ -210,6 +210,7 @@ if (newPostForm) {
         let formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
+        formData.append('subject', 'mathematics');
         if (imageInput && imageInput.files[0]) {
             formData.append('image', imageInput.files[0]);
         }
@@ -220,11 +221,10 @@ if (newPostForm) {
         try {
             // Add Authorization header for protected endpoint
             const token = localStorage.getItem('token') || '';
-            const res = await fetch(FORUM_API_BASE + '?subject=mathematics', {
+            const res = await fetch(FORUM_API_BASE, {
                 method: 'POST',
                 body: formData,
                 headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-                // Remove credentials: 'include' unless backend requires cookies
             });
             if (!res.ok) throw new Error('Failed to post');
             newPostForm.reset();

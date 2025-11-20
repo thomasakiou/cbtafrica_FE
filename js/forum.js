@@ -1,6 +1,6 @@
 // forum.js - Handles loading and posting forum discussions for Mathematics page
 
-const FORUM_API = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/mathematics'; // Adjust endpoint if needed
+const FORUM_API_BASE = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts';
 const postsContainer = document.getElementById('posts-container');
 const paginationContainer = document.getElementById('forum-pagination');
 const newPostForm = document.getElementById('new-post-form');
@@ -26,10 +26,12 @@ async function loadForumPosts(page = 1) {
     if (!postsContainer) return;
     postsContainer.innerHTML = '<div class="loading-spinner" style="text-align:center;padding:2rem;color:#666;">Loading discussions...</div>';
     try {
-        const skip = (page - 1) * postsPerPage;
-        const res = await fetch(`${FORUM_API}?skip=${skip}&limit=${postsPerPage}`);
+        const url = `${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`;
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to load forum posts');
-        const data = await res.json();
+        const result = await res.json();
+        // Expecting result to be { posts: [...], total: n } or just an array
+        const data = Array.isArray(result) ? result : (result.posts || []);
         if (!Array.isArray(data) || data.length === 0) {
             postsContainer.innerHTML = '<div style="text-align:center;padding:2rem;color:#666;">No discussions yet. Be the first to post!</div>';
             paginationContainer.style.display = 'none';
@@ -119,7 +121,8 @@ if (newPostForm) {
             formData.append('image', imageInput.files[0]);
         }
         try {
-            const res = await fetch(FORUM_API, {
+            // Use the same endpoint for posting, but POST method
+            const res = await fetch(FORUM_API_BASE + '?subject=mathematics', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include',

@@ -166,29 +166,52 @@ async function handleNewPost(event) {
 
 // Load forum posts
 async function loadForumPosts(page = 1, sort = 'newest') {
+    // Ensure posts container exists
+    const postsContainer = document.getElementById('posts-container');
+    if (!postsContainer) {
+        console.error('Posts container not found');
+        return;
+    }
+
     try {
         const response = await fetch(
             `${FORUM_API_BASE_URL}/posts?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=${sort}`
         );
         
+        if (response.status === 404) {
+            // Handle 404 specifically - the endpoint might not be implemented yet
+            console.warn('Forum API endpoint not found (404). This might be expected if the backend is not fully implemented yet.');
+            postsContainer.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    Forum feature coming soon. Check back later!
+                </div>
+            `;
+            return;
+        }
+        
         if (!response.ok) {
-            throw new Error('Failed to load posts');
+            throw new Error(`Failed to load posts: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
-        currentPosts = data.posts;
+        currentPosts = data.posts || [];
         currentPage = page;
         currentSort = sort;
         
         renderPosts(currentPosts);
-        renderPagination(data.totalPages, page);
+        
+        // Only render pagination if we have the data for it
+        if (data.totalPages !== undefined) {
+            renderPagination(data.totalPages, page);
+        }
     } catch (error) {
         console.error('Error loading posts:', error);
-        postsContainer.innerHTML = `
-            <div class="error-message" style="text-align: center; padding: 2rem; color: #e74c3c;">
-                Failed to load posts. Please try again later.
-            </div>
-        `;
+        if (postsContainer) {
+            postsContainer.innerHTML = `
+                <div class="error-message" style="text-align: center; padding: 2rem; color: #e74c3c;">
+                    ${error.message || 'Failed to load posts. Please try again later.'}
+                </div>
+            `;
     }
 }
 

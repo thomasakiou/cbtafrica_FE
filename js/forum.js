@@ -202,6 +202,10 @@ if (newPostForm) {
         if (imageInput && imageInput.files[0]) {
             formData.append('image', imageInput.files[0]);
         }
+        // Debug: log all form data fields and values
+        for (let pair of formData.entries()) {
+            console.log('FormData:', pair[0], pair[1]);
+        }
         try {
             // Add Authorization header for protected endpoint
             const token = localStorage.getItem('token') || '';

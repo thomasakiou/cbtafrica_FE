@@ -203,11 +203,13 @@ if (newPostForm) {
             formData.append('image', imageInput.files[0]);
         }
         try {
-            // Use the same endpoint for posting, but POST method
+            // Add Authorization header for protected endpoint
+            const token = localStorage.getItem('token') || '';
             const res = await fetch(FORUM_API_BASE + '?subject=mathematics', {
                 method: 'POST',
                 body: formData,
-                credentials: 'include',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                // Remove credentials: 'include' unless backend requires cookies
             });
             if (!res.ok) throw new Error('Failed to post');
             newPostForm.reset();

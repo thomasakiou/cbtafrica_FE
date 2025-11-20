@@ -90,12 +90,14 @@ function createForumPost(post) {
         </div>
         ${replySection}
     </div>`;
+}
+
 // Notification utility (imported from main.js or fallback)
 if (typeof showNotification !== 'function') {
     window.showNotification = function(message, type = 'info') {
         alert(message);
     };
-}
+
 
 // Event delegation for reply button and submit reply
 document.addEventListener('click', function(e) {

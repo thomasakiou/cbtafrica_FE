@@ -1,110 +1,178 @@
-// // Main JavaScript file for common functionality
+// Main JavaScript file for common functionality
+const NEWS_API = 'https://vmi2848672.contaboserver.net/cbt/api/v1/news';
+const NEWS_PER_PAGE = 5;
+let currentNewsPage = 1;
 
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Smooth scrolling for navigation links
-//     const navLinks = document.querySelectorAll('nav a[href^="#"]');
-//     navLinks.forEach(link => {
-//         link.addEventListener('click', function(e) {
-//             e.preventDefault();
-//             const targetId = this.getAttribute('href').substring(1);
-//             const targetElement = document.getElementById(targetId);
-//             if (targetElement) {
-//                 targetElement.scrollIntoView({
-//                     behavior: 'smooth',
-//                     block: 'start'
-//                 });
-//             }
-//         });
-//     });
-    
-//     // Load news feed
-//     loadNewsFeed();
-// });
+// Fallback news data in case API is not available
+const FALLBACK_NEWS = [
+    {
+        title: "JAMB 2024 Registration Opens",
+        content: "The Joint Admissions and Matriculation Board has announced the commencement of registration for the 2024 UTME. Students are advised to visit the official JAMB website to begin their registration process.",
+        date: "2024-03-15",
+        url: "#"
+    },
+    {
+        title: "WAEC Releases New Syllabus",
+        content: "The West African Examinations Council has updated its syllabus for various subjects effective from 2024. The new syllabus includes modern topics and updated assessment criteria.",
+        date: "2024-03-10",
+        url: "#"
+    },
+    {
+        title: "NECO Announces Exam Dates",
+        content: "The National Examinations Council has released the timetable for the upcoming Senior School Certificate Examination. The exams are scheduled to begin in May 2024.",
+        date: "2024-03-08",
+        url: "#"
+    }
+];
 
-// function loadNewsFeed() {
-//     // Simulate loading news from an API
-//     const newsItems = [
-//         {
-//             title: "JAMB 2024 Registration Opens",
-//             content: "The Joint Admissions and Matriculation Board has announced the commencement of registration for the 2024 UTME. Students are advised to visit the official JAMB website to begin their registration process.",
-//             date: "2024-03-15"
-//         },
-//         {
-//             title: "WAEC Releases New Syllabus",
-//             content: "The West African Examinations Council has updated its syllabus for various subjects effective from 2024. The new syllabus includes modern topics and updated assessment criteria.",
-//             date: "2024-03-10"
-//         },
-//         {
-//             title: "NECO Announces Exam Dates",
-//             content: "The National Examinations Council has released the timetable for the upcoming Senior School Certificate Examination. The exams are scheduled to begin in May 2024.",
-//             date: "2024-03-08"
-//         },
-//         {
-//             title: "New CBT Centers Approved",
-//             content: "The examination bodies have approved additional Computer Based Test centers across the country to accommodate more candidates and reduce congestion.",
-//             date: "2024-03-05"
-//         },
-//         {
-//             title: "Study Tips for CBT Exams",
-//             content: "Education experts share valuable tips for students preparing for computer-based tests, including time management strategies and practice techniques.",
-//             date: "2024-03-01"
-//         }
-//     ];
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scrolling for navigation links
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
     
-//     const newsFeed = document.querySelector('.news-feed');
-//     if (newsFeed) {
-//         newsFeed.innerHTML = newsItems.map(item => `
-//             <article class="news-item">
-//                 <h3>${item.title}</h3>
-//                 <p>${item.content}</p>
-//                 <span class="date">${new Date(item.date).toLocaleDateString('en-US', {
-//                     year: 'numeric',
-//                     month: 'long',
-//                     day: 'numeric'
-//                 })}</span>
-//             </article>
-//         `).join('');
-//     }
-// }
+    // Load news feed if the container exists
+    const newsContainer = document.querySelector('.news-feed, .education-news, #news-feed');
+    if (newsContainer) {
+        loadNewsFeed();
+    }
+});
+// Load news feed from API or use fallback data
+async function loadNewsFeed(page = 1) {
+    const newsFeed = document.querySelector('.news-feed, #news-feed');
+    if (!newsFeed) return;
 
-// // Utility functions
-// function formatDate(dateString) {
-//     const options = { 
-//         year: 'numeric', 
-//         month: 'long', 
-//         day: 'numeric',
-//         hour: '2-digit',
-//         minute: '2-digit'
-//     };
-//     return new Date(dateString).toLocaleDateString('en-US', options);
-// }
+    // Show loading state
+    newsFeed.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">Loading education news...</div>';
 
-// function showNotification(message, type = 'info') {
-//     const notification = document.createElement('div');
-//     notification.className = `notification ${type}`;
-//     notification.textContent = message;
+    try {
+        // Try to fetch from API first
+        const response = await fetch(`${NEWS_API}?page=${page}&limit=${NEWS_PER_PAGE}`);
+        let newsItems = [];
+        
+        if (response.ok) {
+            const data = await response.json();
+            newsItems = data.posts || [];
+        } else {
+            // If API fails, use fallback data
+            console.warn('Using fallback news data');
+            newsItems = [...FALLBACK_NEWS];
+        }
+
+        // Update current page
+        currentNewsPage = page;
+        
+        // Render news items
+        if (newsItems.length > 0) {
+            renderNewsItems(newsItems);
+            updateNewsPaginationControls(newsItems.length);
+        } else {
+            newsFeed.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    No news available at the moment. Please check back later.
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading news:', error);
+        // On error, use fallback data
+        renderNewsItems(FALLBACK_NEWS);
+    }
+}
+
+// Render news items to the DOM
+function renderNewsItems(newsItems) {
+    const newsFeed = document.querySelector('.news-feed, #news-feed');
+    if (!newsFeed) return;
+
+    newsFeed.innerHTML = newsItems.map(item => `
+        <article class="news-item" style="border-bottom: 1px solid #eee; padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0 0 0.5rem 0; color: #2c3e50;">
+                <a href="${item.url || '#'}" style="color: inherit; text-decoration: none;">
+                    ${escapeHtml(item.title)}
+                </a>
+            </h3>
+            <p style="margin: 0.5rem 0; color: #555; line-height: 1.5;">
+                ${escapeHtml(item.content)}
+            </p>
+            <div style="font-size: 0.85rem; color: #7f8c8d; margin-top: 0.5rem;">
+                ${formatDate(item.date)}
+            </div>
+        </article>
+    `).join('');
+}
+
+// Update pagination controls
+function updateNewsPaginationControls(itemsCount) {
+    const pagination = document.getElementById('news-pagination');
+    const prevBtn = document.getElementById('prev-news-btn');
+    const nextBtn = document.getElementById('next-news-btn');
+    const pageInfo = document.getElementById('news-page-info');
     
-//     // Add notification styles
-//     notification.style.cssText = `
-//         position: fixed;
-//         top: 20px;
-//         right: 20px;
-//         padding: 1rem 1.5rem;
-//         border-radius: 4px;
-//         color: white;
-//         font-weight: bold;
-//         z-index: 9999;
-//         animation: slideIn 0.3s ease-out;
-//     `;
+    if (!pagination) return;
     
-//     // Set background color based on type
-//     switch(type) {
-//         case 'success':
-//             notification.style.backgroundColor = '#27ae60';
-//             break;
-//         case 'error':
-//             notification.style.backgroundColor = '#e74c3c';
-//             break;
+    // Show pagination if we have items
+    pagination.style.display = itemsCount > 0 ? 'flex' : 'none';
+    
+    // Update page info
+    if (pageInfo) {
+        pageInfo.textContent = `Page ${currentNewsPage}`;
+    }
+    
+    // Update previous button state
+    if (prevBtn) {
+        prevBtn.disabled = currentNewsPage <= 1;
+        prevBtn.style.opacity = currentNewsPage <= 1 ? '0.5' : '1';
+        prevBtn.style.cursor = currentNewsPage <= 1 ? 'not-allowed' : 'pointer';
+    }
+    
+    // Update next button state
+    if (nextBtn) {
+        const hasMore = itemsCount >= NEWS_PER_PAGE;
+        nextBtn.disabled = !hasMore;
+        nextBtn.style.opacity = hasMore ? '1' : '0.5';
+        nextBtn.style.cursor = hasMore ? 'pointer' : 'not-allowed';
+    }
+}
+
+// Change news page
+function changeNewsPage(direction) {
+    const newPage = direction === 'prev' ? currentNewsPage - 1 : currentNewsPage + 1;
+    if (newPage > 0) {
+        loadNewsFeed(newPage);
+    }
+}
+
+// Format date
+function formatDate(dateString) {
+    const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 //         case 'warning':
 //             notification.style.backgroundColor = '#f39c12';
 //             break;
@@ -261,8 +329,50 @@ const NEWS_API = `${BACKEND_URL}/cbt/api/v1/news/`;
 
 // News pagination state
 let currentNewsPage = 1;
-const newsPerPage = 5; // Show 5 news items per page
+const NEWS_PER_PAGE = 5; // Show 5 news items per page
 let totalNewsItems = 0;
+
+// News card creation function
+function createNewsCard(news) {
+    // Create the news card element
+    const card = document.createElement('article');
+    card.className = 'news-card';
+    card.style.borderBottom = '1px solid #eee';
+    card.style.paddingBottom = '1.5rem';
+    card.style.marginBottom = '1.5rem';
+    
+    // Format the date
+    const date = new Date(news.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    card.innerHTML = `
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.2rem;">
+            <a href="${news.url || '#'}" style="color: #2c3e50; text-decoration: none;">
+                ${escapeHtml(news.title || '')}
+            </a>
+        </h3>
+        <p style="margin: 0.5rem 0; color: #555; line-height: 1.5;">
+            ${escapeHtml(news.content || '')}
+        </p>
+        <div style="font-size: 0.85rem; color: #7f8c8d; margin-top: 0.5rem;">
+            ${date}
+        </div>
+    `;
+    
+    return card;
+}
+
+// Escape HTML to prevent XSS attacks
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 async function loadNewsFeed(page = 1) {
     const newsFeed = document.querySelector('.news-feed');
@@ -275,10 +385,10 @@ async function loadNewsFeed(page = 1) {
         newsFeed.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Loading news...</p>';
         
         // Calculate skip value for pagination
-        const skip = (page - 1) * newsPerPage;
+        const skip = (page - 1) * NEWS_PER_PAGE;
         
         // Fetch news items from the backend with pagination
-        const response = await fetch(`${NEWS_API}?skip=${skip}&limit=${newsPerPage}`);
+        const response = await fetch(`${NEWS_API}?skip=${skip}&limit=${NEWS_PER_PAGE}`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -299,7 +409,10 @@ async function loadNewsFeed(page = 1) {
         }
         
         // Display the news cards
-        newsFeed.innerHTML = newsItems.map(item => createNewsCard(item)).join('');
+        newsFeed.innerHTML = '';
+        newsItems.forEach(item => {
+            newsFeed.appendChild(createNewsCard(item));
+        });
         
         // Update pagination controls
         updateNewsPaginationControls(newsItems.length);
@@ -355,7 +468,7 @@ function updateNewsPaginationControls(itemsOnPage) {
     // Update next button state
     if (nextBtn) {
         // If we got fewer items than requested, we're on the last page
-        if (itemsOnPage < newsPerPage) {
+        if (itemsOnPage < NEWS_PER_PAGE) {
             nextBtn.disabled = true;
             nextBtn.style.opacity = '0.5';
             nextBtn.style.cursor = 'not-allowed';
@@ -388,37 +501,6 @@ function changeNewsPage(direction) {
     }
 }
 
-function createNewsCard(news) {
-    // Escape HTML to prevent XSS attacks
-    const title = escapeHtml(news.title);
-    const content = escapeHtml(news.content);
-    const url = escapeHtml(news.url);
-    
-    // Format the date
-    const date = new Date(news.date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
-    return `
-        <article class="news-item">
-            <h3>${title}</h3>
-            <p>${content}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                <span class="date">${date}</span>
-                <a href="${url}" target="_blank" rel="noopener noreferrer" class="read-more">
-                    Read more →
-                </a>
-            </div>
-        </article>
-    `;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 // Utility functions

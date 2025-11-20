@@ -22,6 +22,18 @@
             </div>
             <div class="nav-overlay"></div>
             <ul class="nav-links">
+                <li class="user-info">
+                    <span id="user-name">Welcome, User</span>
+                    <script>
+                        (function() {
+                            const username = localStorage.getItem('username');
+                            if (username) {
+                                document.getElementById('user-name').textContent = 'Welcome, ' + username;
+                            }
+                        })();
+                    </script>
+                    <button onclick="logout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 15px;">Logout</button>
+                </li>
                 <li><a href="dashboard.html" class="active">Dashboard</a></li>
                 <li><a href="classroom.html">Classroom</a></li>
                 <li class="dropdown">
@@ -33,7 +45,7 @@
                     </div>
                 </li>
                 <li class="user-info">
-                    <span id="user-name">Welcome, User</span>
+                    <!-- <span id="user-name">Welcome, User</span>
                     <script>
                         (function() {
                             const username = localStorage.getItem('username');
@@ -41,7 +53,7 @@
                                 document.getElementById('user-name').textContent = 'Welcome, ' + username;
                             }
                         })();
-                    </script>
+                    </script> -->
                     <button onclick="logout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 15px;">Logout</button>
                 </li>
             </ul>

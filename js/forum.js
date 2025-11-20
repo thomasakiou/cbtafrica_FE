@@ -100,11 +100,19 @@ if (typeof showNotification !== 'function') {
 // Event delegation for reply button and submit reply
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('reply-btn')) {
+        console.log('Reply button clicked:', e.target);
         const postDiv = e.target.closest('.forum-post');
-        const replyBox = postDiv.querySelector('.reply-box');
-        if (replyBox) {
-            replyBox.style.display = replyBox.style.display === 'none' ? 'block' : 'none';
+        if (!postDiv) {
+            console.warn('No .forum-post ancestor found for reply button');
+            return;
         }
+        const replyBox = postDiv.querySelector('.reply-box');
+        if (!replyBox) {
+            console.warn('No .reply-box found inside .forum-post');
+            return;
+        }
+        console.log('Toggling reply box. Current display:', replyBox.style.display);
+        replyBox.style.display = replyBox.style.display === 'none' ? 'block' : 'none';
     }
     if (e.target.classList.contains('submit-reply-btn')) {
         const postDiv = e.target.closest('.forum-post');

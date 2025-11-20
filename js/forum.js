@@ -11,14 +11,18 @@ const loginPrompt = document.getElementById('login-prompt');
 let currentForumPage = 1;
 const postsPerPage = 5;
 
-// Check login status and set up event listeners when DOM is loaded
+// Function to check if user is logged in
+function isUserLoggedIn() {
+    // Use the same logic as updateAuthUI: token and username in localStorage
+    return !!(localStorage.getItem('token') && localStorage.getItem('username'));
+}
+
+// Set up event listeners when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Set up UI based on login status
     const loggedIn = isUserLoggedIn();
     if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
     if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
-    
-    // Load forum posts
-    loadForumPosts();
     
     // Set up new post form submission
     if (newPostForm) {
@@ -26,17 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Set up reply button click handler using event delegation
-    document.addEventListener('click', handleReplyButtonClick);
-});
-function isUserLoggedIn() {
-    // Use the same logic as updateAuthUI: token and username in localStorage
-    return !!(localStorage.getItem('token') && localStorage.getItem('username'));
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const loggedIn = isUserLoggedIn();
-    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
-    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
+    // We'll use a named function that we can remove if needed
+    const handleClick = (e) => handleReplyButtonClick(e);
+    document.addEventListener('click', handleClick);
+    
+    // Store the handler so we can remove it later if needed
+    window.forumClickHandler = handleClick;
+    
+    // Load forum posts after setting up event listeners
     loadForumPosts();
 });
 

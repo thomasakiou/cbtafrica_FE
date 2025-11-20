@@ -190,7 +190,7 @@
                 </section>
             </div>
 
-            <div class="auth-section">
+            <div id="auth-section" class="auth-section">
                 <div class="auth-container">
                     <div class="auth-tabs">
                         <button class="tab-btn active" onclick="showLogin()">Login</button>
@@ -279,6 +279,30 @@
 
     <script src="js/custom-alert.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/auth-utils.js"></script>
+    <script>
+        // Handle redirect after successful login
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for redirect after login
+            if (window.location.hash === '#login' || window.location.hash === '#register') {
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                const tabContents = document.querySelectorAll('.tab-content');
+                
+                // Show the appropriate tab based on the hash
+                const targetTab = window.location.hash === '#login' ? 'login' : 'register';
+                tabButtons.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(targetTab)) {
+                        btn.click();
+                    }
+                });
+                
+                // Scroll to the auth section
+                document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Update auth UI
+            updateAuthUI();
+        });
+    </script>
 </body>
 </html>

@@ -7,6 +7,13 @@
     <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/mobile-nav.js"></script>
+    <script src="js/auth-utils.js"></script>
+    <script>
+        // Check authentication when accessing classroom
+        document.addEventListener('DOMContentLoaded', () => {
+            // The auth-utils.js will handle the UI updates
+        });
+    </script>
 </head>
 <body>
     <header>
@@ -22,9 +29,21 @@
             <div class="nav-overlay"></div>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <!-- <li><a href="index.html#about">About</a></li> -->
-                <!-- <li><a href="index.html#features">Features</a></li> -->
                 <li><a href="classroom.html" class="active">Classroom</a></li>
+                <!-- Authentication Buttons -->
+                <li id="login-button" style="display: none;">
+                    <a href="index.html" class="btn btn-outline" style="padding: 0.5rem 1rem; margin: 0 0.5rem;">Login</a>
+                </li>
+                <li id="register-button" style="display: none;">
+                    <a href="index.html#register" class="btn btn-primary" style="padding: 0.5rem 1rem;">Register</a>
+                </li>
+                <!-- User Info (shown when logged in) -->
+                <li id="user-info" style="display: none; margin-left: 1rem; align-items: center;">
+                    <span style="margin-right: 1rem; color: #4a5568;">
+                        Welcome, <span id="username-display"></span>
+                    </span>
+                    <a href="#" id="logout-button" class="btn btn-outline" style="padding: 0.5rem 1rem;">Logout</a>
+                </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle">Exam Types</a>
                     <div class="dropdown-content">
@@ -41,7 +60,7 @@
     <main style="margin-top: 80px; padding: 2rem 0;">
         <div class="container" style="grid-template-columns: 1fr; max-width: 1200px;">
             <div class="content-section">
-                <h1>📚 ExamPadi Classroom</h1>
+                <h1>📚 MyCBT Classroom</h1>
                 <p style="font-size: 1.1rem; color: #7f8c8d; margin-bottom: 2rem;">Comprehensive learning resources for NECO, WAEC & JAMB examination success</p>
 
                 <section style="margin-bottom: 3rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 12px; color: white;">

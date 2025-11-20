@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Set up reply button click handler using event delegation
-    document.addEventListener('click', handleReplyButtonClick);
+    document.addEventListener('click', (e) => handleReplyButtonClick(e));
 });
 function isUserLoggedIn() {
     // Use the same logic as updateAuthUI: token and username in localStorage

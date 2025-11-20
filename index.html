@@ -6,6 +6,7 @@
     <title>MyCBT Application - Computer Based Testing Platform</title>
     <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth-utils.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const dropdown = document.querySelector('.dropdown');
@@ -34,6 +35,11 @@
             </div>
             <div class="nav-overlay"></div>
             <ul class="nav-links">
+                <li id="user-info" style="display: none; margin-left: 1rem; align-items: center;">
+                    <span style="margin-right: 1rem; color: #e3e7ed;">
+                        Welcome, <span id="username-display"></span>
+                    </span>
+                </li>
                 <li><a href="#home" class="active">Home</a></li>
                 <!-- <li><a href="#about">About</a></li> -->
                 <!-- <li><a href="#features">Features</a></li> -->

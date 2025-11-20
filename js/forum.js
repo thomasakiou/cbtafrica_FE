@@ -12,13 +12,9 @@ const postsPerPage = 5;
 
 // Check login status (assumes auth-utils.js provides isLoggedIn)
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof isLoggedIn === 'function' && isLoggedIn()) {
-        newPostContainer.style.display = 'block';
-        loginPrompt.style.display = 'none';
-    } else {
-        newPostContainer.style.display = 'none';
-        loginPrompt.style.display = 'block';
-    }
+    const loggedIn = typeof isLoggedIn === 'function' && isLoggedIn();
+    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
+    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
     loadForumPosts();
 });
 

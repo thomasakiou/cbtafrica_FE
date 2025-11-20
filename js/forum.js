@@ -125,6 +125,7 @@ async function submitReply(postId, replyText, btn) {
     }
     btn.disabled = true;
     btn.textContent = 'Submitting...';
+    console.log('Submitting reply:', { postId, replyText });
     try {
         const res = await fetch(FORUM_API_BASE + `/${postId}/reply`, {
             method: 'POST',
@@ -134,11 +135,13 @@ async function submitReply(postId, replyText, btn) {
             },
             body: JSON.stringify({ content: replyText })
         });
-        if (!res.ok) throw new Error('Failed to submit reply');
+        let responseText = await res.text();
+        console.log('Reply response status:', res.status, 'body:', responseText);
+        if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
         showNotification('Reply submitted!', 'success');
-        // Optionally reload posts or just clear the reply box
         loadForumPosts(currentForumPage);
     } catch (err) {
+        console.error('Reply error:', err);
         showNotification('Failed to submit reply.', 'error');
     } finally {
         btn.disabled = false;

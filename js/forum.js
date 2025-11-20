@@ -52,19 +52,46 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Check if user is authenticated and update UI
-// This is now handled by auth-utils.js
 function checkAuthForForum() {
-    // The auth-utils.js will handle the UI updates
-    if (!localStorage.getItem('token') && loginPrompt) {
-        // Add click handler to login link
-        const loginLink = loginPrompt.querySelector('a');
-        if (loginLink) {
-            loginLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                // Store current URL to redirect back after login
-                localStorage.setItem('redirectAfterLogin', window.location.href);
-                window.location.href = 'index.html';
-            });
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // User is logged in
+        if (loginPrompt) {
+            loginPrompt.style.display = 'none';
+        }
+        if (newPostContainer) {
+            newPostContainer.style.display = 'block';
+        }
+        // Load posts will be called from the DOMContentLoaded handler
+    } else {
+        // User is not logged in
+        if (loginPrompt) {
+            loginPrompt.style.display = 'block';
+            loginPrompt.innerHTML = `
+                <div style="text-align: center; padding: 1.5rem;">
+                    <p style="margin: 0 0 1rem 0; color: #555; font-size: 1.1rem;">
+                        Please <a href="#" id="forum-login-link" style="color: #667eea; text-decoration: none; font-weight: 500;">login</a> to participate in the forum discussion.
+                    </p>
+                    <p style="margin: 0; color: #666; font-size: 0.95rem;">
+                        Don't have an account? <a href="index.html#register" style="color: #667eea; text-decoration: none; font-weight: 500;">Register here</a>
+                    </p>
+                </div>
+            `;
+            
+            // Add click handler to login link
+            const loginLink = document.getElementById('forum-login-link');
+            if (loginLink) {
+                loginLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Store current URL to redirect back after login
+                    localStorage.setItem('redirectAfterLogin', window.location.href);
+                    window.location.href = 'index.html';
+                });
+            }
+        }
+        if (newPostContainer) {
+            newPostContainer.style.display = 'none';
         }
     }
 }

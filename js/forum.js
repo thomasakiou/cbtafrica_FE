@@ -48,7 +48,15 @@ async function loadForumPosts(page = 1) {
 function createForumPost(post) {
     const title = escapeHtml(post.title || '');
     const content = escapeHtml(post.content || '');
-    const author = escapeHtml(post.author || 'Anonymous');
+    let author = 'Anonymous';
+    if (post.author) {
+        if (typeof post.author === 'object' && post.author !== null) {
+            author = post.author.username || post.author.name || JSON.stringify(post.author);
+        } else {
+            author = post.author;
+        }
+    }
+    author = escapeHtml(author);
     const date = new Date(post.date || post.createdAt || Date.now()).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     let imageHtml = '';
     if (post.imageUrl) {

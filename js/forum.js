@@ -11,12 +11,22 @@ const loginPrompt = document.getElementById('login-prompt');
 let currentForumPage = 1;
 const postsPerPage = 5;
 
-// Check login status (assumes auth-utils.js provides isLoggedIn)
+// Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const loggedIn = typeof isLoggedIn === 'function' && isLoggedIn();
+    const loggedIn = isUserLoggedIn();
     if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
     if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
+    
+    // Load forum posts
     loadForumPosts();
+    
+    // Set up new post form submission
+    if (newPostForm) {
+        newPostForm.addEventListener('submit', handleNewPost);
+    }
+    
+    // Set up reply button click handler using event delegation
+    document.addEventListener('click', handleReplyButtonClick);
 });
 function isUserLoggedIn() {
     // Use the same logic as updateAuthUI: token and username in localStorage
@@ -98,8 +108,8 @@ if (typeof showNotification !== 'function') {
     };
 }
 
-// Event delegation for reply button and submit reply
-document.addEventListener('click', function(e) {
+// Handle reply button clicks and form submissions
+function handleReplyButtonClick(e) {
     // Handle reply button click
     if (e.target.classList.contains('reply-btn')) {
         e.preventDefault();
@@ -161,7 +171,7 @@ document.addEventListener('click', function(e) {
             replyForm.parentNode.removeChild(replyForm);
         }
     }
-});
+}
 
 async function submitReply(postId, replyText, btn) {
     if (!postId) {

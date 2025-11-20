@@ -74,10 +74,8 @@ function createForumPost(post) {
     let replySection = '';
     if (isUserLoggedIn()) {
         replySection = `
-            <button class="reply-btn" style="margin-top:0.7rem;background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
-            <div class="reply-box" style="display:none;margin-top:0.7rem;">
-                <textarea class="reply-text" rows="2" placeholder="Write a reply..." style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;"></textarea>
-                <button class="submit-reply-btn" style="margin-top:0.4rem;background:#27ae60;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Submit Reply</button>
+            <div class="reply-action-container" style="margin-top:0.7rem;">
+                <button class="reply-btn" style="background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
             </div>
         `;
     }
@@ -103,19 +101,15 @@ if (typeof showNotification !== 'function') {
 // Event delegation for reply button and submit reply
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('reply-btn')) {
-        console.log('Reply button clicked:', e.target);
         const postDiv = e.target.closest('.forum-post');
-        if (!postDiv) {
-            console.warn('No .forum-post ancestor found for reply button');
-            return;
-        }
-        const replyBox = postDiv.querySelector('.reply-box');
-        if (!replyBox) {
-            console.warn('No .reply-box found inside .forum-post');
-            return;
-        }
-        console.log('Toggling reply box. Current display:', replyBox.style.display);
-        replyBox.style.display = replyBox.style.display === 'none' ? 'block' : 'none';
+        if (!postDiv) return;
+        const replyAction = postDiv.querySelector('.reply-action-container');
+        if (!replyAction) return;
+        // Replace the reply button with textarea and submit button
+        replyAction.innerHTML = `
+            <textarea class="reply-text" rows="2" placeholder="Write a reply..." style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;"></textarea>
+            <button class="submit-reply-btn" style="margin-top:0.4rem;background:#27ae60;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
+        `;
     }
     if (e.target.classList.contains('submit-reply-btn')) {
         const postDiv = e.target.closest('.forum-post');

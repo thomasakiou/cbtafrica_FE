@@ -17,20 +17,55 @@ let currentPosts = [];
 
 // Initialize forum when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Check authentication first
     checkAuthForForum();
-    setupEventListeners();
-    loadForumPosts();
+    
+    // Only load posts if user is authenticated
+    if (localStorage.getItem('token')) {
+        setupEventListeners();
+        loadForumPosts();
+    } else if (loginPrompt) {
+        // Show login prompt with link to index.html
+        loginPrompt.style.display = 'block';
+        loginPrompt.innerHTML = `
+            <div style="text-align: center; padding: 1.5rem;">
+                <p style="margin: 0 0 1rem 0; color: #555; font-size: 1.1rem;">
+                    Please <a href="index.html" style="color: #667eea; text-decoration: none; font-weight: 500;" id="forum-login-link">login</a> to participate in the forum discussion.
+                </p>
+                <p style="margin: 0; color: #666; font-size: 0.95rem;">
+                    Don't have an account? <a href="index.html#register" style="color: #667eea; text-decoration: none; font-weight: 500;">Register here</a>
+                </p>
+            </div>
+        `;
+        
+        // Add click handler to login link
+        const loginLink = document.getElementById('forum-login-link');
+        if (loginLink) {
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Store current URL to redirect back after login
+                localStorage.setItem('redirectAfterLogin', window.location.href);
+                window.location.href = 'index.html';
+            });
+        }
+    }
 });
 
 // Check if user is authenticated and update UI
+// This is now handled by auth-utils.js
 function checkAuthForForum() {
-    const token = localStorage.getItem('token');
-    if (token) {
-        newPostContainer.style.display = 'block';
-        if (loginPrompt) loginPrompt.style.display = 'none';
-    } else {
-        newPostContainer.style.display = 'none';
-        if (loginPrompt) loginPrompt.style.display = 'block';
+    // The auth-utils.js will handle the UI updates
+    if (!localStorage.getItem('token') && loginPrompt) {
+        // Add click handler to login link
+        const loginLink = loginPrompt.querySelector('a');
+        if (loginLink) {
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Store current URL to redirect back after login
+                localStorage.setItem('redirectAfterLogin', window.location.href);
+                window.location.href = 'index.html';
+            });
+        }
     }
 }
 
@@ -64,6 +99,9 @@ async function handleNewPost(event) {
     formData.append('title', title);
     formData.append('content', content);
     formData.append('subject', 'mathematics'); // This will be dynamic based on the subject page
+    
+    // Only append image if a file is actually selected
+    const imageFile = imageInput.files[0];
     if (imageFile) {
         formData.append('image', imageFile);
     }

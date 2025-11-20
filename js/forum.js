@@ -96,30 +96,70 @@ if (typeof showNotification !== 'function') {
     window.showNotification = function(message, type = 'info') {
         alert(message);
     };
-
+}
 
 // Event delegation for reply button and submit reply
 document.addEventListener('click', function(e) {
+    // Handle reply button click
     if (e.target.classList.contains('reply-btn')) {
+        e.preventDefault();
         const postDiv = e.target.closest('.forum-post');
         if (!postDiv) return;
+        
         const replyAction = postDiv.querySelector('.reply-action-container');
         if (!replyAction) return;
-        // Replace the reply button with textarea and submit button
-        replyAction.innerHTML = `
-            <textarea class="reply-text" rows="2" placeholder="Write a reply..." style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:4px;"></textarea>
-            <button class="submit-reply-btn" style="margin-top:0.4rem;background:#27ae60;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
+        
+        // Check if already showing reply form
+        if (replyAction.querySelector('.reply-form')) return;
+        
+        // Create reply form
+        const replyForm = document.createElement('div');
+        replyForm.className = 'reply-form';
+        replyForm.innerHTML = `
+            <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
+            <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
+                <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+                    Cancel
+                </button>
+                <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+                    Post Reply
+                </button>
+            </div>
         `;
+        
+        // Add to DOM
+        replyAction.appendChild(replyForm);
+        
+        // Focus the textarea
+        const textarea = replyForm.querySelector('.reply-text');
+        if (textarea) textarea.focus();
     }
-    if (e.target.classList.contains('submit-reply-btn')) {
+    
+    // Handle submit reply
+    else if (e.target.classList.contains('submit-reply-btn')) {
+        e.preventDefault();
+        const replyForm = e.target.closest('.reply-form');
+        if (!replyForm) return;
+        
         const postDiv = e.target.closest('.forum-post');
-        const replyText = postDiv.querySelector('.reply-text').value.trim();
+        const replyText = replyForm.querySelector('.reply-text').value.trim();
         const postId = postDiv.getAttribute('data-post-id');
+        
         if (!replyText) {
-            showNotification('Reply cannot be empty.', 'warning');
+            showNotification('Please enter a reply.', 'warning');
             return;
         }
+        
         submitReply(postId, replyText, e.target);
+    }
+    
+    // Handle cancel reply
+    else if (e.target.classList.contains('cancel-reply-btn')) {
+        e.preventDefault();
+        const replyForm = e.target.closest('.reply-form');
+        if (replyForm && replyForm.parentNode) {
+            replyForm.parentNode.removeChild(replyForm);
+        }
     }
 });
 
@@ -157,7 +197,7 @@ async function submitReply(postId, replyText, btn) {
         btn.textContent = 'Reply';
     }
 }
-}
+
 
 function escapeHtml(text) {
     const div = document.createElement('div');

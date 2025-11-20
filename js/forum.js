@@ -17,6 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
     loadForumPosts();
 });
+function isUserLoggedIn() {
+    // Use the same logic as updateAuthUI: token and username in localStorage
+    return !!(localStorage.getItem('token') && localStorage.getItem('username'));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loggedIn = isUserLoggedIn();
+    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
+    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
+    loadForumPosts();
+});
 
 async function loadForumPosts(page = 1) {
     if (!postsContainer) return;
@@ -58,6 +69,11 @@ function createForumPost(post) {
     if (post.imageUrl) {
         imageHtml = `<div style="margin:1rem 0;"><img src="${post.imageUrl}" alt="Post image" style="max-width:100%;border-radius:6px;"></div>`;
     }
+        // Show reply button only if user is logged in
+        let replyBtn = '';
+        if (isUserLoggedIn()) {
+            replyBtn = `<button class="reply-btn" style="margin-top:0.7rem;background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>`;
+        }
     return `<div class="forum-post" style="background:#f8f9fa;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
         <h4 style="margin:0 0 0.5rem 0;color:#667eea;">${title}</h4>
         <div style="color:#333;margin-bottom:0.7rem;">${content}</div>
@@ -66,6 +82,7 @@ function createForumPost(post) {
             <span>By ${author}</span>
             <span>${date}</span>
         </div>
+            ${replyBtn}
     </div>`;
 }
 

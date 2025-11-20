@@ -132,11 +132,15 @@ async function submitReply(postId, replyText, btn) {
     btn.textContent = 'Submitting...';
     console.log('Submitting reply:', { postId, replyText });
     try {
-        const res = await fetch(FORUM_API_BASE + `/${postId}/reply`, {
+        // Use the correct backend endpoint for replies
+        const replyUrl = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/' + postId + '/reply';
+        const token = localStorage.getItem('token') || '';
+        // Send as JSON (adjust if backend expects FormData)
+        const res = await fetch(replyUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ content: replyText })
         });
@@ -150,7 +154,7 @@ async function submitReply(postId, replyText, btn) {
         showNotification('Failed to submit reply.', 'error');
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Submit Reply';
+        btn.textContent = 'Reply';
     }
 }
 }

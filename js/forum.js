@@ -121,7 +121,8 @@ async function handleNewPost(event) {
     
     const title = document.getElementById('post-title').value.trim();
     const content = document.getElementById('post-content').value.trim();
-    const imageFile = document.getElementById('post-image').files[0];
+    const imageInput = document.getElementById('post-image');
+    const imageFile = imageInput.files[0];
     
     if (!title || !content) {
         showAlert('Please fill in all required fields', 'error');
@@ -134,7 +135,6 @@ async function handleNewPost(event) {
     formData.append('subject', 'mathematics'); // This will be dynamic based on the subject page
     
     // Only append image if a file is actually selected
-    const imageFile = imageInput.files[0];
     if (imageFile) {
         formData.append('image', imageFile);
     }

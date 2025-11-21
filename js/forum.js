@@ -111,7 +111,8 @@ async function loadForumPosts(page = 1) {
     
     try {
         // Update the API URL to match your endpoint
-        const response = await fetch(`${FORUM_API_BASE}?page=${page}&limit=${postsPerPage}`);
+        const response = await fetch(`${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`;);
+        // `${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`;
         if (!response.ok) {
             throw new Error('Failed to fetch posts');
         }

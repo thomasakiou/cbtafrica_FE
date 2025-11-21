@@ -13,7 +13,49 @@ const postsPerPage = 3;
 
 // Store the current subject
 // const currentSubject = getCurrentSubject();
-
+// Add this at the top of forum.js
+function showNotification(message, type = 'info') {
+    // Check if notification function exists in main.js
+    if (window.showNotification) {
+        return window.showNotification(message, type);
+    }
+    
+    // Fallback notification
+    const notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.bottom = '20px';
+    notification.style.right = '20px';
+    notification.style.padding = '12px 20px';
+    notification.style.borderRadius = '4px';
+    notification.style.color = 'white';
+    notification.style.zIndex = '1000';
+    notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+    
+    // Set colors based on type
+    if (type === 'success') {
+        notification.style.backgroundColor = '#10B981'; // Green
+    } else if (type === 'error') {
+        notification.style.backgroundColor = '#EF4444'; // Red
+    } else if (type === 'warning') {
+        notification.style.backgroundColor = '#F59E0B'; // Yellow
+    } else {
+        notification.style.backgroundColor = '#3B82F6'; // Blue (default)
+    }
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.5s';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 500);
+    }, 3000);
+}
 
 // Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,12 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function handleNewPost(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (!newPostForm) return;
-    console.log('Current subject when posting:', getCurrentSubject());
-    const formData = new FormData(newPostForm);
-    const title = formData.get('title');
-    const content = formData.get('content');
-    const subject = getCurrentSubject(); // Get current subject at submission time
+    
+    // Manually get the form values instead of using FormData
+    const title = newPostForm.querySelector('[name="title"]')?.value.trim();
+    const content = newPostForm.querySelector('[name="content"]')?.value.trim();
+    const subject = getCurrentSubject();
+    
+    console.log('Submitting with:', { title, content, subject });
     
     if (!title || !content) {
         showNotification('Please fill in all fields', 'warning');
@@ -128,11 +174,12 @@ async function handleNewPost(e) {
     }
     
     const submitButton = newPostForm.querySelector('button[type="submit"]');
-    const originalText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Posting...';
+    const originalText = submitButton?.textContent;
     
     try {
+        submitButton.disabled = true;
+        if (submitButton) submitButton.textContent = 'Posting...';
+        
         const token = localStorage.getItem('token');
         if (!token) {
             throw new Error('You need to be logged in to post');
@@ -147,25 +194,26 @@ async function handleNewPost(e) {
             body: JSON.stringify({
                 title,
                 content,
-                subject  // Use the current subject
+                subject  // This will now be the correct subject
             })
         });
         
+        const responseData = await response.json().catch(() => ({}));
+        
         if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            throw new Error(error.message || 'Failed to create post');
+            throw new Error(responseData.message || 'Failed to create post');
         }
         
         newPostForm.reset();
         showNotification('Post created successfully!', 'success');
-        loadForumPosts(1); // Reload the first page to show the new post
+        loadForumPosts(1);
     } catch (error) {
         console.error('Error creating post:', error);
         showNotification(`Error: ${error.message}`, 'error');
     } finally {
         if (submitButton) {
             submitButton.disabled = false;
-            submitButton.textContent = originalText;
+            if (originalText) submitButton.textContent = originalText;
         }
     }
 }

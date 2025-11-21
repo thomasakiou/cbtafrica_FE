@@ -135,6 +135,124 @@ async function handleNewPost(e) {
     }
 }
 
+
+// Add this function to your forum.js file
+function updatePagination(totalPages, currentPage) {
+    const paginationContainer = document.getElementById('forum-pagination');
+    if (!paginationContainer) return;
+
+    // Clear existing pagination
+    paginationContainer.innerHTML = '';
+
+    // Only show pagination if there's more than one page
+    if (totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+
+    paginationContainer.style.display = 'flex';
+    paginationContainer.style.justifyContent = 'center';
+    paginationContainer.style.gap = '0.5rem';
+    paginationContainer.style.marginTop = '2rem';
+
+    // Previous button
+    const prevButton = document.createElement('button');
+    prevButton.textContent = '← Previous';
+    prevButton.disabled = currentPage === 1;
+    prevButton.style.padding = '0.5rem 1rem';
+    prevButton.style.border = '1px solid #ddd';
+    prevButton.style.borderRadius = '4px';
+    prevButton.style.cursor = 'pointer';
+    prevButton.style.backgroundColor = currentPage === 1 ? '#f5f5f5' : 'white';
+    prevButton.style.color = currentPage === 1 ? '#aaa' : '#333';
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            loadForumPosts(currentPage - 1);
+        }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    // Page numbers
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+        const firstPage = document.createElement('button');
+        firstPage.textContent = '1';
+        firstPage.style.padding = '0.5rem 1rem';
+        firstPage.style.border = '1px solid #ddd';
+        firstPage.style.borderRadius = '4px';
+        firstPage.style.cursor = 'pointer';
+        firstPage.addEventListener('click', () => loadForumPosts(1));
+        paginationContainer.appendChild(firstPage);
+
+        if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.textContent = '...';
+            ellipsis.style.padding = '0.5rem';
+            paginationContainer.appendChild(ellipsis);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        pageButton.style.padding = '0.5rem 1rem';
+        pageButton.style.border = '1px solid #ddd';
+        pageButton.style.borderRadius = '4px';
+        pageButton.style.cursor = 'pointer';
+        pageButton.style.backgroundColor = i === currentPage ? '#667eea' : 'white';
+        pageButton.style.color = i === currentPage ? 'white' : '#333';
+        pageButton.addEventListener('click', () => {
+            if (i !== currentPage) {
+                loadForumPosts(i);
+            }
+        });
+        paginationContainer.appendChild(pageButton);
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.textContent = '...';
+            ellipsis.style.padding = '0.5rem';
+            paginationContainer.appendChild(ellipsis);
+        }
+
+        const lastPage = document.createElement('button');
+        lastPage.textContent = totalPages;
+        lastPage.style.padding = '0.5rem 1rem';
+        lastPage.style.border = '1px solid #ddd';
+        lastPage.style.borderRadius = '4px';
+        lastPage.style.cursor = 'pointer';
+        lastPage.addEventListener('click', () => loadForumPosts(totalPages));
+        paginationContainer.appendChild(lastPage);
+    }
+
+    // Next button
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next →';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.style.padding = '0.5rem 1rem';
+    nextButton.style.border = '1px solid #ddd';
+    nextButton.style.borderRadius = '4px';
+    nextButton.style.cursor = 'pointer';
+    nextButton.style.backgroundColor = currentPage === totalPages ? '#f5f5f5' : 'white';
+    nextButton.style.color = currentPage === totalPages ? '#aaa' : '#333';
+    nextButton.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            loadForumPosts(currentPage + 1);
+        }
+    });
+    paginationContainer.appendChild(nextButton);
+}
+
+
 async function loadForumPosts(page = 1) {
     if (!postsContainer) return;
     
@@ -176,6 +294,11 @@ async function loadForumPosts(page = 1) {
         // Update pagination if needed
         if (data.totalPages > 1) {
             updatePagination(data.totalPages, page);
+        } else {
+            const paginationContainer = document.getElementById('forum-pagination');
+            if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
         }
         
     } catch (error) {

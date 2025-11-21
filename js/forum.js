@@ -20,13 +20,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load forum posts
     loadForumPosts();
     
-    // Set up new post form submission
+        // Set up new post form submission
     if (newPostForm) {
         newPostForm.addEventListener('submit', handleNewPost);
     }
     
-    // Set up reply button click handler using event delegation
-    document.addEventListener('click', (e) => handleReplyButtonClick(e));
+    // Set up event delegation for reply buttons and forms
+    if (postsContainer) {
+        postsContainer.addEventListener('click', handleReplyButtonClick);
+    }
 });
 function isUserLoggedIn() {
     // Use the same logic as updateAuthUI: token and username in localStorage
@@ -120,10 +122,19 @@ function handleReplyButtonClick(e) {
     if (e.target.classList.contains('reply-btn')) {
         e.preventDefault();
         const postDiv = e.target.closest('.forum-post');
-        if (!postDiv) return;
+        if (!postDiv) {
+            console.error('Could not find parent post div');
+            return;
+        }
+        
+        const postId = postDiv.getAttribute('data-post-id');
+        console.log('Post ID:', postId);
         
         const replyAction = postDiv.querySelector('.reply-action-container');
-        if (!replyAction) return;
+        if (!replyAction) {
+            console.error('Could not find reply action container');
+            return;
+        }
         
         // Check if already showing reply form
         if (replyAction.querySelector('.reply-form')) return;
@@ -137,7 +148,7 @@ function handleReplyButtonClick(e) {
                 <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
                     Cancel
                 </button>
-                <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+                <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;" data-post-id="${postId}">
                     Post Reply
                 </button>
             </div>
@@ -157,9 +168,8 @@ function handleReplyButtonClick(e) {
         const replyForm = e.target.closest('.reply-form');
         if (!replyForm) return;
         
-        const postDiv = e.target.closest('.forum-post');
         const replyText = replyForm.querySelector('.reply-text').value.trim();
-        const postId = postDiv.getAttribute('data-post-id');
+        const postId = e.target.getAttribute('data-post-id');
         
         if (!replyText) {
             showNotification('Please enter a reply.', 'warning');
@@ -179,19 +189,69 @@ function handleReplyButtonClick(e) {
     }
 }
 
+async function handleNewPost(e) {
+    e.preventDefault();
+    if (!newPostForm) return;
+    
+    const formData = new FormData(newPostForm);
+    const title = formData.get('title');
+    const content = formData.get('content');
+    
+    if (!title || !content) {
+        showNotification('Please fill in all fields', 'warning');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(FORUM_API_BASE, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                title,
+                content,
+                subject: 'mathematics'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create post');
+        }
+        
+        newPostForm.reset();
+        showNotification('Post created successfully!', 'success');
+        loadForumPosts(currentForumPage);
+    } catch (error) {
+        console.error('Error creating post:', error);
+        showNotification('Error creating post. Please try again.', 'error');
+    }
+}
+
 async function submitReply(postId, replyText, btn) {
     if (!postId) {
+        console.error('Post ID is missing');
         showNotification('Invalid post.', 'error');
         return;
     }
+
+    const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Submitting...';
-    console.log('Submitting reply:', { postId, replyText });
+    btn.textContent = 'Posting...';
+    
     try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Not authenticated');
+        }
+        
+        console.log('Submitting reply:', { postId, replyText });
         // Use the correct backend endpoint for replies
-        const replyUrl = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/' + postId + '/reply';
-        const token = localStorage.getItem('token') || '';
-        // Send as JSON (adjust if backend expects FormData)
+        const replyUrl = `https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/${postId}/reply`;
+        
+        // Send as JSON
         const res = await fetch(replyUrl, {
             method: 'POST',
             headers: {

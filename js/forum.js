@@ -516,34 +516,6 @@ function createForumPost(post) {
 //     }
 //     author = escapeHtml(author);
 //     const date = new Date(post.date || post.createdAt || Date.now()).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-//     let imageHtml = '';
-//     if (post.imageUrl) {
-//         imageHtml = `<div style="margin:1rem 0;"><img src="${post.imageUrl}" alt="Post image" style="max-width:100%;border-radius:6px;"></div>`;
-//     }
-//         // Show reply button only if user is logged in
-//     let replySection = '';
-//     if (isUserLoggedIn()) {
-//         replySection = `
-//             <div class="reply-action-container" style="margin-top:0.7rem;">
-//                 <button class="reply-btn" style="background:#3498db;color:white;border:none;padding:0.4rem 1rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">Reply</button>
-//             </div>
-//         `;
-//     }
-//     return `<div class="forum-post" data-post-id="${post._id || ''}" style="background:#f8f9fa;padding:1rem 1.5rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-//         <h4 style="margin:0 0 0.5rem 0;color:#667eea;">${title}</h4>
-//         <div style="color:#333;margin-bottom:0.7rem;">${content}</div>
-//         ${imageHtml}
-//         <div style="font-size:0.9rem;color:#888;display:flex;justify-content:space-between;align-items:center;">
-//             <span>By ${author}</span>
-//             <span>${date}</span>
-//         </div>
-//         ${replySection}
-//     </div>`;
-// }
-
-// // Notification utility (imported from main.js or fallback)
-// if (typeof showNotification !== 'function') {
-//     window.showNotification = function(message, type = 'info') {
 //         alert(message);
 //     };
 // }
@@ -757,8 +729,34 @@ async function submitReply(postId, replyText, btn) {
         
         showNotification('Reply submitted successfully!', 'success');
         
-        // Reload the posts to show the new reply
-        loadForumPosts(currentForumPage);
+        // Create and append the new reply immediately
+        const replyData = await response.json();
+        const replyElement = createReplyElement({
+            content: replyText,
+            author: { username: 'You' }, // Or get current user from your auth system
+            createdAt: new Date().toISOString(),
+            ...replyData
+        });
+        
+        // Find the replies container and append the new reply
+        const postDiv = btn.closest('.forum-post');
+        if (postDiv) {
+            let repliesContainer = postDiv.querySelector('.replies-container');
+            if (!repliesContainer) {
+                // Create replies container if it doesn't exist
+                repliesContainer = document.createElement('div');
+                repliesContainer.className = 'replies-container';
+                postDiv.appendChild(repliesContainer);
+            }
+            repliesContainer.appendChild(replyElement);
+            
+            // Update reply count if it exists
+            const replyCount = postDiv.querySelector('.reply-count');
+            if (replyCount) {
+                const currentCount = parseInt(replyCount.textContent) || 0;
+                replyCount.textContent = currentCount + 1;
+            }
+        }
         
     } catch (error) {
         console.error('Error submitting reply:', error);
@@ -803,6 +801,34 @@ async function submitReply(postId, replyText, btn) {
 //     }
 // }
 
+
+function createReplyElement(reply) {
+    const content = escapeHtml(reply.content || '');
+    const author = escapeHtml(reply.author?.username || 'Anonymous');
+    const date = new Date(reply.createdAt || Date.now()).toLocaleString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+
+    const replyElement = document.createElement('div');
+    replyElement.className = 'forum-reply';
+    replyElement.style.marginTop = '1rem';
+    replyElement.style.paddingLeft = '1.5rem';
+    replyElement.style.borderLeft = '3px solid #e2e8f0';
+    
+    replyElement.innerHTML = `
+        <div style="color: #333; margin-bottom: 0.5rem;">${content}</div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #888;">
+            <span>By ${author}</span>
+            <span>${date}</span>
+        </div>
+    `;
+    
+    return replyElement;
+}
 
 function escapeHtml(text) {
     const div = document.createElement('div');

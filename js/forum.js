@@ -116,6 +116,7 @@ if (typeof showNotification !== 'function') {
     };
 }
 
+
 // Handle reply button clicks and form submissions
 function handleReplyButtonClick(e) {
     // Handle reply button click
@@ -128,7 +129,7 @@ function handleReplyButtonClick(e) {
         }
         
         const postId = postDiv.getAttribute('data-post-id');
-        console.log('Post ID:', postId);
+        console.log('Post ID when creating reply form:', postId);
         
         const replyAction = postDiv.querySelector('.reply-action-container');
         if (!replyAction) {
@@ -166,13 +167,34 @@ function handleReplyButtonClick(e) {
     else if (e.target.classList.contains('submit-reply-btn')) {
         e.preventDefault();
         const replyForm = e.target.closest('.reply-form');
-        if (!replyForm) return;
+        if (!replyForm) {
+            console.error('Could not find reply form');
+            return;
+        }
         
         const replyText = replyForm.querySelector('.reply-text').value.trim();
         const postId = e.target.getAttribute('data-post-id');
+        console.log('Post ID when submitting:', postId);
+        console.log('Reply text:', replyText);
         
         if (!replyText) {
             showNotification('Please enter a reply.', 'warning');
+            return;
+        }
+        
+        if (!postId) {
+            console.error('Post ID is missing from submit button');
+            // Try to get post ID from parent post as fallback
+            const postDiv = e.target.closest('.forum-post');
+            if (postDiv) {
+                const fallbackPostId = postDiv.getAttribute('data-post-id');
+                console.log('Found fallback post ID:', fallbackPostId);
+                if (fallbackPostId) {
+                    submitReply(fallbackPostId, replyText, e.target);
+                    return;
+                }
+            }
+            showNotification('Invalid post.', 'error');
             return;
         }
         
@@ -188,6 +210,80 @@ function handleReplyButtonClick(e) {
         }
     }
 }
+
+
+// // Handle reply button clicks and form submissions
+// function handleReplyButtonClick(e) {
+//     // Handle reply button click
+//     if (e.target.classList.contains('reply-btn')) {
+//         e.preventDefault();
+//         const postDiv = e.target.closest('.forum-post');
+//         if (!postDiv) {
+//             console.error('Could not find parent post div');
+//             return;
+//         }
+        
+//         const postId = postDiv.getAttribute('data-post-id');
+//         console.log('Post ID:', postId);
+        
+//         const replyAction = postDiv.querySelector('.reply-action-container');
+//         if (!replyAction) {
+//             console.error('Could not find reply action container');
+//             return;
+//         }
+        
+//         // Check if already showing reply form
+//         if (replyAction.querySelector('.reply-form')) return;
+        
+//         // Create reply form
+//         const replyForm = document.createElement('div');
+//         replyForm.className = 'reply-form';
+//         replyForm.innerHTML = `
+//             <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
+//             <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
+//                 <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+//                     Cancel
+//                 </button>
+//                 <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;" data-post-id="${postId}">
+//                     Post Reply
+//                 </button>
+//             </div>
+//         `;
+        
+//         // Add to DOM
+//         replyAction.appendChild(replyForm);
+        
+//         // Focus the textarea
+//         const textarea = replyForm.querySelector('.reply-text');
+//         if (textarea) textarea.focus();
+//     }
+    
+//     // Handle submit reply
+//     else if (e.target.classList.contains('submit-reply-btn')) {
+//         e.preventDefault();
+//         const replyForm = e.target.closest('.reply-form');
+//         if (!replyForm) return;
+        
+//         const replyText = replyForm.querySelector('.reply-text').value.trim();
+//         const postId = e.target.getAttribute('data-post-id');
+        
+//         if (!replyText) {
+//             showNotification('Please enter a reply.', 'warning');
+//             return;
+//         }
+        
+//         submitReply(postId, replyText, e.target);
+//     }
+    
+//     // Handle cancel reply
+//     else if (e.target.classList.contains('cancel-reply-btn')) {
+//         e.preventDefault();
+//         const replyForm = e.target.closest('.reply-form');
+//         if (replyForm && replyForm.parentNode) {
+//             replyForm.parentNode.removeChild(replyForm);
+//         }
+//     }
+// }
 
 async function handleNewPost(e) {
     e.preventDefault();
@@ -231,8 +327,10 @@ async function handleNewPost(e) {
 }
 
 async function submitReply(postId, replyText, btn) {
+    console.log('submitReply called with:', { postId, replyText });
+    
     if (!postId) {
-        console.error('Post ID is missing');
+        console.error('Post ID is missing in submitReply');
         showNotification('Invalid post.', 'error');
         return;
     }
@@ -247,11 +345,9 @@ async function submitReply(postId, replyText, btn) {
             throw new Error('Not authenticated');
         }
         
-        console.log('Submitting reply:', { postId, replyText });
-        // Use the correct backend endpoint for replies
+        console.log('Submitting reply to post ID:', postId);
         const replyUrl = `https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/${postId}/reply`;
         
-        // Send as JSON
         const res = await fetch(replyUrl, {
             method: 'POST',
             headers: {
@@ -260,19 +356,68 @@ async function submitReply(postId, replyText, btn) {
             },
             body: JSON.stringify({ content: replyText })
         });
-        let responseText = await res.text();
-        console.log('Reply response status:', res.status, 'body:', responseText);
-        if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
+        
+        const responseText = await res.text();
+        console.log('Response status:', res.status, 'Response:', responseText);
+        
+        if (!res.ok) {
+            throw new Error('Failed to submit reply: ' + responseText);
+        }
+        
         showNotification('Reply submitted!', 'success');
         loadForumPosts(currentForumPage);
     } catch (err) {
-        console.error('Reply error:', err);
-        showNotification('Failed to submit reply.', 'error');
+        console.error('Error in submitReply:', err);
+        showNotification('Failed to submit reply: ' + (err.message || 'Unknown error'), 'error');
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Reply';
+        btn.textContent = originalText;
     }
 }
+
+// async function submitReply(postId, replyText, btn) {
+//     if (!postId) {
+//         console.error('Post ID is missing');
+//         showNotification('Invalid post.', 'error');
+//         return;
+//     }
+
+//     const originalText = btn.textContent;
+//     btn.disabled = true;
+//     btn.textContent = 'Posting...';
+    
+//     try {
+//         const token = localStorage.getItem('token');
+//         if (!token) {
+//             throw new Error('Not authenticated');
+//         }
+        
+//         console.log('Submitting reply:', { postId, replyText });
+//         // Use the correct backend endpoint for replies
+//         const replyUrl = `https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/${postId}/reply`;
+        
+//         // Send as JSON
+//         const res = await fetch(replyUrl, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify({ content: replyText })
+//         });
+//         let responseText = await res.text();
+//         console.log('Reply response status:', res.status, 'body:', responseText);
+//         if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
+//         showNotification('Reply submitted!', 'success');
+//         loadForumPosts(currentForumPage);
+//     } catch (err) {
+//         console.error('Reply error:', err);
+//         showNotification('Failed to submit reply.', 'error');
+//     } finally {
+//         btn.disabled = false;
+//         btn.textContent = 'Reply';
+//     }
+// }
 
 
 function escapeHtml(text) {

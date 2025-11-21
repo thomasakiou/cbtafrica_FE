@@ -835,7 +835,7 @@ if (newPostForm) {
         let formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
-        formData.append('subject', 'mathematics');
+        formData.append('subject', getCurrentSubject());
         if (imageInput && imageInput.files[0]) {
             formData.append('image', imageInput.files[0]);
         }

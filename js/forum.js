@@ -476,7 +476,6 @@ function handleReplyButtonClick(e) {
     }
 }
 
-
 async function submitReply(postId, replyText, btn) {
     if (!postId) {
         showNotification('Invalid post.', 'error');
@@ -526,6 +525,42 @@ async function submitReply(postId, replyText, btn) {
         btn.textContent = originalText;
     }
 }
+
+
+// async function submitReply(postId, replyText, btn) {
+//     if (!postId) {
+//         showNotification('Invalid post.', 'error');
+//         return;
+//     }
+//     btn.disabled = true;
+//     btn.textContent = 'Submitting...';
+//     console.log('Submitting reply:', { postId, replyText });
+//     try {
+//         // Use the correct backend endpoint for replies
+//         const replyUrl = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/' + postId + '/reply';
+//         const token = localStorage.getItem('token') || '';
+//         // Send as JSON (adjust if backend expects FormData)
+//         const res = await fetch(replyUrl, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify({ content: replyText })
+//         });
+//         let responseText = await res.text();
+//         console.log('Reply response status:', res.status, 'body:', responseText);
+//         if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
+//         showNotification('Reply submitted!', 'success');
+//         loadForumPosts(currentForumPage);
+//     } catch (err) {
+//         console.error('Reply error:', err);
+//         showNotification('Failed to submit reply.', 'error');
+//     } finally {
+//         btn.disabled = false;
+//         btn.textContent = 'Reply';
+//     }
+// }
 
 
 function escapeHtml(text) {

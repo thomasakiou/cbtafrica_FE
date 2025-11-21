@@ -116,92 +116,6 @@ if (typeof showNotification !== 'function') {
     };
 }
 
-
-// Handle reply button clicks and form submissions
-// function handleReplyButtonClick(e) {
-//     // Handle reply button click
-// if (e.target.classList.contains('reply-btn')) {
-//     e.preventDefault();
-//     const postDiv = e.target.closest('.forum-post');
-//     if (!postDiv) {
-//         console.error('Could not find parent post div');
-//         return;
-//     }
-    
-//     // Get post ID from the closest forum-post element
-//     const postId = postDiv.getAttribute('data-post-id');
-//     console.log('Post ID when creating reply form:', postId, 'Post div:', postDiv);
-    
-//     // Log all data attributes of the post div for debugging
-//     console.log('Post div attributes:');
-//     for (let attr of postDiv.attributes) {
-//         console.log(attr.name, '=', attr.value);
-//     }
-    
-//     // ... rest of the code remains the same until the form creation ...
-    
-//     // Update the form creation to include the post ID in a more reliable way
-//     const replyForm = document.createElement('div');
-//     replyForm.className = 'reply-form';
-//     replyForm.setAttribute('data-post-id', postId);  // Add post ID to the form itself
-//     replyForm.innerHTML = `
-//         <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
-//         <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
-//             <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
-//                 Cancel
-//             </button>
-//             <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;" data-post-id="${postId}">
-//                 Post Reply
-//             </button>
-//         </div>
-//     `;
-        
-//         // Add to DOM
-//         replyAction.appendChild(replyForm);
-        
-//         // Focus the textarea
-//         const textarea = replyForm.querySelector('.reply-text');
-//         if (textarea) textarea.focus();
-//     }
-    
-//     // Handle submit reply
-//    else if (e.target.classList.contains('submit-reply-btn')) {
-//     e.preventDefault();
-//     const replyForm = e.target.closest('.reply-form');
-//     if (!replyForm) {
-//         console.error('Could not find reply form');
-//         return;
-//     }
-    
-//     const replyText = replyForm.querySelector('.reply-text').value.trim();
-    
-//     // Try to get post ID from multiple possible locations
-//     let postId = e.target.getAttribute('data-post-id') || 
-//                 replyForm.getAttribute('data-post-id') ||
-//                 (e.target.closest('.forum-post')?.getAttribute('data-post-id'));
-    
-//     console.log('Post ID sources:', {
-//         button: e.target.getAttribute('data-post-id'),
-//         form: replyForm.getAttribute('data-post-id'),
-//         closestPost: e.target.closest('.forum-post')?.getAttribute('data-post-id'),
-//         finalPostId: postId
-//     });
-    
-//     if (!replyText) {
-//         showNotification('Please enter a reply.', 'warning');
-//         return;
-//     }
-    
-//     if (!postId) {
-//         console.error('Could not find post ID in any expected location');
-//         showNotification('Error: Could not determine which post to reply to.', 'error');
-//         return;
-//     }
-    
-//     submitReply(postId, replyText, e.target);
-// }
-
-
 // Handle reply button clicks and form submissions
 function handleReplyButtonClick(e) {
     // Handle reply button click
@@ -316,177 +230,128 @@ async function handleNewPost(e) {
     }
 }
 
-// async function submitReply(postId, replyText, btn) {
-//     console.log('submitReply called with:', { postId, replyText });
+async function submitReply(postId, replyText, btn) {
+    if (!postId) {
+        console.error('Post ID is missing');
+        showNotification('Invalid post.', 'error');
+        return;
+    }
+
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Posting...';
     
-//     if (!postId) {
-//         console.error('Post ID is missing in submitReply');
-//         showNotification('Invalid post.', 'error');
-//         return;
-//     }
-
-//     const originalText = btn.textContent;
-//     btn.disabled = true;
-//     btn.textContent = 'Posting...';
-    
-//     try {
-//         const token = localStorage.getItem('token');
-//         if (!token) {
-//             throw new Error('Not authenticated');
-//         }
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Not authenticated');
+        }
         
-//         console.log('Submitting reply to post ID:', postId);
-//         const replyUrl = `https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/${postId}/reply`;
+        console.log('Submitting reply:', { postId, replyText });
+        // Use the correct backend endpoint for replies
+        const replyUrl = `https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/${postId}/reply`;
         
-//         const res = await fetch(replyUrl, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${token}`
-//             },
-//             body: JSON.stringify({ content: replyText })
-//         });
-        
-//         const responseText = await res.text();
-//         console.log('Response status:', res.status, 'Response:', responseText);
-        
-//         if (!res.ok) {
-//             throw new Error('Failed to submit reply: ' + responseText);
-//         }
-        
-//         showNotification('Reply submitted!', 'success');
-//         loadForumPosts(currentForumPage);
-//     } catch (err) {
-//         console.error('Error in submitReply:', err);
-//         showNotification('Failed to submit reply: ' + (err.message || 'Unknown error'), 'error');
-//     } finally {
-//         btn.disabled = false;
-//         btn.textContent = originalText;
-//     }
-// }
-
-// // async function submitReply(postId, replyText, btn) {
-// //     if (!postId) {
-// //         console.error('Post ID is missing');
-// //         showNotification('Invalid post.', 'error');
-// //         return;
-// //     }
-
-// //     const originalText = btn.textContent;
-// //     btn.disabled = true;
-// //     btn.textContent = 'Posting...';
-    
-// //     try {
-// //         const token = localStorage.getItem('token');
-// //         if (!token) {
-// //             throw new Error('Not authenticated');
-// //         }
-        
-// //         console.log('Submitting reply:', { postId, replyText });
-// //         // Use the correct backend endpoint for replies
-// //         const replyUrl = `https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/${postId}/reply`;
-        
-// //         // Send as JSON
-// //         const res = await fetch(replyUrl, {
-// //             method: 'POST',
-// //             headers: {
-// //                 'Content-Type': 'application/json',
-// //                 'Authorization': `Bearer ${token}`
-// //             },
-// //             body: JSON.stringify({ content: replyText })
-// //         });
-// //         let responseText = await res.text();
-// //         console.log('Reply response status:', res.status, 'body:', responseText);
-// //         if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
-// //         showNotification('Reply submitted!', 'success');
-// //         loadForumPosts(currentForumPage);
-// //     } catch (err) {
-// //         console.error('Reply error:', err);
-// //         showNotification('Failed to submit reply.', 'error');
-// //     } finally {
-// //         btn.disabled = false;
-// //         btn.textContent = 'Reply';
-// //     }
-// // }
+        // Send as JSON
+        const res = await fetch(replyUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ content: replyText })
+        });
+        let responseText = await res.text();
+        console.log('Reply response status:', res.status, 'body:', responseText);
+        if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
+        showNotification('Reply submitted!', 'success');
+        loadForumPosts(currentForumPage);
+    } catch (err) {
+        console.error('Reply error:', err);
+        showNotification('Failed to submit reply.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Reply';
+    }
+}
 
 
-// function escapeHtml(text) {
-//     const div = document.createElement('div');
-//     div.textContent = text;
-//     return div.innerHTML;
-// }
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
-// function updateForumPaginationControls(itemsOnPage) {
-//     if (!paginationContainer) return;
-//     paginationContainer.style.display = 'flex';
-//     paginationContainer.innerHTML = '';
-//     // Previous button
-//     const prevBtn = document.createElement('button');
-//     prevBtn.textContent = '← Previous';
-//     prevBtn.disabled = currentForumPage === 1;
-//     prevBtn.className = 'pagination-btn' + (prevBtn.disabled ? ' disabled' : '');
-//     prevBtn.onclick = () => changeForumPage('prev');
-//     paginationContainer.appendChild(prevBtn);
-//     // Page info
-//     const pageInfo = document.createElement('span');
-//     pageInfo.textContent = `Page ${currentForumPage}`;
-//     pageInfo.style.margin = '0 0.7rem';
-//     paginationContainer.appendChild(pageInfo);
-//     // Next button
-//     const nextBtn = document.createElement('button');
-//     nextBtn.textContent = 'Next →';
-//     nextBtn.disabled = itemsOnPage < postsPerPage;
-//     nextBtn.className = 'pagination-btn' + (nextBtn.disabled ? ' disabled' : '');
-//     nextBtn.onclick = () => changeForumPage('next');
-//     paginationContainer.appendChild(nextBtn);
-// }
+function updateForumPaginationControls(itemsOnPage) {
+    if (!paginationContainer) return;
+    paginationContainer.style.display = 'flex';
+    paginationContainer.innerHTML = '';
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Previous';
+    prevBtn.disabled = currentForumPage === 1;
+    prevBtn.className = 'pagination-btn' + (prevBtn.disabled ? ' disabled' : '');
+    prevBtn.onclick = () => changeForumPage('prev');
+    paginationContainer.appendChild(prevBtn);
+    // Page info
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Page ${currentForumPage}`;
+    pageInfo.style.margin = '0 0.7rem';
+    paginationContainer.appendChild(pageInfo);
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next →';
+    nextBtn.disabled = itemsOnPage < postsPerPage;
+    nextBtn.className = 'pagination-btn' + (nextBtn.disabled ? ' disabled' : '');
+    nextBtn.onclick = () => changeForumPage('next');
+    paginationContainer.appendChild(nextBtn);
+}
 
-// function changeForumPage(direction) {
-//     if (direction === 'prev' && currentForumPage > 1) {
-//         currentForumPage--;
-//         loadForumPosts(currentForumPage);
-//     } else if (direction === 'next') {
-//         currentForumPage++;
-//         loadForumPosts(currentForumPage);
-//     }
-// }
+function changeForumPage(direction) {
+    if (direction === 'prev' && currentForumPage > 1) {
+        currentForumPage--;
+        loadForumPosts(currentForumPage);
+    } else if (direction === 'next') {
+        currentForumPage++;
+        loadForumPosts(currentForumPage);
+    }
+}
 
-// // Handle new post submission
-// if (newPostForm) {
-//     newPostForm.addEventListener('submit', async function(e) {
-//         e.preventDefault();
-//         const title = document.getElementById('post-title').value.trim();
-//         const content = document.getElementById('post-content').value.trim();
-//         const imageInput = document.getElementById('post-image');
-//         if (!title || !content) return alert('Title and content are required.');
-//         let formData = new FormData();
-//         formData.append('title', title);
-//         formData.append('content', content);
-//         formData.append('subject', 'mathematics');
-//         if (imageInput && imageInput.files[0]) {
-//             formData.append('image', imageInput.files[0]);
-//         }
-//         // Debug: log all form data fields and values
-//         for (let pair of formData.entries()) {
-//             console.log('FormData:', pair[0], pair[1]);
-//         }
-//         try {
-//             // Add Authorization header for protected endpoint
-//             const token = localStorage.getItem('token') || '';
-//             const res = await fetch(FORUM_API_BASE, {
-//                 method: 'POST',
-//                 body: formData,
-//                 headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-//             });
-//             if (!res.ok) throw new Error('Failed to post');
-//             newPostForm.reset();
-//             loadForumPosts(1);
-//             showNotification('Post submitted successfully!', 'success');
-//         } catch (err) {
-//             showNotification('Failed to submit post. Please try again.', 'error');
-//         }
-//     });
-// }
+// Handle new post submission
+if (newPostForm) {
+    newPostForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const title = document.getElementById('post-title').value.trim();
+        const content = document.getElementById('post-content').value.trim();
+        const imageInput = document.getElementById('post-image');
+        if (!title || !content) return alert('Title and content are required.');
+        let formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('subject', 'mathematics');
+        if (imageInput && imageInput.files[0]) {
+            formData.append('image', imageInput.files[0]);
+        }
+        // Debug: log all form data fields and values
+        for (let pair of formData.entries()) {
+            console.log('FormData:', pair[0], pair[1]);
+        }
+        try {
+            // Add Authorization header for protected endpoint
+            const token = localStorage.getItem('token') || '';
+            const res = await fetch(FORUM_API_BASE, {
+                method: 'POST',
+                body: formData,
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            });
+            if (!res.ok) throw new Error('Failed to post');
+            newPostForm.reset();
+            loadForumPosts(1);
+            showNotification('Post submitted successfully!', 'success');
+        } catch (err) {
+            showNotification('Failed to submit post. Please try again.', 'error');
+        }
+    });
+}
 
 // Optional: Expose loadForumPosts for manual reloads
 window.loadForumPosts = loadForumPosts;

@@ -11,6 +11,32 @@ const loginPrompt = document.getElementById('login-prompt');
 let currentForumPage = 1;
 const postsPerPage = 3;
 
+// Store the current subject
+const currentSubject = getCurrentSubject();
+
+
+// Check login status and set up event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const loggedIn = isUserLoggedIn();
+    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
+    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
+    
+    // Load forum posts
+    loadForumPosts();
+    
+    // Set up new post form submission
+    if (newPostForm) {
+        newPostForm.addEventListener('submit', handleNewPost);
+    }
+    
+    // Set up event delegation for reply buttons and forms
+    document.addEventListener('click', (e) => {
+        if (e.target.matches('.reply-btn, .submit-reply-btn, .cancel-reply-btn')) {
+            handleReplyButtonClick(e);
+        }
+    });
+});
+
 function getCurrentSubject() {
     // Try to get subject from the body's data attribute
     const bodySubject = document.body.getAttribute('data-subject');
@@ -39,33 +65,6 @@ function getCurrentSubject() {
     // Default subject if none found
     return 'general';
 }
-
-// Store the current subject
-const currentSubject = getCurrentSubject();
-
-
-// Check login status and set up event listeners when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const loggedIn = isUserLoggedIn();
-    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
-    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
-    
-    // Load forum posts
-    loadForumPosts();
-    
-    // Set up new post form submission
-    if (newPostForm) {
-        newPostForm.addEventListener('submit', handleNewPost);
-    }
-    
-    // Set up event delegation for reply buttons and forms
-    document.addEventListener('click', (e) => {
-        if (e.target.matches('.reply-btn, .submit-reply-btn, .cancel-reply-btn')) {
-            handleReplyButtonClick(e);
-        }
-    });
-});
-
 // document.addEventListener('DOMContentLoaded', () => {
 //     const loggedIn = isUserLoggedIn();
 //     if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';

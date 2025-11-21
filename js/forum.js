@@ -11,102 +11,32 @@ const loginPrompt = document.getElementById('login-prompt');
 let currentForumPage = 1;
 const postsPerPage = 3;
 
-// Store the current subject
-// const currentSubject = getCurrentSubject();
-// Add this at the top of forum.js
-// function showNotification(message, type = 'info') {
-//     // Check if there's a different notification system available
-//     if (window.showNotification && window.showNotification !== showNotification) {
-//         return window.showNotification(message, type);
-//     }
-    
-//     // Fallback notification
-//     const notification = document.createElement('div');
-//     notification.style.position = 'fixed';
-//     notification.style.bottom = '20px';
-//     notification.style.right = '20px';
-//     notification.style.padding = '12px 20px';
-//     notification.style.borderRadius = '4px';
-//     notification.style.color = 'white';
-//     notification.style.zIndex = '1000';
-//     notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-    
-//     // Set colors based on type
-//     if (type === 'success') {
-//         notification.style.backgroundColor = '#10B981'; // Green
-//     } else if (type === 'error') {
-//         notification.style.backgroundColor = '#EF4444'; // Red
-//     } else if (type === 'warning') {
-//         notification.style.backgroundColor = '#F59E0B'; // Yellow
-//     } else {
-//         notification.style.backgroundColor = '#3B82F6'; // Blue (default)
-//     }
-    
-//     notification.textContent = message;
-//     document.body.appendChild(notification);
-    
-//     // Auto remove after 3 seconds
-//     setTimeout(() => {
-//         notification.style.opacity = '0';
-//         notification.style.transition = 'opacity 0.5s';
-//         setTimeout(() => {
-//             if (notification.parentNode) {
-//                 notification.parentNode.removeChild(notification);
-//             }
-//         }, 500);
-//     }, 3000);
-// }
 
 // Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const loggedIn = isUserLoggedIn();
-    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
-    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
+    // Initialize form elements
+    newPostForm = document.getElementById('new-post-form');
+    const newPostContainer = document.getElementById('new-post-container');
+    const loginPrompt = document.getElementById('login-prompt');
     
-    // Load forum posts
-    loadForumPosts();
+    // Check if user is logged in
+    const isLoggedIn = isUserLoggedIn();
+    
+    // Show/hide appropriate elements based on login status
+    if (newPostContainer) newPostContainer.style.display = isLoggedIn ? 'block' : 'none';
+    if (loginPrompt) loginPrompt.style.display = isLoggedIn ? 'none' : 'block';
     
     // Set up new post form submission
     if (newPostForm) {
         newPostForm.addEventListener('submit', handleNewPost);
     }
     
-    // Set up event delegation for reply buttons and forms
-    document.addEventListener('click', (e) => {
-        if (e.target.matches('.reply-btn, .submit-reply-btn, .cancel-reply-btn')) {
-            handleReplyButtonClick(e);
-        }
-    });
+    // Set up reply button click handler using event delegation
+    document.addEventListener('click', (e) => handleReplyButtonClick(e));
+    
+    // Load initial forum posts
+    loadForumPosts();
 });
-
-// function getCurrentSubject() {
-//     // Try to get subject from the body's data attribute
-//     const bodySubject = document.body.getAttribute('data-subject');
-//     if (bodySubject) return bodySubject;
-
-//     // Fallback: Try to get from URL
-//     const url = window.location.pathname.toLowerCase();
-//     if (url.includes('mathematics')) return 'mathematics';
-//     if (url.includes('english')) return 'english';
-//     if (url.includes('crs')) return 'crs';
-//     if (url.includes('agricultural-science')) return 'agricultural-science';
-//     if (url.includes('biology')) return 'biology';
-//     if (url.includes('chemistry')) return 'chemistry';
-//     if (url.includes('civic-education')) return 'civic-education';
-//     if (url.includes('accounting')) return 'accounting';
-//     if (url.includes('economics')) return 'economics';
-//     if (url.includes('physics')) return 'physics';
-//     if (url.includes('computer-science')) return 'computer-science';
-//     if (url.includes('irs')) return 'irs';
-//     if (url.includes('further-mathematics')) return 'further-mathematics';
-//     if (url.includes('literature')) return 'literature';
-//     if (url.includes('history')) return 'history';
-//     if (url.includes('government')) return 'government';
-//     if (url.includes('geography')) return 'geography';
-        
-//     // Default subject if none found
-//     return 'general';
-// }
 
 function getCurrentSubject() {
     // Always get the current subject from the body's data attribute
@@ -124,23 +54,6 @@ function getCurrentSubject() {
     return 'general';
 }
 
-
-// document.addEventListener('DOMContentLoaded', () => {
-//     const loggedIn = isUserLoggedIn();
-//     if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
-//     if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
-    
-//     // Load forum posts
-//     loadForumPosts();
-    
-//     // Set up new post form submission
-//     if (newPostForm) {
-//         newPostForm.addEventListener('submit', handleNewPost);
-//     }
-    
-//     // Set up reply button click handler using event delegation
-//     document.addEventListener('click', (e) => handleReplyButtonClick(e));
-// });
 
 function isUserLoggedIn() {
     // Use the same logic as updateAuthUI: token and username in localStorage
@@ -166,7 +79,7 @@ async function handleNewPost(e) {
     const content = newPostForm.querySelector('[name="content"]')?.value.trim();
     const subject = getCurrentSubject();
     
-    console.log('Submitting with:', { title, content, subject });
+    // console.log('Submitting with:', { title, content, subject });
     
     if (!title || !content) {
         showNotification('Please fill in all fields', 'warning');
@@ -397,28 +310,6 @@ async function loadForumPosts(page = 1) {
     }
 }
 
-// async function loadForumPosts(page = 1) {
-//     if (!postsContainer) return;
-//     postsContainer.innerHTML = '<div class="loading-spinner" style="text-align:center;padding:2rem;color:#666;">Loading discussions...</div>';
-//     try {
-//         const url = `${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`;
-//         const res = await fetch(url);
-//         if (!res.ok) throw new Error('Failed to load forum posts');
-//         const result = await res.json();
-//         // Expecting result to be { posts: [...], total: n } or just an array
-//         const data = Array.isArray(result) ? result : (result.posts || []);
-//         if (!Array.isArray(data) || data.length === 0) {
-//             postsContainer.innerHTML = '<div style="text-align:center;padding:2rem;color:#666;">No discussions yet. Be the first to post!</div>';
-//             paginationContainer.style.display = 'none';
-//             return;
-//         }
-//         postsContainer.innerHTML = data.map(post => createForumPost(post)).join('');
-//         updateForumPaginationControls(data.length);
-//     } catch (err) {
-//         postsContainer.innerHTML = `<div style="text-align:center;padding:2rem;color:#e74c3c;">Unable to load discussions.<br><span style='color:#666;font-size:0.9rem;'>Please try again later.</span></div>`;
-//         paginationContainer.style.display = 'none';
-//     }
-// }
 
 function createForumPost(post) {
     const title = escapeHtml(post.title || '');
@@ -503,22 +394,6 @@ function createForumPost(post) {
     `;
 }
 
-// function createForumPost(post) {
-//     const title = escapeHtml(post.title || '');
-//     const content = escapeHtml(post.content || '');
-//     let author = 'Anonymous';
-//     if (post.author) {
-//         if (typeof post.author === 'object' && post.author !== null) {
-//             author = post.author.username || post.author.name || JSON.stringify(post.author);
-//         } else {
-//             author = post.author;
-//         }
-//     }
-//     author = escapeHtml(author);
-//     const date = new Date(post.date || post.createdAt || Date.now()).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-//         alert(message);
-//     };
-// }
 
 
 function handleReplyButtonClick(e) {
@@ -605,70 +480,6 @@ function handleReplyButtonClick(e) {
     }
 }
 
-// Handle reply button clicks and form submissions
-// function handleReplyButtonClick(e) {
-//     // Handle reply button click
-//     if (e.target.classList.contains('reply-btn')) {
-//         e.preventDefault();
-//         const postDiv = e.target.closest('.forum-post');
-//         if (!postDiv) return;
-        
-//         const replyAction = postDiv.querySelector('.reply-action-container');
-//         if (!replyAction) return;
-        
-//         // Check if already showing reply form
-//         if (replyAction.querySelector('.reply-form')) return;
-        
-//         // Create reply form
-//         const replyForm = document.createElement('div');
-//         replyForm.className = 'reply-form';
-//         replyForm.innerHTML = `
-//             <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
-//             <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
-//                 <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
-//                     Cancel
-//                 </button>
-//                 <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
-//                     Post Reply
-//                 </button>
-//             </div>
-//         `;
-        
-//         // Add to DOM
-//         replyAction.appendChild(replyForm);
-        
-//         // Focus the textarea
-//         const textarea = replyForm.querySelector('.reply-text');
-//         if (textarea) textarea.focus();
-//     }
-    
-//     // Handle submit reply
-//     else if (e.target.classList.contains('submit-reply-btn')) {
-//         e.preventDefault();
-//         const replyForm = e.target.closest('.reply-form');
-//         if (!replyForm) return;
-        
-//         const postDiv = e.target.closest('.forum-post');
-//         const replyText = replyForm.querySelector('.reply-text').value.trim();
-//         const postId = postDiv.getAttribute('data-post-id');
-        
-//         if (!replyText) {
-//             showNotification('Please enter a reply.', 'warning');
-//             return;
-//         }
-        
-//         submitReply(postId, replyText, e.target);
-//     }
-    
-//     // Handle cancel reply
-//     else if (e.target.classList.contains('cancel-reply-btn')) {
-//         e.preventDefault();
-//         const replyForm = e.target.closest('.reply-form');
-//         if (replyForm && replyForm.parentNode) {
-//             replyForm.parentNode.removeChild(replyForm);
-//         }
-//     }
-// }
 
 async function submitReply(postId, replyText, btn) {
     if (!postId) {
@@ -769,37 +580,6 @@ async function submitReply(postId, replyText, btn) {
         }
     }
 }
-//         return;
-//     }
-//     btn.disabled = true;
-//     btn.textContent = 'Submitting...';
-//     console.log('Submitting reply:', { postId, replyText });
-//     try {
-//         // Use the correct backend endpoint for replies
-//         const replyUrl = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/' + postId + '/reply';
-//         const token = localStorage.getItem('token') || '';
-//         // Send as JSON (adjust if backend expects FormData)
-//         const res = await fetch(replyUrl, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${token}`
-//             },
-//             body: JSON.stringify({ content: replyText })
-//         });
-//         let responseText = await res.text();
-//         console.log('Reply response status:', res.status, 'body:', responseText);
-//         if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
-//         showNotification('Reply submitted!', 'success');
-//         loadForumPosts(currentForumPage);
-//     } catch (err) {
-//         console.error('Reply error:', err);
-//         showNotification('Failed to submit reply.', 'error');
-//     } finally {
-//         btn.disabled = false;
-//         btn.textContent = 'Reply';
-//     }
-// }
 
 
 function createReplyElement(reply) {

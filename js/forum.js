@@ -9,7 +9,7 @@ const newPostContainer = document.getElementById('new-post-container');
 const loginPrompt = document.getElementById('login-prompt');
 
 let currentForumPage = 1;
-const postsPerPage = 5;
+const postsPerPage = 3;
 
 // Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

@@ -11,6 +11,39 @@ const loginPrompt = document.getElementById('login-prompt');
 let currentForumPage = 1;
 const postsPerPage = 3;
 
+function getCurrentSubject() {
+    // Try to get subject from the body's data attribute
+    const bodySubject = document.body.getAttribute('data-subject');
+    if (bodySubject) return bodySubject;
+
+    // Fallback: Try to get from URL
+    const url = window.location.pathname.toLowerCase();
+    if (url.includes('mathematics')) return 'mathematics';
+    if (url.includes('english')) return 'english';
+    if (url.includes('crs')) return 'crs';
+    if (url.includes('agricultural-science')) return 'agricultural-science';
+    if (url.includes('biology')) return 'biology';
+    if (url.includes('chemistry')) return 'chemistry';
+    if (url.includes('civic-education')) return 'civic-education';
+    if (url.includes('accounting')) return 'accounting';
+    if (url.includes('economics')) return 'economics';
+    if (url.includes('physics')) return 'physics';
+    if (url.includes('computer-science')) return 'computer-science';
+    if (url.includes('irs')) return 'irs';
+    if (url.includes('further-mathematics')) return 'further-mathematics';
+    if (url.includes('literature')) return 'literature';
+    if (url.includes('history')) return 'history';
+    if (url.includes('government')) return 'government';
+    if (url.includes('geography')) return 'geography';
+        
+    // Default subject if none found
+    return 'general';
+}
+
+// Store the current subject
+const currentSubject = getCurrentSubject();
+
+
 // Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const loggedIn = isUserLoggedIn();
@@ -86,7 +119,7 @@ async function handleNewPost(e) {
             body: JSON.stringify({
                 title,
                 content,
-                subject: 'mathematics'
+                subject: currentSubject  
             })
         });
         
@@ -111,8 +144,10 @@ async function loadForumPosts(page = 1) {
     
     try {
         // Update the API URL to match your endpoint
-        const response = await fetch(`${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`);
-        // `${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`;
+        // const response = await fetch(`${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`);
+        const url = `${FORUM_API_BASE}?subject=${encodeURIComponent(currentSubject)}&page=${page}&limit=${postsPerPage}&sort=newest`;
+        const response = await fetch(url);
+        // const response = await fetch(`${FORUM_API_BASE}?subject=${encodeURIComponent(currentSubject)}&page=${page}&limit=${postsPerPage}&sort=newest`)
         if (!response.ok) {
             throw new Error('Failed to fetch posts');
         }

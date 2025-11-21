@@ -309,6 +309,56 @@
                             <button onclick="changePage('next')" id="nextBtn" style="background: #667eea; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">Next →</button>
                         </div>
                     </section>
+                <!-- </div> -->
+                                   <!-- English Forum Section -->
+                    <section id="math-forum" style="margin-top: 3rem; background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <span style="font-size: 1.5rem;">💬</span> Geography Forum
+                        </h2>
+                        
+                        <!-- New Post Form (Visible to logged in users) -->
+                        <div id="new-post-container" style="display: none; margin-bottom: 2rem;">
+                            <h3 style="margin-top: 0; color: #333; font-size: 1.2rem;">Start a new discussion</h3>
+                            <form id="new-post-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <input type="text" id="post-title" placeholder="Title" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;">
+                                <textarea id="post-content" placeholder="Share your thoughts..." rows="4" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; resize: vertical;"></textarea>
+                                <!-- <div>
+                                    <label for="post-image" style="display: block; margin-bottom: 0.5rem; color: #666;">Add an image (optional):</label>
+                                    <input type="file" id="post-image" accept="image/*" style="width: 100%;">
+                                </div> -->
+                                <button type="submit" style="background: #667eea; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 1rem; align-self: flex-start;">Post to Forum</button>
+                            </form>
+                        </div>
+
+                        <!-- Login Prompt (Visible to non-logged in users) -->
+                        <div id="login-prompt" style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 2rem;">
+                            <p style="margin: 0 0 1rem 0; color: #555;">Please <a href="../index.html" style="color: #667eea; text-decoration: none; font-weight: 500;">login</a> to participate in the forum discussion.</p>
+                        </div>
+
+                        <!-- Forum Posts Container -->
+                        <div id="forum-posts" style="margin-top: 2rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 style="margin: 0; color: #333;">Discussion</h3>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button id="sort-newest" class="sort-btn active" data-sort="newest" style="background: #f0f2f5; border: 1px solid #ddd; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Newest First</button>
+                                    <button id="sort-popular" class="sort-btn" data-sort="popular" style="background: #fff; border: 1px solid #ddd; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Most Popular</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Posts will be loaded here dynamically -->
+                            <div id="posts-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                <!-- Posts will be inserted here by JavaScript -->
+                                <div class="loading-spinner" style="text-align: center; padding: 2rem; color: #666;">
+                                    Loading discussions...
+                                </div>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div id="forum-pagination" class="pagination" style="display: flex; justify-content: center; margin-top: 2rem; gap: 0.5rem;">
+                                <!-- Pagination will be inserted here by JavaScript -->
+                            </div>
+                        </div>
+                    </section>
                 </div>
 
                     <!-- Right Sidebar - Quick Info -->
@@ -627,5 +677,8 @@
             }
         }
     </script>
+    <script src="../js/auth-utils.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/forum.js"></script>
 </body>
 </html>

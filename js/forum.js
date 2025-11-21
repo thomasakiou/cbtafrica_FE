@@ -704,14 +704,18 @@ async function submitReply(postId, replyText, btn) {
         return;
     }
     
+    // Save original button state
     const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Posting...';
+    const originalDisabled = btn.disabled;
     
     try {
+        // Update button state
+        btn.disabled = true;
+        btn.textContent = 'Posting...';
+        
         const token = localStorage.getItem('token');
         if (!token) {
-            throw new Error('Not authenticated');
+            throw new Error('Please log in to post a reply');
         }
         
         const response = await fetch(`${FORUM_API_BASE}/${postId}/replies`, {
@@ -721,35 +725,52 @@ async function submitReply(postId, replyText, btn) {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ 
-                content: replyText 
+                content: replyText,
+                subject: getCurrentSubject() // Make sure to include the subject
             })
         });
         
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Failed to submit reply');
+            let errorMessage = 'Failed to submit reply';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+                errorMessage = `Server error: ${response.status} ${response.statusText}`;
+            }
+            throw new Error(errorMessage);
         }
         
-        // Remove the reply form
+        // Clear the reply form
         const replyForm = btn.closest('.reply-form');
-        if (replyForm?.parentNode) {
-            replyForm.parentNode.removeChild(replyForm);
+        if (replyForm) {
+            const textarea = replyForm.querySelector('.reply-text');
+            if (textarea) textarea.value = '';
+            
+            // Remove the form after a short delay to show success
+            setTimeout(() => {
+                if (replyForm.parentNode) {
+                    replyForm.parentNode.removeChild(replyForm);
+                }
+            }, 500);
         }
         
         showNotification('Reply submitted successfully!', 'success');
+        
         // Reload the posts to show the new reply
         loadForumPosts(currentForumPage);
+        
     } catch (error) {
         console.error('Error submitting reply:', error);
-        showNotification(`Error: ${error.message || 'Failed to submit reply'}`, 'error');
-        btn.disabled = false;
-        btn.textContent = originalText;
+        showNotification(error.message || 'Failed to submit reply. Please try again.', 'error');
+    } finally {
+        // Always restore button state
+        if (btn) {
+            btn.disabled = originalDisabled;
+            btn.textContent = originalText;
+        }
     }
 }
-
-// async function submitReply(postId, replyText, btn) {
-//     if (!postId) {
-//         showNotification('Invalid post.', 'error');
 //         return;
 //     }
 //     btn.disabled = true;

@@ -14,48 +14,48 @@ const postsPerPage = 3;
 // Store the current subject
 // const currentSubject = getCurrentSubject();
 // Add this at the top of forum.js
-function showNotification(message, type = 'info') {
-    // Check if notification function exists in main.js
-    if (window.showNotification) {
-        return window.showNotification(message, type);
-    }
+// function showNotification(message, type = 'info') {
+//     // Check if there's a different notification system available
+//     if (window.showNotification && window.showNotification !== showNotification) {
+//         return window.showNotification(message, type);
+//     }
     
-    // Fallback notification
-    const notification = document.createElement('div');
-    notification.style.position = 'fixed';
-    notification.style.bottom = '20px';
-    notification.style.right = '20px';
-    notification.style.padding = '12px 20px';
-    notification.style.borderRadius = '4px';
-    notification.style.color = 'white';
-    notification.style.zIndex = '1000';
-    notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+//     // Fallback notification
+//     const notification = document.createElement('div');
+//     notification.style.position = 'fixed';
+//     notification.style.bottom = '20px';
+//     notification.style.right = '20px';
+//     notification.style.padding = '12px 20px';
+//     notification.style.borderRadius = '4px';
+//     notification.style.color = 'white';
+//     notification.style.zIndex = '1000';
+//     notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
     
-    // Set colors based on type
-    if (type === 'success') {
-        notification.style.backgroundColor = '#10B981'; // Green
-    } else if (type === 'error') {
-        notification.style.backgroundColor = '#EF4444'; // Red
-    } else if (type === 'warning') {
-        notification.style.backgroundColor = '#F59E0B'; // Yellow
-    } else {
-        notification.style.backgroundColor = '#3B82F6'; // Blue (default)
-    }
+//     // Set colors based on type
+//     if (type === 'success') {
+//         notification.style.backgroundColor = '#10B981'; // Green
+//     } else if (type === 'error') {
+//         notification.style.backgroundColor = '#EF4444'; // Red
+//     } else if (type === 'warning') {
+//         notification.style.backgroundColor = '#F59E0B'; // Yellow
+//     } else {
+//         notification.style.backgroundColor = '#3B82F6'; // Blue (default)
+//     }
     
-    notification.textContent = message;
-    document.body.appendChild(notification);
+//     notification.textContent = message;
+//     document.body.appendChild(notification);
     
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transition = 'opacity 0.5s';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 500);
-    }, 3000);
-}
+//     // Auto remove after 3 seconds
+//     setTimeout(() => {
+//         notification.style.opacity = '0';
+//         notification.style.transition = 'opacity 0.5s';
+//         setTimeout(() => {
+//             if (notification.parentNode) {
+//                 notification.parentNode.removeChild(notification);
+//             }
+//         }, 500);
+//     }, 3000);
+// }
 
 // Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

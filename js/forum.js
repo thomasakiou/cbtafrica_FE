@@ -12,7 +12,7 @@ let currentForumPage = 1;
 const postsPerPage = 3;
 
 // Store the current subject
-const currentSubject = getCurrentSubject();
+// const currentSubject = getCurrentSubject();
 
 
 // Check login status and set up event listeners when DOM is loaded
@@ -37,34 +37,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function getCurrentSubject() {
-    // Try to get subject from the body's data attribute
-    const bodySubject = document.body.getAttribute('data-subject');
-    if (bodySubject) return bodySubject;
+// function getCurrentSubject() {
+//     // Try to get subject from the body's data attribute
+//     const bodySubject = document.body.getAttribute('data-subject');
+//     if (bodySubject) return bodySubject;
 
-    // Fallback: Try to get from URL
-    const url = window.location.pathname.toLowerCase();
-    if (url.includes('mathematics')) return 'mathematics';
-    if (url.includes('english')) return 'english';
-    if (url.includes('crs')) return 'crs';
-    if (url.includes('agricultural-science')) return 'agricultural-science';
-    if (url.includes('biology')) return 'biology';
-    if (url.includes('chemistry')) return 'chemistry';
-    if (url.includes('civic-education')) return 'civic-education';
-    if (url.includes('accounting')) return 'accounting';
-    if (url.includes('economics')) return 'economics';
-    if (url.includes('physics')) return 'physics';
-    if (url.includes('computer-science')) return 'computer-science';
-    if (url.includes('irs')) return 'irs';
-    if (url.includes('further-mathematics')) return 'further-mathematics';
-    if (url.includes('literature')) return 'literature';
-    if (url.includes('history')) return 'history';
-    if (url.includes('government')) return 'government';
-    if (url.includes('geography')) return 'geography';
+//     // Fallback: Try to get from URL
+//     const url = window.location.pathname.toLowerCase();
+//     if (url.includes('mathematics')) return 'mathematics';
+//     if (url.includes('english')) return 'english';
+//     if (url.includes('crs')) return 'crs';
+//     if (url.includes('agricultural-science')) return 'agricultural-science';
+//     if (url.includes('biology')) return 'biology';
+//     if (url.includes('chemistry')) return 'chemistry';
+//     if (url.includes('civic-education')) return 'civic-education';
+//     if (url.includes('accounting')) return 'accounting';
+//     if (url.includes('economics')) return 'economics';
+//     if (url.includes('physics')) return 'physics';
+//     if (url.includes('computer-science')) return 'computer-science';
+//     if (url.includes('irs')) return 'irs';
+//     if (url.includes('further-mathematics')) return 'further-mathematics';
+//     if (url.includes('literature')) return 'literature';
+//     if (url.includes('history')) return 'history';
+//     if (url.includes('government')) return 'government';
+//     if (url.includes('geography')) return 'geography';
         
+//     // Default subject if none found
+//     return 'general';
+// }
+
+function getCurrentSubject() {
+    // Always get the current subject from the body's data attribute
+    const bodySubject = document.body.getAttribute('data-subject');
+    if (bodySubject) return bodySubject.toLowerCase();
+
+    // Fallback to URL parsing if data attribute is not found
+    const url = window.location.pathname.toLowerCase();
+    const subjectMatch = url.match(/\/([^\/]+)\.html$/);
+    if (subjectMatch && subjectMatch[1]) {
+        return subjectMatch[1].toLowerCase();
+    }
+
     // Default subject if none found
     return 'general';
 }
+
+
 // document.addEventListener('DOMContentLoaded', () => {
 //     const loggedIn = isUserLoggedIn();
 //     if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
@@ -94,21 +112,32 @@ document.addEventListener('DOMContentLoaded', () => {
     loadForumPosts();
 });
 
+
 async function handleNewPost(e) {
     e.preventDefault();
     if (!newPostForm) return;
-    
+    console.log('Current subject when posting:', getCurrentSubject());
     const formData = new FormData(newPostForm);
     const title = formData.get('title');
     const content = formData.get('content');
+    const subject = getCurrentSubject(); // Get current subject at submission time
     
     if (!title || !content) {
         showNotification('Please fill in all fields', 'warning');
         return;
     }
     
+    const submitButton = newPostForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Posting...';
+    
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('You need to be logged in to post');
+        }
+        
         const response = await fetch(FORUM_API_BASE, {
             method: 'POST',
             headers: {
@@ -118,20 +147,26 @@ async function handleNewPost(e) {
             body: JSON.stringify({
                 title,
                 content,
-                subject: currentSubject  
+                subject  // Use the current subject
             })
         });
         
         if (!response.ok) {
-            throw new Error('Failed to create post');
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || 'Failed to create post');
         }
         
         newPostForm.reset();
         showNotification('Post created successfully!', 'success');
-        loadForumPosts(currentForumPage);
+        loadForumPosts(1); // Reload the first page to show the new post
     } catch (error) {
         console.error('Error creating post:', error);
-        showNotification('Error creating post. Please try again.', 'error');
+        showNotification(`Error: ${error.message}`, 'error');
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+        }
     }
 }
 
@@ -262,9 +297,11 @@ async function loadForumPosts(page = 1) {
     try {
         // Update the API URL to match your endpoint
         // const response = await fetch(`${FORUM_API_BASE}?subject=mathematics&page=${page}&limit=${postsPerPage}&sort=newest`);
-        const url = `${FORUM_API_BASE}?subject=${encodeURIComponent(currentSubject)}&page=${page}&limit=${postsPerPage}&sort=newest`;
-        const response = await fetch(url);
+        // const url = `${FORUM_API_BASE}?subject=${encodeURIComponent(currentSubject)}&page=${page}&limit=${postsPerPage}&sort=newest`;
+        // const response = await fetch(url);
         // const response = await fetch(`${FORUM_API_BASE}?subject=${encodeURIComponent(currentSubject)}&page=${page}&limit=${postsPerPage}&sort=newest`)
+        const url = `${FORUM_API_BASE}?subject=${encodeURIComponent(getCurrentSubject())}&page=${page}&limit=${postsPerPage}&sort=newest`;
+        const response = await fetch(url);
         if (!response.ok) {
             throw new Error('Failed to fetch posts');
         }

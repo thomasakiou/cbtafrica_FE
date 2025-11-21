@@ -76,7 +76,7 @@ async function handleNewPost(e) {
     const content = newPostForm.querySelector('[name="content"]')?.value.trim();
     const subject = getCurrentSubject();
     
-    // console.log('Submitting with:', { title, content, subject });
+    console.log('Submitting with:', { title, content, subject });
     
     if (!title || !content) {
         showNotification('Please fill in all fields', 'warning');
@@ -477,6 +477,70 @@ function handleReplyButtonClick(e) {
     }
 }
 
+// Handle reply button clicks and form submissions
+// function handleReplyButtonClick(e) {
+//     // Handle reply button click
+//     if (e.target.classList.contains('reply-btn')) {
+//         e.preventDefault();
+//         const postDiv = e.target.closest('.forum-post');
+//         if (!postDiv) return;
+        
+//         const replyAction = postDiv.querySelector('.reply-action-container');
+//         if (!replyAction) return;
+        
+//         // Check if already showing reply form
+//         if (replyAction.querySelector('.reply-form')) return;
+        
+//         // Create reply form
+//         const replyForm = document.createElement('div');
+//         replyForm.className = 'reply-form';
+//         replyForm.innerHTML = `
+//             <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
+//             <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
+//                 <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+//                     Cancel
+//                 </button>
+//                 <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+//                     Post Reply
+//                 </button>
+//             </div>
+//         `;
+        
+//         // Add to DOM
+//         replyAction.appendChild(replyForm);
+        
+//         // Focus the textarea
+//         const textarea = replyForm.querySelector('.reply-text');
+//         if (textarea) textarea.focus();
+//     }
+    
+//     // Handle submit reply
+//     else if (e.target.classList.contains('submit-reply-btn')) {
+//         e.preventDefault();
+//         const replyForm = e.target.closest('.reply-form');
+//         if (!replyForm) return;
+        
+//         const postDiv = e.target.closest('.forum-post');
+//         const replyText = replyForm.querySelector('.reply-text').value.trim();
+//         const postId = postDiv.getAttribute('data-post-id');
+        
+//         if (!replyText) {
+//             showNotification('Please enter a reply.', 'warning');
+//             return;
+//         }
+        
+//         submitReply(postId, replyText, e.target);
+//     }
+    
+//     // Handle cancel reply
+//     else if (e.target.classList.contains('cancel-reply-btn')) {
+//         e.preventDefault();
+//         const replyForm = e.target.closest('.reply-form');
+//         if (replyForm && replyForm.parentNode) {
+//             replyForm.parentNode.removeChild(replyForm);
+//         }
+//     }
+// }
 
 async function submitReply(postId, replyText, btn) {
     if (!postId) {
@@ -577,6 +641,37 @@ async function submitReply(postId, replyText, btn) {
         }
     }
 }
+//         return;
+//     }
+//     btn.disabled = true;
+//     btn.textContent = 'Submitting...';
+//     console.log('Submitting reply:', { postId, replyText });
+//     try {
+//         // Use the correct backend endpoint for replies
+//         const replyUrl = 'https://vmi2848672.contaboserver.net/cbt/api/v1/forum/posts/' + postId + '/reply';
+//         const token = localStorage.getItem('token') || '';
+//         // Send as JSON (adjust if backend expects FormData)
+//         const res = await fetch(replyUrl, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify({ content: replyText })
+//         });
+//         let responseText = await res.text();
+//         console.log('Reply response status:', res.status, 'body:', responseText);
+//         if (!res.ok) throw new Error('Failed to submit reply: ' + responseText);
+//         showNotification('Reply submitted!', 'success');
+//         loadForumPosts(currentForumPage);
+//     } catch (err) {
+//         console.error('Reply error:', err);
+//         showNotification('Failed to submit reply.', 'error');
+//     } finally {
+//         btn.disabled = false;
+//         btn.textContent = 'Reply';
+//     }
+// }
 
 
 function createReplyElement(reply) {

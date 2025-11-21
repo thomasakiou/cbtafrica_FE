@@ -721,7 +721,8 @@ async function submitReply(postId, replyText, btn) {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ 
-                content: replyText 
+                content: replyText,
+                subject: getCurrentSubject()
             })
         });
         

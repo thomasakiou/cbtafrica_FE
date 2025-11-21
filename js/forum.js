@@ -14,29 +14,26 @@ const postsPerPage = 3;
 
 // Check login status and set up event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize form elements
-    newPostForm = document.getElementById('new-post-form');
-    const newPostContainer = document.getElementById('new-post-container');
-    const loginPrompt = document.getElementById('login-prompt');
+    const loggedIn = isUserLoggedIn();
+    if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
+    if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
     
-    // Check if user is logged in
-    const isLoggedIn = isUserLoggedIn();
-    
-    // Show/hide appropriate elements based on login status
-    if (newPostContainer) newPostContainer.style.display = isLoggedIn ? 'block' : 'none';
-    if (loginPrompt) loginPrompt.style.display = isLoggedIn ? 'none' : 'block';
+    // Load forum posts
+    loadForumPosts();
     
     // Set up new post form submission
     if (newPostForm) {
         newPostForm.addEventListener('submit', handleNewPost);
     }
     
-    // Set up reply button click handler using event delegation
-    document.addEventListener('click', (e) => handleReplyButtonClick(e));
-    
-    // Load initial forum posts
-    loadForumPosts();
+    // Set up event delegation for reply buttons and forms
+    document.addEventListener('click', (e) => {
+        if (e.target.matches('.reply-btn, .submit-reply-btn, .cancel-reply-btn')) {
+            handleReplyButtonClick(e);
+        }
+    });
 });
+
 
 function getCurrentSubject() {
     // Always get the current subject from the body's data attribute

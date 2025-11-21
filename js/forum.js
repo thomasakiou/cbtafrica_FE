@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loggedIn = isUserLoggedIn();
     if (newPostContainer) newPostContainer.style.display = loggedIn ? 'block' : 'none';
     if (loginPrompt) loginPrompt.style.display = loggedIn ? 'none' : 'block';
+    
+    // Add event delegation for reply buttons and forms
+    if (postsContainer) {
+        postsContainer.addEventListener('click', handleReplyButtonClick);
+    }
+    
     loadForumPosts();
 });
 

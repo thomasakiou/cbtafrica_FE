@@ -422,7 +422,7 @@
                         <!-- New Post Form (Visible to logged in users) -->
                         <div id="new-post-container" style="display: none; margin-bottom: 2rem;">
                             <h3 style="margin-top: 0; color: #333; font-size: 1.2rem;">Start a new discussion</h3>
-                            <form id="new-post-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <form id="new-post-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 1rem;">
                                 <input type="text" id="post-title" placeholder="Title" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;">
                                 <textarea id="post-content" placeholder="Share your thoughts..." rows="4" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; resize: vertical;"></textarea>
                                 <div>

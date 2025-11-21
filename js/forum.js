@@ -120,40 +120,41 @@ if (typeof showNotification !== 'function') {
 // Handle reply button clicks and form submissions
 function handleReplyButtonClick(e) {
     // Handle reply button click
-    if (e.target.classList.contains('reply-btn')) {
-        e.preventDefault();
-        const postDiv = e.target.closest('.forum-post');
-        if (!postDiv) {
-            console.error('Could not find parent post div');
-            return;
-        }
-        
-        const postId = postDiv.getAttribute('data-post-id');
-        console.log('Post ID when creating reply form:', postId);
-        
-        const replyAction = postDiv.querySelector('.reply-action-container');
-        if (!replyAction) {
-            console.error('Could not find reply action container');
-            return;
-        }
-        
-        // Check if already showing reply form
-        if (replyAction.querySelector('.reply-form')) return;
-        
-        // Create reply form
-        const replyForm = document.createElement('div');
-        replyForm.className = 'reply-form';
-        replyForm.innerHTML = `
-            <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
-            <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
-                <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
-                    Cancel
-                </button>
-                <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;" data-post-id="${postId}">
-                    Post Reply
-                </button>
-            </div>
-        `;
+if (e.target.classList.contains('reply-btn')) {
+    e.preventDefault();
+    const postDiv = e.target.closest('.forum-post');
+    if (!postDiv) {
+        console.error('Could not find parent post div');
+        return;
+    }
+    
+    // Get post ID from the closest forum-post element
+    const postId = postDiv.getAttribute('data-post-id');
+    console.log('Post ID when creating reply form:', postId, 'Post div:', postDiv);
+    
+    // Log all data attributes of the post div for debugging
+    console.log('Post div attributes:');
+    for (let attr of postDiv.attributes) {
+        console.log(attr.name, '=', attr.value);
+    }
+    
+    // ... rest of the code remains the same until the form creation ...
+    
+    // Update the form creation to include the post ID in a more reliable way
+    const replyForm = document.createElement('div');
+    replyForm.className = 'reply-form';
+    replyForm.setAttribute('data-post-id', postId);  // Add post ID to the form itself
+    replyForm.innerHTML = `
+        <textarea class="reply-text" rows="3" placeholder="Write a reply..." style="width:100%;padding:0.8rem;border:1px solid #ddd;border-radius:6px;margin-top:0.8rem;resize:vertical;min-height:80px;"></textarea>
+        <div style="display:flex;justify-content:flex-end;gap:0.8rem;margin-top:0.5rem;">
+            <button type="button" class="cancel-reply-btn" style="background:#e0e0e0;color:#333;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;">
+                Cancel
+            </button>
+            <button type="button" class="submit-reply-btn" style="background:#27ae60;color:white;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;font-size:0.9rem;" data-post-id="${postId}">
+                Post Reply
+            </button>
+        </div>
+    `;
         
         // Add to DOM
         replyAction.appendChild(replyForm);
@@ -164,51 +165,40 @@ function handleReplyButtonClick(e) {
     }
     
     // Handle submit reply
-    else if (e.target.classList.contains('submit-reply-btn')) {
-        e.preventDefault();
-        const replyForm = e.target.closest('.reply-form');
-        if (!replyForm) {
-            console.error('Could not find reply form');
-            return;
-        }
-        
-        const replyText = replyForm.querySelector('.reply-text').value.trim();
-        const postId = e.target.getAttribute('data-post-id');
-        console.log('Post ID when submitting:', postId);
-        console.log('Reply text:', replyText);
-        
-        if (!replyText) {
-            showNotification('Please enter a reply.', 'warning');
-            return;
-        }
-        
-        if (!postId) {
-            console.error('Post ID is missing from submit button');
-            // Try to get post ID from parent post as fallback
-            const postDiv = e.target.closest('.forum-post');
-            if (postDiv) {
-                const fallbackPostId = postDiv.getAttribute('data-post-id');
-                console.log('Found fallback post ID:', fallbackPostId);
-                if (fallbackPostId) {
-                    submitReply(fallbackPostId, replyText, e.target);
-                    return;
-                }
-            }
-            showNotification('Invalid post.', 'error');
-            return;
-        }
-        
-        submitReply(postId, replyText, e.target);
+   else if (e.target.classList.contains('submit-reply-btn')) {
+    e.preventDefault();
+    const replyForm = e.target.closest('.reply-form');
+    if (!replyForm) {
+        console.error('Could not find reply form');
+        return;
     }
     
-    // Handle cancel reply
-    else if (e.target.classList.contains('cancel-reply-btn')) {
-        e.preventDefault();
-        const replyForm = e.target.closest('.reply-form');
-        if (replyForm && replyForm.parentNode) {
-            replyForm.parentNode.removeChild(replyForm);
-        }
+    const replyText = replyForm.querySelector('.reply-text').value.trim();
+    
+    // Try to get post ID from multiple possible locations
+    let postId = e.target.getAttribute('data-post-id') || 
+                replyForm.getAttribute('data-post-id') ||
+                (e.target.closest('.forum-post')?.getAttribute('data-post-id'));
+    
+    console.log('Post ID sources:', {
+        button: e.target.getAttribute('data-post-id'),
+        form: replyForm.getAttribute('data-post-id'),
+        closestPost: e.target.closest('.forum-post')?.getAttribute('data-post-id'),
+        finalPostId: postId
+    });
+    
+    if (!replyText) {
+        showNotification('Please enter a reply.', 'warning');
+        return;
     }
+    
+    if (!postId) {
+        console.error('Could not find post ID in any expected location');
+        showNotification('Error: Could not determine which post to reply to.', 'error');
+        return;
+    }
+    
+    submitReply(postId, replyText, e.target);
 }
 
 

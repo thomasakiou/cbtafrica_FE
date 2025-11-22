@@ -12,12 +12,12 @@
         <nav>
             <div class="logo">ExamPadi - Admin</div>
             <div class="user-info">
-                <span id="user-name">Welcome, Admin</span>
+                <span>Welcome, <span id="user-name" style="color: #e53e3e;">Admin</span></span>
                 <script>
                     (function() {
                         const username = localStorage.getItem('username');
                         if (username) {
-                            document.getElementById('user-name').textContent = 'Welcome, ' + username;
+                            document.getElementById('user-name').textContent = username;
                         }
                     })();
                 </script>

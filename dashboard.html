@@ -23,12 +23,12 @@
             <div class="nav-overlay"></div>
             <ul class="nav-links">
                 <li class="user-info">
-                    <span id="user-name">Welcome, User</span>
+                    <span>Welcome, <span id="user-name" style="color: #e53e3e;">User</span></span>
                     <script>
                         (function() {
                             const username = localStorage.getItem('username');
                             if (username) {
-                                document.getElementById('user-name').textContent = 'Welcome, ' + username;
+                                document.getElementById('user-name').textContent = username;
                             }
                         })();
                     </script>

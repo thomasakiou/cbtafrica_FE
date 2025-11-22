@@ -18,13 +18,29 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div class="logo"><span style="font-weight: bold; font-size: 1.0rem;">Welcome to </span>ExamPadi JAMB, 
-                    <span id="user-name" style="color: #e53e3e; font-weight: bold; font-size: 1.0rem;">User</span>
+                                <div class="logo">
+                    <span id="welcome-message" style="display: none; font-weight: bold; font-size: 1.0rem;">Welcome to </span>
+                    <span id="app-name">ExamPadi</span>
+                    <span id="username-container" style="display: none;">, <span id="user-name" style="color: #e53e3e; font-weight: bold; font-size: 1.0rem;">User</span></span>
                     <script>
                         (function() {
+                            const token = localStorage.getItem('token');
                             const username = localStorage.getItem('username');
-                            if (username) {
+                            const welcomeMessage = document.getElementById('welcome-message');
+                            const usernameContainer = document.getElementById('username-container');
+                            const appName = document.getElementById('app-name');
+                            
+                            if (token && username) {
+                                // User is logged in
+                                welcomeMessage.style.display = 'inline';
+                                usernameContainer.style.display = 'inline';
                                 document.getElementById('user-name').textContent = username;
+                                appName.style.fontWeight = 'normal';
+                            } else {
+                                // User is not logged in
+                                welcomeMessage.style.display = 'none';
+                                usernameContainer.style.display = 'none';
+                                appName.style.fontWeight = 'bold';
                             }
                         })();
                     </script>

@@ -17,7 +17,17 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div class="logo">ExamPadi</div>
+                 <div class="logo"><span style="font-weight: bold; font-size: 1.0rem;">Welcome to </span>ExamPadi, 
+                    <span id="user-name" style="color: #e53e3e; font-weight: bold; font-size: 1.0rem;">User</span>
+                    <script>
+                        (function() {
+                            const username = localStorage.getItem('username');
+                            if (username) {
+                                document.getElementById('user-name').textContent = username;
+                            }
+                        })();
+                    </script>
+                </div>
             </div>
             <div class="nav-overlay"></div>
             <ul class="nav-links">
@@ -607,5 +617,6 @@ Resistors And Cells (SS 1, JAMB Tutorial, WAEC, NECO, Post-UTME, NABTEB)</h4>
     <script src="../js/auth-utils.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/forum.js"></script>
+    <script src="../js/dashboard.js"></script>
 </body>
 </html>

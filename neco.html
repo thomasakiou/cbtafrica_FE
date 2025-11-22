@@ -18,15 +18,25 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div class="logo">ExamPadi NECO</div>
+                 <div class="logo"><span style="font-weight: bold; font-size: 1.0rem;">Welcome to </span>ExamPadi NECO, 
+                    <span id="user-name" style="color: #e53e3e; font-weight: bold; font-size: 1.0rem;">User</span>
+                    <script>
+                        (function() {
+                            const username = localStorage.getItem('username');
+                            if (username) {
+                                document.getElementById('user-name').textContent = username;
+                            }
+                        })();
+                    </script>
+                </div>
             </div>
             <div class="nav-overlay"></div>
             <ul class="nav-links">
-                <li id="user-info" style="display: none; margin-left: 1rem; align-items: center;">
+                <!-- <li id="user-info" style="display: none; margin-left: 1rem; align-items: center;">
                     <span style="margin-right: 1rem; color: #e3e7ed;">
                         Welcome, <span id="username-display" style="color: #e53e3e; font-weight: bold;"></span>
                     </span>
-                </li>
+                </li> -->
                 <!-- <li><a href="index.html">Home</a></li> -->
                  <li><a href="dashboard.html">Dashboard</a></li>
                 <!-- <li><a href="index.html#about">About</a></li> -->
@@ -165,5 +175,9 @@
             <p>&copy; 2024 CBT Platform. All rights reserved.</p>
         </div>
     </footer>
+    <script src="js/custom-alert.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>

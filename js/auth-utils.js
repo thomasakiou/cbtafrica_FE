@@ -33,26 +33,26 @@ function updateAuthUI() {
     }
 }
 
-// Handle navigation with authentication check
-function navigateTo(page) {
-    const token = localStorage.getItem('token');
-    const publicPages = [
-        'index.html', 
-        'neco.html',
-        'waec.html',
-        'jamb.html',
-        'classroom.html'
-    ];
+// // Handle navigation with authentication check
+// function navigateTo(page) {
+//     const token = localStorage.getItem('token');
+//     const publicPages = [
+//         'index.html', 
+//         'neco.html',
+//         'waec.html',
+//         'jamb.html',
+//         'classroom.html'
+//     ];
     
-    // If the page is public or user is logged in, allow navigation
-    if (publicPages.includes(page) || token) {
-        window.location.href = page;
-    } else {
-        // Store the intended page in sessionStorage to redirect back after login
-        sessionStorage.setItem('redirectAfterLogin', page);
-        window.location.href = 'index.html';
-    }
-}
+//     // If the page is public or user is logged in, allow navigation
+//     if (publicPages.includes(page) || token) {
+//         window.location.href = page;
+//     } else {
+//         // Store the intended page in sessionStorage to redirect back after login
+//         sessionStorage.setItem('redirectAfterLogin', page);
+//         window.location.href = 'index.html';
+//     }
+// }
 
 // Handle logout
 function handleLogout() {

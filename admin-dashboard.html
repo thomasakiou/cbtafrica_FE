@@ -17,11 +17,14 @@
                     (function() {
                         const username = localStorage.getItem('username');
                         if (username) {
+                            // Only set the username part, not the welcome text
                             document.getElementById('user-name').textContent = username;
+                            // Show the logout button
+                            document.getElementById('logout-button').style.display = 'inline-block';
                         }
                     })();
                 </script>
-                <button id="logout-button" onclick="handleLogout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; display: none;">Logout</button>
+                <button id="logout-button" onclick="handleLogout()" style="background: #e53e3e; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 10px;">Logout</button>
             </div>
         </nav>
     </header>

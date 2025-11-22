@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadUserInfo() {
     const username = localStorage.getItem('username');
     if (username) {
-        document.getElementById('user-name').textContent = `Welcome, ${username}`;
+        document.getElementById('user-name').textContent = `test, ${username}`;
     }
 }
 

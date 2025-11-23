@@ -6,6 +6,7 @@
     <title>Classroom - MyExamPadi Classroom</title>
     <link rel="icon" href="images/fav1.jpeg" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
     <script src="js/mobile-nav.js"></script>
     <script src="js/auth-utils.js"></script>
     <script>
@@ -50,6 +51,17 @@
                                 welcomeMessage.style.display = 'none';
                                 usernameContainer.style.display = 'none';
                                 appName.style.fontWeight = 'bold';
+                                
+                                // Show Dashboard link and hide Home link when logged in
+                                const dashboardLink = document.getElementById('dashboard-link');
+                                const homeLink = document.getElementById('home-link');
+                                if (isLoggedIn) {
+                                    dashboardLink.style.display = 'block';
+                                    homeLink.style.display = 'none';
+                                } else {
+                                    dashboardLink.style.display = 'none';
+                                    homeLink.style.display = 'block';
+                                }
                             }
                         })();
                     </script>
@@ -62,7 +74,8 @@
                         Welcome, <span id="username-display" style="color: #e53e3e; font-weight: bold;"></span>
                     </span>
                 </li> -->
-                <li><a href="dashboard.html">Dashboard</a></li>
+                <li id="dashboard-link" style="display: none;"><a href="dashboard.html">Dashboard</a></li>
+                <li id="home-link" style="display: none;"><a href="index.html">Home</a></li>
                 <li><a href="classroom.html" class="active">Classroom</a></li>
                 <!-- <a href="classroom.html" class="btn btn-primary" style="margin-right: 10px;">Classroom</a> -->
                 <!-- <li id="register-button" style="display: none;">
@@ -87,8 +100,8 @@
         </nav>
     </header>
 
-    <main style="margin-top: 80px; padding: 2rem 0;">
-        <div class="container" style="grid-template-columns: 1fr; max-width: 1200px;">
+    <main class="page-load" style="margin-top: 80px; padding: 2rem 0;">
+        <div class="container content-section" style="grid-template-columns: 1fr; max-width: 1200px;">
             <div class="content-section">
                 <h1>📚 MyExamPadi Classroom</h1>
                 <p style="font-size: 1.1rem; color: #7f8c8d; margin-bottom: 2rem;">Comprehensive learning resources for NECO, WAEC & JAMB examination success</p>
@@ -291,8 +304,64 @@
         </div>
     </footer>
     <script src="js/custom-alert.js"></script>
-    <!-- <script src="js/auth.js"></script> -->
     <script src="js/session-manager.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/apply-animations.js"></script>
+    <script>
+        // Function to check if user is logged in without redirecting
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+            return { isLoggedIn: !!token, username: username };
+        }
+
+        // Update navigation based on login status
+        function updateNavigation() {
+            const { isLoggedIn, username } = checkLoginStatus();
+            const dashboardLink = document.getElementById('dashboard-link');
+            const homeLink = document.getElementById('home-link');
+            const usernameDisplay = document.getElementById('username-display');
+            const welcomeMessage = document.getElementById('welcome-message');
+            const usernameContainer = document.getElementById('username-container');
+            const logoutButton = document.getElementById('logout-button');
+            const appName = document.getElementById('app-name');
+
+            if (isLoggedIn) {
+                // User is logged in
+                if (welcomeMessage) welcomeMessage.style.display = 'inline';
+                if (usernameContainer) usernameContainer.style.display = 'inline';
+                if (usernameDisplay) usernameDisplay.textContent = username || 'User';
+                if (appName) appName.style.fontWeight = 'normal';
+                if (dashboardLink) dashboardLink.style.display = 'block';
+                if (homeLink) homeLink.style.display = 'none';
+                if (logoutButton) logoutButton.style.display = 'block';
+            } else {
+                // User is not logged in
+                if (welcomeMessage) welcomeMessage.style.display = 'none';
+                if (usernameContainer) usernameContainer.style.display = 'none';
+                if (appName) appName.style.fontWeight = 'bold';
+                if (dashboardLink) dashboardLink.style.display = 'none';
+                if (homeLink) homeLink.style.display = 'block';
+                if (logoutButton) logoutButton.style.display = 'none';
+            }
+        }
+
+        // Initialize navigation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation();
+            
+            // Add logout functionality
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                    updateNavigation();
+                    window.location.href = 'index.html';
+                });
+            }
+        });
+    </script>
 </body>
 </html>

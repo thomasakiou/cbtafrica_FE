@@ -1,0 +1,54 @@
+/* Fade In Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade Out Animation */
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Page Load Animation */
+.page-load {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Content Stagger Animation */
+.content-section > * {
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Staggered animations for content */
+.content-section > *:nth-child(1) { animation-delay: 0.2s; }
+.content-section > *:nth-child(2) { animation-delay: 0.4s; }
+.content-section > *:nth-child(3) { animation-delay: 0.6s; }
+.content-section > *:nth-child(4) { animation-delay: 0.8s; }
+.content-section > *:nth-child(5) { animation-delay: 1.0s; }
+
+/* Card Hover Effects */
+.subject-card, .feature-card, .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.subject-card:hover, .feature-card:hover, .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Button Hover Effects */
+.btn, button, a[href*="#"], .dropdown-toggle {
+    transition: all 0.3s ease;
+}
+
+.btn:hover, button:hover, a[href*="#"]:hover, .dropdown-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}

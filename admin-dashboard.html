@@ -96,6 +96,18 @@
                         <div id="explanation-preview" class="image-preview"></div>
                     </div>
                     <div class="form-group">
+                        <label for="question-year">Year:</label>
+                        <select id="question-year" required>
+                            <option value="">Select Year</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="question-type">Question Type:</label>
                         <select id="question-type" required>
                             <option value="multiple_choice">Multiple Choice</option>
@@ -201,6 +213,18 @@
             <h3>Edit Question</h3>
             <form id="edit-question-form" onsubmit="updateQuestion(event)">
                 <input type="hidden" id="edit-question-id">
+                <div class="form-group">
+                    <label for="edit-question-year">Year:</label>
+                    <select id="edit-question-year" required>
+                        <option value="">Select Year</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="edit-question-exam-type">Exam Type:</label>
                     <select id="edit-question-exam-type" required>

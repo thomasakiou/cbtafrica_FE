@@ -82,6 +82,7 @@ async function startExam(event) {
     const subjectName = subjectSelect.options[subjectSelect.selectedIndex].text;
     const duration = parseInt(document.getElementById('test-duration').value);
     const questionCount = parseInt(document.getElementById('question-count').value);
+    const examYear = document.getElementById('exam-year').value; // Get selected year (empty string means 'All Years')
     
     if (!examType || !subjectId || !duration || !questionCount || subjectName === 'Choose Subject') {
         showAlert('Please fill in all fields', 'warning');
@@ -112,7 +113,8 @@ async function startExam(event) {
         subjectName,
         examTypeId: examTypeMap[examType],
         duration,
-        questionCount
+        questionCount,
+        examYear: examYear || null // Store null for 'All Years' to make it easier to handle in the API call
     }));
     
     window.location.href = 'exam.html';

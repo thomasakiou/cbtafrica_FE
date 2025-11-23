@@ -586,11 +586,13 @@ async function loadQuestions() {
 window.filterQuestions = function() {
     const examTypeFilter = document.getElementById('filter-exam-type').value;
     const subjectFilter = document.getElementById('filter-subject').value;
+    const yearFilter = document.getElementById('filter-year').value;
     
     filteredQuestions = allQuestions.filter(q => {
         const examTypeMatch = !examTypeFilter || q.exam_type_id == examTypeFilter;
         const subjectMatch = !subjectFilter || q.subject_id == subjectFilter;
-        return examTypeMatch && subjectMatch;
+        const yearMatch = !yearFilter || q.year == yearFilter;
+        return examTypeMatch && subjectMatch && yearMatch;
     });
     
     currentPage = 1;
@@ -600,6 +602,7 @@ window.filterQuestions = function() {
 window.resetFilters = function() {
     document.getElementById('filter-exam-type').value = '';
     document.getElementById('filter-subject').value = '';
+    document.getElementById('filter-year').value = '';
     filteredQuestions = allQuestions;
     currentPage = 1;
     displayQuestions(filteredQuestions);
@@ -630,6 +633,15 @@ function displayQuestions(questions) {
                 <option value="">All Subjects</option>
                 ${allSubjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
             </select>
+            <select id="filter-year" onchange="filterQuestions()" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">All Years</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+            </select>
             <button onclick="resetFilters()" style="padding: 0.5rem 1rem; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">Reset</button>
         </div>
         <div style="margin-bottom: 1rem; color: #7f8c8d;">
@@ -641,6 +653,7 @@ function displayQuestions(questions) {
                     <th>ID</th>
                     <th>Exam Type</th>
                     <th>Subject</th>
+                    <th>Year</th>
                     <th>Question</th>
                     <th>Options</th>
                     <th>Correct Answer</th>
@@ -656,6 +669,7 @@ function displayQuestions(questions) {
                         <td>${question.id}</td>
                         <td>${examTypeMap[question.exam_type_id] || 'N/A'}</td>
                         <td>${subject ? subject.name : 'N/A'}</td>
+                        <td>${question.year || 'N/A'}</td>
                         <td>
                             ${question.question_text || '<span style="color: #999;">No text</span>'}
                             ${question.question_image ? '<br><span style="color: #3498db; font-size: 0.85rem;">🖼️ Has image</span>' : ''}
@@ -720,12 +734,13 @@ async function addQuestion(event) {
     const correctAnswer = document.getElementById('correct-answer').value;
     const questionImageFile = document.getElementById('question-image').files[0];
     const explanationImageFile = document.getElementById('explanation-image').files[0];
+    const year = document.getElementById('question-year').value;
     
     const examTypeMap = {
         'NECO': 1,
         'WAEC': 2,
         'JAMB': 3,
-        'NABTEB': 4
+        // 'NABTEB': 4
     };
     
     const payload = {
@@ -740,7 +755,8 @@ async function addQuestion(event) {
             C: optionC,
             D: optionD
         },
-        correct_answer: correctAnswer
+        correct_answer: correctAnswer,
+        year: year || null
     };
     
     console.log('Sending question payload:', payload);
@@ -843,7 +859,7 @@ const rowsPerPage = 20;
 const usersPerPage = 20;
 const subjectsPerPage = 20;
 
-const examTypeMap = { 1: 'NECO', 2: 'WAEC', 3: 'JAMB', 4: 'NABTEB' };
+const examTypeMap = { 1: 'NECO', 2: 'WAEC', 3: 'JAMB' };
 
 async function editQuestion(questionId) {
     const question = allQuestions.find(q => q.id === questionId);
@@ -866,6 +882,9 @@ async function editQuestion(questionId) {
     document.getElementById('edit-option-c').value = question.options?.C || '';
     document.getElementById('edit-option-d').value = question.options?.D || '';
     document.getElementById('edit-correct-answer').value = question.correct_answer;
+    
+    // Set the year if it exists, otherwise default to empty string
+    document.getElementById('edit-question-year').value = question.year || '';
     
     // Clear previous image previews and file inputs
     document.getElementById('edit-question-image').value = '';
@@ -996,6 +1015,7 @@ window.updateQuestion = async function(event) {
     const correctAnswer = document.getElementById('edit-correct-answer').value;
     const questionImageFile = document.getElementById('edit-question-image').files[0];
     const explanationImageFile = document.getElementById('edit-explanation-image').files[0];
+    const year = document.getElementById('edit-question-year').value;
     
     const examTypeMap = { 'NECO': 1, 'WAEC': 2, 'JAMB': 3, 'NABTEB': 4 };
     
@@ -1006,7 +1026,8 @@ window.updateQuestion = async function(event) {
         explanation: explanation || null,
         question_type: 'multiple_choice',
         options: { A: optionA, B: optionB, C: optionC, D: optionD },
-        correct_answer: correctAnswer
+        correct_answer: correctAnswer,
+        year: year || null
     };
     
     try {

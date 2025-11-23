@@ -166,8 +166,9 @@ function initializeExam() {
         examTypeElement.textContent = examConfig.examType;
     }
 
-    document.getElementById('exam-type').textContent = examConfig.examType;
-    document.getElementById('exam-subject').textContent = examConfig.subjectName || 'General';
+    document.getElementById('exam-type').textContent = examConfig.examType || '—';
+    document.getElementById('exam-subject').textContent = examConfig.subjectName || '—';
+    document.getElementById('exam-year').textContent = examConfig.examYear || '—';
     
     // Load questions and then update the counter after they're loaded
     loadQuestions();
@@ -179,20 +180,24 @@ async function loadQuestions() {
     console.log('Exam Type ID:', examConfig.examTypeId);
     console.log('Subject ID:', examConfig.subjectId);
     console.log('Question Count:', examConfig.questionCount);
+    console.log('Exam Year:', examConfig.examYear || 'All Years');
     
     // Initialize the questions count display with the total number of questions
     document.getElementById('questions-count').textContent = `0/${examConfig.questionCount}`;
     
     try {
+        // Build the API URL with optional year parameter
+        let apiUrl = `${API_BASE_URL}/questions/?exam_type_id=${examConfig.examTypeId}&subject_id=${examConfig.subjectId}&limit=100`;
+        if (examConfig.examYear) {
+            apiUrl += `&year=${examConfig.examYear}`;
+        }
+
         // Try to fetch real questions from backend
-        const response = await fetch(
-            `${API_BASE_URL}/questions/?exam_type_id=${examConfig.examTypeId}&subject_id=${examConfig.subjectId}&limit=100`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+        const response = await fetch(apiUrl, {
+            headers: {
+                'Authorization': `Bearer ${token}` 
             }
-        );
+        });
         
         let allQuestions = [];
         
@@ -227,7 +232,7 @@ async function loadQuestions() {
         ));
     }
     
-    // Store correct answers, explanations, and explanation images before removing them
+    // Rest of the function remains the same...
     const correctAnswers = {};
     const explanations = {};
     const explanationImages = {};
@@ -257,6 +262,91 @@ async function loadQuestions() {
     startTimer();
     console.log('Questions loaded successfully');
 }
+
+// async function loadQuestions() {
+//     const token = localStorage.getItem('token');
+//     console.log('Loading questions with config:', examConfig);
+//     console.log('Exam Type ID:', examConfig.examTypeId);
+//     console.log('Subject ID:', examConfig.subjectId);
+//     console.log('Question Count:', examConfig.questionCount);
+    
+//     // Initialize the questions count display with the total number of questions
+//     document.getElementById('questions-count').textContent = `0/${examConfig.questionCount}`;
+    
+//     try {
+//         // Try to fetch real questions from backend
+//         const response = await fetch(
+//             `${API_BASE_URL}/questions/?exam_type_id=${examConfig.examTypeId}&subject_id=${examConfig.subjectId}&limit=100`,
+//             {
+//                 headers: {
+//                     'Authorization': `Bearer ${token}`
+//                 }
+//             }
+//         );
+        
+//         let allQuestions = [];
+        
+//         if (response.ok) {
+//             allQuestions = await response.json();
+//             console.log('Loaded questions from backend:', allQuestions.length);
+//         } else {
+//             console.warn('Backend GET not supported, using sample questions');
+//             allQuestions = generateSampleQuestions(
+//                 examConfig.examTypeId,
+//                 examConfig.subjectId,
+//                 examConfig.questionCount
+//             );
+//         }
+        
+//         if (allQuestions.length === 0) {
+//             showAlert('No questions available for this exam. Please add questions in admin panel.', 'error');
+//             setTimeout(() => window.location.href = 'dashboard.html', 2000);
+//             return;
+//         }
+        
+//         // Shuffle and limit questions
+//         questions = shuffleArray(allQuestions).slice(0, examConfig.questionCount);
+//         console.log('Questions after shuffle:', questions.length);
+//     } catch (error) {
+//         console.error('Error loading questions:', error);
+//         // Fallback to sample questions
+//         questions = shuffleArray(generateSampleQuestions(
+//             examConfig.examTypeId,
+//             examConfig.subjectId,
+//             examConfig.questionCount
+//         ));
+//     }
+    
+//     // Store correct answers, explanations, and explanation images before removing them
+//     const correctAnswers = {};
+//     const explanations = {};
+//     const explanationImages = {};
+//     questions.forEach(q => {
+//         correctAnswers[q.id] = q.correct_answer;
+//         explanations[q.id] = q.explanation;
+//         if (q.explanation_image) {
+//             explanationImages[q.id] = q.explanation_image;
+//         }
+//     });
+//     localStorage.setItem('correctAnswers', JSON.stringify(correctAnswers));
+//     localStorage.setItem('explanations', JSON.stringify(explanations));
+//     localStorage.setItem('explanationImages', JSON.stringify(explanationImages));
+    
+//     // Remove correct answers from questions for security
+//     questions = questions.map(q => ({
+//         ...q,
+//         correct_answer: undefined
+//     }));
+    
+//     console.log('Setting up navigator and displaying first question');
+//     setupQuestionNavigator();
+//     displayQuestion();
+//     updateQuestionCounter();
+    
+//     // Start the timer after everything is loaded
+//     startTimer();
+//     console.log('Questions loaded successfully');
+// }
 
 function generateSampleQuestions(examTypeId, subjectId, count) {
     const subjects = ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology'];

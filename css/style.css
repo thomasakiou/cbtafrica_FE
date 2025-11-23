@@ -1813,7 +1813,7 @@ footer {
 /* Small Devices (Phones, 480px and down) */
 @media (max-width: 480px) {
     main {
-        margin-top: 20px;
+        margin-top: 30px;
         padding: 1rem 0;
     }
     

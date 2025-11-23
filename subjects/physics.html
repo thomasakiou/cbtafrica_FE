@@ -82,8 +82,86 @@
 
             <!-- Main Content Layout -->
             <div class="main-content-grid" style="display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start;">
-                <!-- Left Column - Video Lectures -->
+                <!-- Left Column - Content -->
                 <div>
+                    <!-- Physics Formulas Section -->
+                    <section style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <span style="font-size: 1.5rem;">⚡</span> Essential Physics Formulas
+                        </h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;">
+                            <!-- Mechanics Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #3b82f6; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Mechanics</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Newton's 2nd Law: F = ma</li>
+                                    <li>Kinematic Eq: v = u + at</li>
+                                    <li>Work Done: W = Fd cosθ</li>
+                                    <li>Power: P = W/t = Fv</li>
+                                    <li>Momentum: p = mv</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Electricity -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #ef4444; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Electricity</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Ohm's Law: V = IR</li>
+                                    <li>Power: P = IV = I²R = V²/R</li>
+                                    <li>Resistivity: R = ρL/A</li>
+                                    <li>Capacitance: Q = CV</li>
+                                    <li>Energy: E = ½CV²</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Waves -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #10b981; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Waves & Optics</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Wave speed: v = fλ</li>
+                                    <li>Refraction: n₁sinθ₁ = n₂sinθ₂</li>
+                                    <li>Lens: 1/f = 1/u + 1/v</li>
+                                    <li>Magnification: m = v/u</li>
+                                    <li>Doppler: f' = f(v±v₀)/(v∓vₛ)</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Modern Physics -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Modern Physics</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Energy: E = hf = hc/λ</li>
+                                    <li>Photoelectric: K.E. = hf - φ</li>
+                                    <li>De Broglie: λ = h/p</li>
+                                    <li>Mass-Energy: E = mc²</li>
+                                    <li>Half-life: N = N₀(½)^(t/T)</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Thermodynamics -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #d53f8c; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Thermodynamics</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>First Law: ΔU = Q - W</li>
+                                    <li>Efficiency: η = W/Q<sub>in</sub> = 1 - Q<sub>out</sub>/Q<sub>in</sub></li>
+                                    <li>Ideal Gas: PV = nRT = NkT</li>
+                                    <li>Adiabatic: PV^γ = constant</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Circular Motion -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #805ad5; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Circular Motion</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Centripetal Force: F = mv²/r</li>
+                                    <li>Angular Velocity: ω = v/r = 2π/T</li>
+                                    <li>Centripetal Accel: a = v²/r = ω²r</li>
+                                    <li>Period: T = 2π/ω = 1/f</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Video Lectures Section -->
                     <section style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">

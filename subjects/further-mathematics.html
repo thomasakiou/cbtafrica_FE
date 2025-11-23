@@ -53,8 +53,82 @@
 
             <!-- Main Content Layout -->
             <div class="main-content-grid" style="display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start;">
-                <!-- Left Column - Video Lectures -->
+                <!-- Left Column - Content -->
                 <div>
+                    <!-- Math Formulas Section -->
+                    <section style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <span style="font-size: 1.5rem;">📐</span> Essential Further Mathematics Formulas
+                        </h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;">
+                            <!-- Calculus Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #eb3349; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Calculus</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Integration by parts: ∫u dv = uv - ∫v du</li>
+                                    <li>Volume of revolution: V = π∫y² dx</li>
+                                    <li>Taylor Series: f(x) = f(a) + f'(a)(x-a) + f''(a)(x-a)²/2! + ...</li>
+                                    <li>Maclaurin Series: f(x) = f(0) + f'(0)x + f''(0)x²/2! + ...</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Complex Numbers -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #f45c43; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Complex Numbers</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Euler's: e^(iθ) = cosθ + isinθ</li>
+                                    <li>De Moivre's: (cosθ + isinθ)ⁿ = cos(nθ) + isin(nθ)</li>
+                                    <li>Roots of unity: zⁿ = 1 → z = e^(2πik/n)</li>
+                                    <li>Modulus: |a + bi| = √(a² + b²)</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Matrices -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #ff8a00; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Matrices</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>2×2 Inverse: 1/det(A) × [d -b; -c a]</li>
+                                    <li>Determinant: ad - bc (2×2)</li>
+                                    <li>Eigenvalues: det(A - λI) = 0</li>
+                                    <li>Matrix multiplication: C = AB where c_ij = Σa_ik b_kj</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Vectors -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #e91e63; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Vectors</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Dot product: a·b = |a||b|cosθ</li>
+                                    <li>Cross product: |a×b| = |a||b|sinθ</li>
+                                    <li>Scalar triple: a·(b×c)</li>
+                                    <li>Vector triple: a×(b×c) = b(a·c) - c(a·b)</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Differential Equations -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #d53f8c; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Differential Equations</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>First Order: dy/dx + P(x)y = Q(x)</li>
+                                    <li>Homogeneous: dy/dx = f(y/x)</li>
+                                    <li>Exact: Mdx + Ndy = 0</li>
+                                    <li>Linear: y' + P(x)y = Q(x)</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Numerical Methods -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #805ad5; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Numerical Methods</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Trapezium Rule: h/2[(y₀ + yₙ) + 2(y₁ + y₂ + ... + yₙ₋₁)]</li>
+                                    <li>Simpson's Rule: h/3[(y₀ + yₙ) + 4(y₁ + y₃ + ...) + 2(y₂ + y₄ + ...)]</li>
+                                    <li>Newton-Raphson: xₙ₊₁ = xₙ - f(xₙ)/f'(xₙ)</li>
+                                    <li>Euler's Method: yₙ₊₁ = yₙ + hf(xₙ, yₙ)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Video Lectures Section -->
                     <section style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
@@ -568,112 +642,40 @@
     </style>
 
     <script>
-        // Pagination variables
-        let currentPage = 1;
-        const videosPerPage = 10;
-        let allVideos = [];
-
-        // Initialize pagination on page load
-        document.addEventListener("DOMContentLoaded", function() {
-            allVideos = Array.from(document.querySelectorAll(".video-lecture-item"));
-            showPage(1);
-        });
-
-        function showPage(page) {
-            currentPage = page;
-            const startIndex = (page - 1) * videosPerPage;
-            const endIndex = startIndex + videosPerPage;
-
-            // Hide all videos
-            allVideos.forEach(video => video.style.display = "none");
-
-            // Show only videos for current page
-            allVideos.slice(startIndex, endIndex).forEach(video => video.style.display = "block");
-
-            // Update pagination controls
-            updatePaginationControls();
-
-            // Scroll to top of video section
-            document.querySelector("#videoContainer").scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-
-        function updatePaginationControls() {
-            const totalPages = Math.ceil(allVideos.length / videosPerPage);
-            const prevBtn = document.getElementById("prevBtn");
-            const nextBtn = document.getElementById("nextBtn");
-            const pageNumbers = document.getElementById("pageNumbers");
-
-            // Update prev/next button states
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.style.opacity = currentPage === 1 ? "0.5" : "1";
-            prevBtn.style.cursor = currentPage === 1 ? "not-allowed" : "pointer";
-
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.style.opacity = currentPage === totalPages ? "0.5" : "1";
-            nextBtn.style.cursor = currentPage === totalPages ? "not-allowed" : "pointer";
-
-            // Generate page numbers
-            pageNumbers.innerHTML = "";
-            for (let i = 1; i <= totalPages; i++) {
-                const pageBtn = document.createElement("button");
-                pageBtn.textContent = i;
-                pageBtn.onclick = () => showPage(i);
-                pageBtn.style.cssText = `
-                    padding: 0.5rem 0.8rem;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 0.9rem;
-                    background: ${i === currentPage ? "#667eea" : "#f0f0f0"};
-                    color: ${i === currentPage ? "white" : "#333"};
-                `;
-                pageNumbers.appendChild(pageBtn);
-            }
-        }
-
-        function changePage(direction) {
-            const totalPages = Math.ceil(allVideos.length / videosPerPage);
-            if (direction === "prev" && currentPage > 1) {
-                showPage(currentPage - 1);
-            } else if (direction === "next" && currentPage < totalPages) {
-                showPage(currentPage + 1);
-            }
-        }
-
         function toggleVideo(videoId) {
             const videoContainer = document.getElementById(videoId);
             const button = event.target;
             
             // Close all other videos first
-            const allVideoContainers = document.querySelectorAll(".video-container");
-            allVideoContainers.forEach(video => {
+            const allVideos = document.querySelectorAll('.video-container');
+            allVideos.forEach(video => {
                 if (video.id !== videoId) {
-                    video.style.display = "none";
-                    // Reset all buttons to "Watch"
-                    const otherButtons = document.querySelectorAll(".video-lecture-item button");
+                    video.style.display = 'none';
+                    // Reset all buttons to "Watch Now"
+                    const otherButtons = document.querySelectorAll('.video-lecture-item button');
                     otherButtons.forEach(btn => {
                         if (btn !== button) {
-                            btn.innerHTML = " Watch";
-                            btn.style.background = "#667eea";
+                            btn.innerHTML = '▶ Watch Now';
+                            btn.style.background = '#667eea';
                         }
                     });
                 }
             });
             
             // Toggle current video
-            if (videoContainer.style.display === "none" || videoContainer.style.display === "") {
-                videoContainer.style.display = "block";
-                button.innerHTML = " Close Video";
-                button.style.background = "#e74c3c";
+            if (videoContainer.style.display === 'none' || videoContainer.style.display === '') {
+                videoContainer.style.display = 'block';
+                button.innerHTML = '✕ Close Video';
+                button.style.background = '#e74c3c';
                 
                 // Scroll to video smoothly
                 setTimeout(() => {
-                    videoContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    videoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 100);
             } else {
-                videoContainer.style.display = "none";
-                button.innerHTML = " Watch";
-                button.style.background = "#667eea";
+                videoContainer.style.display = 'none';
+                button.innerHTML = '▶ Watch Now';
+                button.style.background = '#667eea';
             }
         }
     </script>

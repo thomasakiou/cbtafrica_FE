@@ -6,6 +6,32 @@
     <title>Mathematics - NECO Classroom</title>
     <link rel="icon" href="../images/fav1.jpeg" type="image/x-icon">
     <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/mobile-nav.js"></script>
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010897895839942"
+     crossorigin="anonymous"></script>
+    <!-- <script>
+        // Prevent scrolling on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Save current scroll position
+            const scrollPosition = window.scrollY;
+            
+            // Force scroll to top
+            window.scrollTo(0, 0);
+            
+            // Prevent any further scrolling until the page is fully loaded
+            document.body.style.overflow = 'hidden';
+            
+            // Re-enable scrolling after a short delay
+            setTimeout(function() {
+                document.body.style.overflow = '';
+                // Restore scroll position if needed (in case of hash navigation)
+                if (!window.location.hash) {
+                    window.scrollTo(0, 0);
+                }
+            }, 100);
+        });
+    </script> -->
     <style>
         /* Forum specific styles */
         .forum-post {
@@ -59,12 +85,7 @@
     </style>
 </head>
 <body data-subject="mathematics">
-    <script src="../js/mobile-nav.js"></script>
-    <script src="../js/auth-utils.js"></script>
-    <script src="../js/main.js"></script>
-</head>
-<body>
-    <header>
+   <header>
         <nav>
             <div class="nav-left">
                 <div class="hamburger">
@@ -72,7 +93,34 @@
                     <span></span>
                     <span></span>
                 </div>
-                <div class="logo">MyExamPadi</div>
+                <!-- <div class="logo">MyExamPadi</div> -->
+                  <div class="logo">
+                    <span id="welcome-message" style="display: none; font-weight: bold; font-size: 1.0rem;">Welcome to </span>
+                    <span id="app-name">MyExamPadi</span>
+                    <span id="username-container" style="display: none;">, <span id="user-name" style="color: #e53e3e; font-weight: bold; font-size: 1.0rem;">User</span></span>
+                    <script>
+                        (function() {
+                            const token = localStorage.getItem('token');
+                            const username = localStorage.getItem('username');
+                            const welcomeMessage = document.getElementById('welcome-message');
+                            const usernameContainer = document.getElementById('username-container');
+                            const appName = document.getElementById('app-name');
+                            
+                            if (token && username) {
+                                // User is logged in
+                                welcomeMessage.style.display = 'inline';
+                                usernameContainer.style.display = 'inline';
+                                document.getElementById('user-name').textContent = username;
+                                appName.style.fontWeight = 'normal';
+                            } else {
+                                // User is not logged in
+                                welcomeMessage.style.display = 'none';
+                                usernameContainer.style.display = 'none';
+                                appName.style.fontWeight = 'bold';
+                            }
+                        })();
+                    </script>
+                </div>
             </div>
             <div class="nav-overlay"></div>
             <ul class="nav-links">
@@ -108,8 +156,82 @@
 
             <!-- Main Content Layout -->
             <div class="main-content-grid" style="display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start;">
-                <!-- Left Column - Video Lectures -->
+                <!-- Left Column - Content -->
                 <div>
+                    <!-- Math Formulas Section -->
+                    <section style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <span style="font-size: 1.5rem;">📝</span> Essential Math Formulas
+                        </h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;">
+                            <!-- Algebra Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Algebra</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Quadratic Formula: x = (-b ± √(b²-4ac))/2a</li>
+                                    <li>Laws of Indices: aᵐ × aⁿ = aᵐ⁺ⁿ</li>
+                                    <li>Difference of Squares: a² - b² = (a+b)(a-b)</li>
+                                    <li>Binomial Theorem: (a+b)² = a² + 2ab + b²</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Geometry Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #48bb78; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Geometry</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Pythagoras: a² + b² = c²</li>
+                                    <li>Area of Circle: A = πr²</li>
+                                    <li>Circumference: C = 2πr</li>
+                                    <li>Volume of Sphere: V = (4/3)πr³</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Trigonometry Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #f6ad55; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Trigonometry</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>SOH-CAH-TOA</li>
+                                    <li>sin²θ + cos²θ = 1</li>
+                                    <li>Sine Rule: a/sinA = b/sinB = c/sinC</li>
+                                    <li>Cosine Rule: a² = b² + c² - 2bc cosA</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Calculus Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #f56565; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Calculus</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Power Rule: d/dx(xⁿ) = nxⁿ⁻¹</li>
+                                    <li>Chain Rule: dy/dx = dy/du × du/dx</li>
+                                    <li>Integration: ∫xⁿ dx = (xⁿ⁺¹)/(n+1) + C</li>
+                                    <li>Area under curve: ∫f(x) dx</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Statistics Card -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #d53f8c; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Statistics</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Mean: Σx/n</li>
+                                    <li>Variance: Σ(x-μ)²/n</li>
+                                    <li>Standard Deviation: √Variance</li>
+                                    <li>Z-score: (x-μ)/σ</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Coordinate Geometry -->
+                            <div style="background: #f8f9fa; border-left: 4px solid #805ad5; border-radius: 6px; padding: 1rem;">
+                                <h3 style="margin: 0 0 0.8rem 0; color: #2d3748; font-size: 1.1rem;">Coordinate Geometry</h3>
+                                <ul style="margin: 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Distance: √[(x₂-x₁)² + (y₂-y₁)²]</li>
+                                    <li>Midpoint: ((x₁+x₂)/2, (y₁+y₂)/2)</li>
+                                    <li>Gradient: (y₂-y₁)/(x₂-x₁)</li>
+                                    <li>Equation: y = mx + c</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Video Lectures Section -->
                     <section style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <h2 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
@@ -670,7 +792,7 @@
         }
     </style>
 
-    <script>
+    <!-- <script>
         // Pagination variables
         let videoCurrentPage = 1;
         const videosPerPage = 10;
@@ -779,7 +901,146 @@
                 button.style.background = '#667eea';
             }
         }
-</script>
+</script> -->
+
+ <style>
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            transition: all 0.3s;
+        }
+
+        .video-container {
+            animation: slideDown 0.3s ease-in-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main > div {
+                padding: 0 1rem !important;
+            }
+            
+            button {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.9rem;
+            }
+
+            /* Stack two-column layout on mobile */
+            .main-content-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+
+            .main-content-grid > div:last-child {
+                order: -1; /* Move sidebar above videos on mobile */
+            }
+
+            /* Make video items more compact on mobile */
+            .video-lecture-item {
+                padding: 0.8rem !important;
+            }
+
+            .video-lecture-item h4 {
+                font-size: 0.95rem !important;
+            }
+
+            .video-lecture-item button {
+                padding: 0.5rem 0.8rem !important;
+                font-size: 0.85rem !important;
+            }
+
+            /* Reduce sidebar padding on mobile */
+            .main-content-grid > div:last-child > div {
+                padding: 1rem !important;
+            }
+
+            /* Make subject header more compact */
+            .subject-header {
+                padding: 2rem 1rem !important;
+            }
+
+            .subject-header h1 {
+                font-size: 1.8rem !important;
+            }
+
+            .subject-header p {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Extra small screens (phones in portrait) */
+        @media (max-width: 480px) {
+            .video-lecture-item > div:first-child {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.8rem !important;
+            }
+
+            .video-lecture-item button {
+                width: 100%;
+            }
+
+            .subject-header h1 {
+                font-size: 1.5rem !important;
+            }
+
+            .subject-header p {
+                font-size: 0.9rem !important;
+            }
+        }
+    </style>
+
+    <script>
+        function toggleVideo(videoId) {
+            const videoContainer = document.getElementById(videoId);
+            const button = event.target;
+            
+            // Close all other videos first
+            const allVideos = document.querySelectorAll('.video-container');
+            allVideos.forEach(video => {
+                if (video.id !== videoId) {
+                    video.style.display = 'none';
+                    // Reset all buttons to "Watch Now"
+                    const otherButtons = document.querySelectorAll('.video-lecture-item button');
+                    otherButtons.forEach(btn => {
+                        if (btn !== button) {
+                            btn.innerHTML = '▶ Watch Now';
+                            btn.style.background = '#667eea';
+                        }
+                    });
+                }
+            });
+            
+            // Toggle current video
+            if (videoContainer.style.display === 'none' || videoContainer.style.display === '') {
+                videoContainer.style.display = 'block';
+                button.innerHTML = '✕ Close Video';
+                button.style.background = '#e74c3c';
+                
+                // Scroll to video smoothly
+                setTimeout(() => {
+                    videoContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            } else {
+                videoContainer.style.display = 'none';
+                button.innerHTML = '▶ Watch Now';
+                button.style.background = '#667eea';
+            }
+        }
+    </script>
+    <script src="../js/auth-utils.js"></script>
+    <script src="../js/main.js"></script>
     <script src="../js/forum.js"></script>
+    <script src="../js/dashboard.js"></script>
 </body>
 </html>

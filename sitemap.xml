@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://myexampadi.com.ng/</loc>
+    <priority>1.00</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/classroom</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/neco</loc>
+    <priority>0.80</priority>
+  </url>
+
+    <url>
+    <loc>https://myexampadi.com.ng/jamb</loc>
+    <priority>0.80</priority>
+  </url>
+
+    <url>
+    <loc>https://myexampadi.com.ng/waec</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/subjects/crs</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/subjects/english</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/subjects/mathematics</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/subjects/physics</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/subjects/biology</loc>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://myexampadi.com.ng/subjects/chemistry</loc>
+    <priority>0.80</priority>
+  </url>
+</urlset>

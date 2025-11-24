@@ -1420,6 +1420,22 @@ footer {
     margin: 0.5rem 0;
 }
 
+/* =====================
+socials
+ ===================== */
+.bright-links a {
+  color: #3498db; /* bright yellow */
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.bright-links a:hover {
+  color: #3498db; /* even brighter */
+  text-decoration: underline;
+}
+
+
+
 /* ======================
    Responsive Design
    ====================== */

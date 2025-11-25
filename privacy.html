@@ -24,14 +24,46 @@
 <body>
     <header>
         <nav>
-            <div class="logo">MyExamPadi Privacy</div>
-            <ul>
+            <div class="nav-left">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                 <div class="logo">
+                    <span id="welcome-message" style="display: none; font-weight: bold; font-size: 1.0rem;">Welcome to </span>
+                    <span id="app-name">MyExamPadi</span>
+                    <span id="username-container" style="display: none;">, <span id="user-name" style="color: #e53e3e; font-weight: bold; font-size: 1.0rem;">User</span></span>
+                    <script>
+                        (function() {
+                            const token = localStorage.getItem('token');
+                            const username = localStorage.getItem('username');
+                            const welcomeMessage = document.getElementById('welcome-message');
+                            const usernameContainer = document.getElementById('username-container');
+                            const appName = document.getElementById('app-name');
+                            
+                            if (token && username) {
+                                // User is logged in
+                                welcomeMessage.style.display = 'inline';
+                                usernameContainer.style.display = 'inline';
+                                document.getElementById('user-name').textContent = username;
+                                appName.style.fontWeight = 'normal';
+                            } else {
+                                // User is not logged in
+                                welcomeMessage.style.display = 'none';
+                                usernameContainer.style.display = 'none';
+                                appName.style.fontWeight = 'bold';
+                            }
+                        })();
+                    </script>
+                </div>
+            </div>
+            <div class="nav-overlay"></div>
+            <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <!-- <li><a href="index.html#about">About</a></li> -->
-                <!-- <li><a href="index.html#features">Features</a></li> -->
                 <li><a href="classroom.html">Classroom</a></li>
                 <li class="dropdown">
-                    <a href="#">Exam Types</a>
+                    <a href="#" class="dropdown-toggle">Exam Types</a>
                     <div class="dropdown-content">
                         <a href="neco.html">NECO</a>
                         <a href="waec.html">WAEC</a>
@@ -39,7 +71,6 @@
                         <!-- <a href="nabteb.html">NABTEB</a> -->
                     </div>
                 </li>
-                <!-- <li><a href="index.html#news">News</a></li> -->
             </ul>
         </nav>
     </header>
@@ -52,7 +83,7 @@
 
                 <section style="margin-top: 2rem;">
                     <h2>1. Introduction</h2>
-                    <p>Welcome to CBT Platform. We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our Computer Based Testing platform.</p>
+                    <p>Welcome to myexampadi Platform. We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our Computer Based Testing platform.</p>
                 </section>
 
                 <section style="margin-top: 2rem;">
@@ -134,9 +165,9 @@
                 <section style="margin-top: 2rem;">
                     <h2>10. Contact Us</h2>
                     <p>If you have questions about this privacy policy, please contact us:</p>
-                    <p><strong>Email:</strong> privacy@cbtplatform.com</p>
-                    <p><strong>Phone:</strong> +234 800 000 0000</p>
-                    <p><strong>Address:</strong> Lagos, Nigeria</p>
+                    <p><strong>Email:</strong> prothomsolutions@gmail.com/p>
+                    <p><strong>Phone:</strong> +234 705 930 8626</p>
+                    <p><strong>Address:</strong> Niger State, Nigeria</p>
                 </section>
 
                 <div style="margin-top: 3rem; text-align: center;">
@@ -149,7 +180,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h3>CBT Platform</h3>
+                <h3>MyExamPadi Platform</h3>
                 <p>Your trusted partner for exam preparation and success.</p>
             </div>
             <div class="footer-section">
@@ -167,7 +198,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 CBT Platform. All rights reserved.</p>
+            <p>&copy; 2024 MyExamPadi Platform. All rights reserved.</p>
         </div>
     </footer>
 </body>
